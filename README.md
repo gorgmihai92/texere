@@ -7,7 +7,7 @@ Texere is a ready-made [Obsidian](https://obsidian.md) vault for academic resear
 
 *Texere* (Latin, "to weave") is the root of the word *text*: a text is woven from ideas linked together.
 
-> 🇷🇴 **În română:** Texere este un vault Obsidian gata pregătit pentru cercetare academică. Adună sursele, PDF-urile, notițele de lectură, ideile și lucrarea finală într-un singur loc și se configurează singur pe orice laptop. Ghidul complet în română este în nota `Texere/02. Texere – Cercetare, lectură și scris, într-un singur loc`. Configurarea și butonul Ajutor funcționează în română sau în engleză, la alegere.
+> 🇷🇴 **În română:** Texere este un vault Obsidian gata pregătit pentru cercetare academică. Adună sursele, PDF-urile, notițele de lectură, ideile și lucrarea finală într-un singur loc și se configurează singur pe orice laptop. Ghidul complet în română este în nota `Texere/02. Texere – Cercetare, lectură și scris, într-un singur loc`. Configurarea și butonul Ajutor funcționează în română sau în engleză, la alegere. Primul pas: instalează [Obsidian](https://obsidian.md/download) (gratuit).
 
 ---
 
@@ -31,14 +31,15 @@ Research is usually a fractured experience. Each stage happens in a different ap
 - **Researchers and teachers** who want one place for sources, notes and drafts, with citations that just work.
 - **People who are not technical.** The vault configures itself; you only answer two questions. A built-in **Help** button answers questions in plain language.
 
-The examples come from philosophy (the vault includes a map of the field with ~300 linked notes), but the workflow fits any discipline in the humanities and social sciences.
+The examples come from philosophy (the vault includes a map of the field with ~300 linked notes), but the workflow fits any discipline in the humanities and social sciences. Need a map for another field (e.g. sociology, history, law)? Write to [hi@georgemihai.com](mailto:hi@georgemihai.com).
 
 ## How it works
 
-1. **Download** this repository (**Code → Download ZIP**) and unzip it.
-2. In Obsidian, choose **Open folder as vault** and select the folder.
-3. Choose **Trust author and enable plugins**.
-4. **The setup starts by itself.** A window shows each step as it happens and tells you when it's your turn: you only choose the language (English or Romanian) and where exported files are saved. At the end you get a report with what was done and where to start.
+1. **Install Obsidian** (free) from [obsidian.md/download](https://obsidian.md/download).
+2. **Download** this repository (**Code → Download ZIP**) and unzip it.
+3. In Obsidian, choose **Open folder as vault** and select the folder.
+4. Choose **Trust author and enable plugins**.
+5. **The setup starts by itself.** A window shows each step as it happens and tells you when it's your turn: you only choose the language (English or Romanian) and where exported files are saved. At the end you get a report with what was done and where to start.
 
 Then you work in four stages, each explained in the guide:
 
