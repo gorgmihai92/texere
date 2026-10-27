@@ -4,8 +4,8 @@
 if (!window.__ghidPliere) {
   window.__ghidPliere = true;
   const GHIDS = [
-    { names: ["02. Texere – Un vault de cercetare pentru cei care gândesc.md", "01. Texere – Cercetare, lectură și scris, într-un singur loc.md", "Un vault de cercetare pentru cei care gândesc.md", "Cercetare, lectură și scris, într-un singur loc.md", "Cercetarea într-un singur loc.md", "Ghid de cercetare.md", "Ghid pentru eficientizarea procesului de cercetare.md"], re: /Termeni folosiți în ghid/ },
-    { names: ["01. Texere – A Research Vault for Thinkers.md", "02. Texere – Research, reading and writing, in one place.md", "A Research Vault for Thinkers.md", "Research, reading and writing, in one place.md", "Research in One Place.md"], re: /Terms used in this guide/ },
+    { names: ["02. Texere – Vault-ul cercetătorului.md", "01. Texere – Cercetare, lectură și scris, într-un singur loc.md", "Vault-ul cercetătorului.md", "Cercetare, lectură și scris, într-un singur loc.md", "Cercetarea într-un singur loc.md", "Ghid de cercetare.md", "Ghid pentru eficientizarea procesului de cercetare.md"], re: /Termeni folosiți în ghid/ },
+    { names: ["01. Texere – The Researcher's Vault.md", "02. Texere – Research, reading and writing, in one place.md", "The Researcher's Vault.md", "Research, reading and writing, in one place.md", "Research in One Place.md"], re: /Terms used in this guide/ },
   ];
   // găsește ghidurile chiar dacă au fost redenumite (după numele cunoscute sau după titlul glosarului)
   const findOne = g => {

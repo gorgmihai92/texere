@@ -48,7 +48,7 @@ const findBy = (names, re) => {
   for (const n of names) { const f = app.vault.getAbstractFileByPath(n) || app.vault.getMarkdownFiles().find(x => x.name === n || strip(x.basename) + ".md" === n); if (f && (!f.stat || f.stat.size > 0)) return f; }
   return app.vault.getMarkdownFiles().find(f => (app.metadataCache.getFileCache(f)?.headings || []).some(h => re.test(h.heading))) || null;
 };
-const GHID = { ro: findBy(["02. Texere – Un vault de cercetare pentru cei care gândesc.md", "01. Texere – Cercetare, lectură și scris, într-un singur loc.md", "Un vault de cercetare pentru cei care gândesc.md", "Cercetare, lectură și scris, într-un singur loc.md", "Cercetarea într-un singur loc.md"], /Termeni folosiți în ghid/), en: findBy(["01. Texere – A Research Vault for Thinkers.md", "02. Texere – Research, reading and writing, in one place.md", "A Research Vault for Thinkers.md", "Research, reading and writing, in one place.md", "Research in One Place.md"], /Terms used in this guide/) };
+const GHID = { ro: findBy(["02. Texere – Vault-ul cercetătorului.md", "01. Texere – Cercetare, lectură și scris, într-un singur loc.md", "Vault-ul cercetătorului.md", "Cercetare, lectură și scris, într-un singur loc.md", "Cercetarea într-un singur loc.md"], /Termeni folosiți în ghid/), en: findBy(["01. Texere – The Researcher's Vault.md", "02. Texere – Research, reading and writing, in one place.md", "The Researcher's Vault.md", "Research, reading and writing, in one place.md", "Research in One Place.md"], /Terms used in this guide/) };
 const ghidTxt = { ro: GHID.ro ? await app.vault.cachedRead(GHID.ro) : "", en: GHID.en ? await app.vault.cachedRead(GHID.en) : "" };
 const ghidVer = String(app.metadataCache.getFileCache(GHID.ro || GHID.en || {})?.frontmatter?.version || "");
 const gl = () => (ghidTxt[lang] ? lang : (ghidTxt.ro ? "ro" : "en"));
@@ -509,7 +509,7 @@ const INTRO = tx(M("Fiecare rulare a configurării adaugă aici un raport, cu da
                    "Each setup run adds a report here, with date and time. The newest comes first. You can delete this note at any time.")) + "\n\n";
 const refs = []; todo.forEach(t => { if (t.ref && !refs.some(r => JSON.stringify(r) === JSON.stringify(t.ref))) refs.push(t.ref); });
 const howTo = refs.map(guideFix).filter(Boolean).join("\n\n");
-const gName = (GHID[gl()] || {}).basename || "01. Texere – A Research Vault for Thinkers";
+const gName = (GHID[gl()] || {}).basename || "01. Texere – The Researcher's Vault";
 const h8 = ((ghidTxt[gl()] || "").match(/^#{2,3}\s+(8\.\s[^\n]+?)\s*$/m) || [])[1] || "8. Dacă ceva nu merge";
 const entry = `## ${tp.date.now("YYYY-MM-DD HH:mm")}\n\n`
    // 1. de unde începi

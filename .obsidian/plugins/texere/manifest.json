@@ -3,7 +3,7 @@
   "name": "Texere",
   "version": "2.2.0",
   "minAppVersion": "1.4.0",
-  "description": "Texere · A Research Vault for Thinkers / Un vault de cercetare pentru cei care gândesc. Starts the vault setup on a new laptop and turns on the Help button.",
+  "description": "Texere · The Researcher's Vault / Vault-ul cercetătorului. Starts the vault setup on a new laptop and turns on the Help button.",
   "author": "George Mihai",
   "isDesktopOnly": true,
   "authorUrl": "https://www.georgemihai.com"
