@@ -87,6 +87,12 @@ Open the guide that matches your language:
 - 🇬🇧 `Texere/01. Texere – Research, reading and writing, in one place`
 - 🇷🇴 `Texere/02. Texere – Cercetare, lectură și scris, într-un singur loc`
 
+## License
+
+- **Code** (the setup, the Help and folding scripts, the Texere plugin): [MIT](LICENSE)
+- **Guides and notes** (the guides, the philosophy map, the templates): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Share and adapt freely, with credit.
+- The PDFs in `Documents` and the community plugins belong to their authors and keep their own licenses. Details in [LICENSE](LICENSE).
+
 ---
 
 Created by [George Mihai](https://www.georgemihai.com) · [hi@georgemihai.com](mailto:hi@georgemihai.com)
