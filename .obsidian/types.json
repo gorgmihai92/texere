@@ -1,0 +1,17 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "subdomain": "multitext",
+    "concepts": "multitext",
+    "branch": "multitext",
+    "author": "multitext",
+    "era": "multitext",
+    "history": "multitext",
+    "periods": "multitext",
+    "movements": "multitext",
+    "domain": "multitext",
+    "theories": "multitext"
+  }
+}

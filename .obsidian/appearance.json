@@ -1,0 +1,12 @@
+{
+  "cssTheme": "",
+  "theme": "moonstone",
+  "enabledCssSnippets": [
+    "pdf-custom-themes",
+    "highlight-tags"
+  ],
+  "baseFontSizeAction": false,
+  "baseFontSize": 15,
+  "showViewHeader": true,
+  "nativeMenus": true
+}

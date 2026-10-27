@@ -1,0 +1,106 @@
+{
+  "attachmentFolderPath": "Documents",
+  "literatureNotePath": "References/",
+  "filenameTemplate": "@{{citekey}}",
+  "createAttachmentSubfolder": false,
+  "bibliographyJsonPath": "biblib/bibliography.json",
+  "citekeyListPath": "citekeylist.md",
+  "bibtexFilePath": "biblib/bibliography.bib",
+  "headerTemplate": "# {{title}}\n\n## Abstract\n\n## Thesis\n\n## Arguments\n\n## Counterarguments\n\n## Conclusions\n\n## Reading Notes",
+  "chapterHeaderTemplate": "# {{#pdflink}}[[{{pdflink}}|{{title}}]]{{/pdflink}}{{^pdflink}}{{title}}{{/pdflink}} (in {{container-title}})",
+  "literatureNoteTag": "literature_note, #literature_note",
+  "openNoteOnCreate": true,
+  "enableZoteroConnector": true,
+  "zoteroConnectorPort": 23119,
+  "tempPdfPath": "",
+  "customFrontmatterFields": [
+    {
+      "name": "year",
+      "template": "{{year}}",
+      "enabled": true
+    },
+    {
+      "name": "dateCreated",
+      "template": "{{currentDate}}",
+      "enabled": true
+    },
+    {
+      "name": "reading-status",
+      "template": "#unread",
+      "enabled": true
+    },
+    {
+      "name": "aliases",
+      "template": "[\"{{title|sentence}}\"]",
+      "enabled": true
+    },
+    {
+      "name": "author-links",
+      "template": "[{{#authors}}\"[[Author/{{.}}]]\",{{/authors}}]",
+      "enabled": true
+    },
+    {
+      "name": "attachment",
+      "template": "[{{#attachments}}{{.}},{{/attachments}}]",
+      "enabled": true
+    },
+    {
+      "name": "domain",
+      "template": "[{{variables.links = formattedLinks}}]",
+      "enabled": true
+    },
+    {
+      "name": "branch",
+      "template": "[{{variables.links = formattedLinks}}]",
+      "enabled": true
+    },
+    {
+      "name": "subdomain",
+      "template": "[{{variables.links = formattedLinks}}]",
+      "enabled": true
+    },
+    {
+      "name": "concepts",
+      "template": "[{{variables.links = formattedLinks}}]",
+      "enabled": true
+    },
+    {
+      "name": "theories",
+      "template": "[{{variables.links = formattedLinks}}]",
+      "enabled": true
+    },
+    {
+      "name": "historical-period",
+      "template": "[{{variables.links = formattedLinks}}]",
+      "enabled": true
+    }
+  ],
+  "citekeyOptions": {
+    "citekeyTemplate": "{{author|lowercase}}_{{title|titleword}}_{{year}}",
+    "useZoteroKeys": false,
+    "minCitekeyLength": 6
+  },
+  "bulkImportAttachmentHandling": "none",
+  "bulkImportAnnoteToBody": true,
+  "bulkImportCitekeyPreference": "imported",
+  "bulkImportConflictResolution": "skip",
+  "favoriteLanguages": [
+    {
+      "code": "en",
+      "name": "English"
+    },
+    {
+      "code": "de",
+      "name": "German"
+    },
+    {
+      "code": "ro",
+      "name": "Romanian"
+    }
+  ],
+  "defaultModalFields": [],
+  "editRegenerateCitekeyDefault": true,
+  "editUpdateCustomFrontmatterDefault": true,
+  "editRegenerateBodyDefault": true,
+  "editRenameFileOnCitekeyChange": true
+}

@@ -1,0 +1,9 @@
+---
+dateCreated:
+domain:
+branch:
+historical-period:
+movements:
+theories:
+concepts:
+---

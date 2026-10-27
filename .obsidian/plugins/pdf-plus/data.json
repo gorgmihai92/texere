@@ -1,0 +1,337 @@
+{
+  "displayTextFormats": [
+    {
+      "name": "Title & page",
+      "template": "{{file.basename}}, p.{{pageLabel}}"
+    },
+    {
+      "name": "Page",
+      "template": "p.{{pageLabel}}"
+    },
+    {
+      "name": "Text",
+      "template": "{{text}}"
+    },
+    {
+      "name": "Emoji",
+      "template": "📖"
+    },
+    {
+      "name": "None",
+      "template": ""
+    },
+    {
+      "name": "Referință",
+      "template": "@{{String(properties.id || md?.basename || file.basename).replace(/^@/, \"\")}}, p.{{pageLabel}}"
+    }
+  ],
+  "defaultDisplayTextFormatIndex": 5,
+  "syncDisplayTextFormat": true,
+  "syncDefaultDisplayTextFormat": false,
+  "copyCommands": [
+    {
+      "name": "Quote",
+      "template": "> ({{linkWithDisplay}})\n> {{text}}\n"
+    },
+    {
+      "name": "Link",
+      "template": "{{linkWithDisplay}}"
+    },
+    {
+      "name": "Embed",
+      "template": "!{{link}}"
+    },
+    {
+      "name": "Callout",
+      "template": "> [!{{calloutType}}|{{color}}] {{linkWithDisplay}}\n> {{text}}\n"
+    },
+    {
+      "name": "Quote in callout",
+      "template": "> [!{{({\"255,212,0\":\"fact\",\"255,102,102\":\"disagree\",\"95,178,54\":\"agree\",\"46,168,229\":\"connection\",\"229,110,238\":\"question\",\"241,152,55\":\"definition\",\"102,102,102\":\"word\"}[color.replace(/\\s/g, \"\")] || color)}}] {{linkWithDisplay}}\n> > #{{({\"255,212,0\":\"fact\",\"255,102,102\":\"disagree\",\"95,178,54\":\"agree\",\"46,168,229\":\"connection\",\"229,110,238\":\"question\",\"241,152,55\":\"definition\",\"102,102,102\":\"word\"}[color.replace(/\\s/g, \"\")] || color)}} {{text}}\n> \n> "
+    },
+    {
+      "name": "Paragraf",
+      "template": "{{((value) => { try { return (function highlightTagForColor(value) { const names = ['fact', 'disagree', 'agree', 'connection', 'question', 'definition', 'word']; const rgbNames = new Map([ ['255,212,0', 'fact'], ['255,102,102', 'disagree'], ['95,178,54', 'agree'], ['46,168,229', 'connection'], ['229,110,238', 'question'], ['241,152,55', 'definition'], ['102,102,102', 'word'] ]); const raw = String(value ?? '').trim(); const name = raw.toLowerCase(); if (names.includes(name)) return '#' + name + ' '; let csv = raw; const rgb = raw.match(/^rgb\\(\\s*(.*?)\\s*\\)$/i); if (rgb) csv = rgb[1]; if (/^#[0-9a-f]{6}$/i.test(csv)) { csv = [1, 3, 5].map((offset) => parseInt(csv.slice(offset, offset + 2), 16)).join(','); } csv = csv.replace(/\\s+/g, ''); const tag = rgbNames.get(csv); if (tag) return '#' + tag + ' '; throw new Error('Culoare de verificat: ' + (raw || '(valoare goală)') + '. Setează o culoare asociată unuia dintre cele șapte taguri.'); })(value); } catch (error) { new obsidian.Notice(error.message, 10000); throw error; } })(colorName)}}{{text.replace(/\\s+/g, \" \").trim()}} {{linkWithDisplay}}"
+    }
+  ],
+  "useAnotherCopyTemplateWhenNoSelection": false,
+  "copyTemplateWhenNoSelection": "{{linkToPageWithDisplay}}",
+  "trimSelectionEmbed": false,
+  "embedMargin": 50,
+  "noSidebarInEmbed": true,
+  "noSpreadModeInEmbed": true,
+  "embedUnscrollable": false,
+  "singleTabForSinglePDF": true,
+  "highlightExistingTab": false,
+  "existingTabHighlightOpacity": 0.5,
+  "existingTabHighlightDuration": 0.75,
+  "paneTypeForFirstPDFLeaf": "left",
+  "openLinkNextToExistingPDFTab": true,
+  "openPDFWithDefaultApp": false,
+  "openPDFWithDefaultAppAndObsidian": true,
+  "focusObsidianAfterOpenPDFWithDefaultApp": true,
+  "syncWithDefaultApp": false,
+  "dontActivateAfterOpenPDF": true,
+  "dontActivateAfterOpenMD": true,
+  "highlightDuration": 0.75,
+  "noTextHighlightsInEmbed": false,
+  "noAnnotationHighlightsInEmbed": true,
+  "persistentTextHighlightsInEmbed": true,
+  "persistentAnnotationHighlightsInEmbed": false,
+  "highlightBacklinks": true,
+  "selectionBacklinkVisualizeStyle": "highlight",
+  "dblclickEmbedToOpenLink": true,
+  "highlightBacklinksPane": true,
+  "highlightOnHoverBacklinkPane": true,
+  "backlinkHoverColor": "",
+  "colors": {
+    "fact": "#ffd400",
+    "disagree": "#ff6666",
+    "agree": "#5fb236",
+    "connection": "#2ea8e5",
+    "question": "#e56eee",
+    "definition": "#f19837",
+    "word": "#666666"
+  },
+  "defaultColor": "",
+  "defaultColorPaletteItemIndex": 1,
+  "syncColorPaletteItem": true,
+  "syncDefaultColorPaletteItem": false,
+  "colorPaletteInToolbar": true,
+  "noColorButtonInColorPalette": true,
+  "colorPaletteInEmbedToolbar": false,
+  "quietColorPaletteTooltip": false,
+  "showStatusInToolbar": true,
+  "highlightColorSpecifiedOnly": false,
+  "doubleClickHighlightToOpenBacklink": true,
+  "hoverHighlightAction": "preview",
+  "paneTypeForFirstMDLeaf": "right",
+  "singleMDLeafInSidebar": true,
+  "alwaysUseSidebar": true,
+  "ignoreExistingMarkdownTabIn": [],
+  "defaultColorPaletteActionIndex": 5,
+  "syncColorPaletteAction": true,
+  "syncDefaultColorPaletteAction": false,
+  "proxyMDProperty": "attachment",
+  "hoverPDFLinkToOpen": false,
+  "ignoreHeightParamInPopoverPreview": true,
+  "filterBacklinksByPageDefault": true,
+  "showBacklinkToPage": true,
+  "enableHoverPDFInternalLink": true,
+  "recordPDFInternalLinkHistory": true,
+  "alwaysRecordHistory": true,
+  "renderMarkdownInStickyNote": false,
+  "enablePDFEdit": true,
+  "author": "George Mihai",
+  "writeHighlightToFileOpacity": 0.2,
+  "defaultWriteFileToggle": true,
+  "syncWriteFileToggle": true,
+  "syncDefaultWriteFileToggle": false,
+  "enableAnnotationDeletion": true,
+  "warnEveryAnnotationDelete": false,
+  "warnBacklinkedAnnotationDelete": true,
+  "enableAnnotationContentEdit": true,
+  "enableEditEncryptedPDF": false,
+  "pdfLinkColor": "#04a802",
+  "pdfLinkBorder": false,
+  "replaceContextMenu": true,
+  "showContextMenuOnMouseUpIf": "Mod",
+  "contextMenuConfig": [
+    {
+      "id": "action",
+      "visible": true
+    },
+    {
+      "id": "selection",
+      "visible": true
+    },
+    {
+      "id": "write-file",
+      "visible": true
+    },
+    {
+      "id": "annotation",
+      "visible": true
+    },
+    {
+      "id": "modify-annotation",
+      "visible": true
+    },
+    {
+      "id": "link",
+      "visible": true
+    },
+    {
+      "id": "text",
+      "visible": true
+    },
+    {
+      "id": "search",
+      "visible": true
+    },
+    {
+      "id": "speech",
+      "visible": true
+    },
+    {
+      "id": "page",
+      "visible": true
+    },
+    {
+      "id": "settings",
+      "visible": true
+    }
+  ],
+  "selectionProductMenuConfig": [
+    "color",
+    "copy-format",
+    "display"
+  ],
+  "writeFileProductMenuConfig": [
+    "color",
+    "copy-format",
+    "display"
+  ],
+  "annotationProductMenuConfig": [
+    "copy-format",
+    "display"
+  ],
+  "updateColorPaletteStateFromContextMenu": true,
+  "mobileCopyAction": "pdf-plus",
+  "showContextMenuOnTablet": false,
+  "executeBuiltinCommandForOutline": true,
+  "executeBuiltinCommandForZoom": true,
+  "executeFontSizeAdjusterCommand": true,
+  "closeSidebarWithShowCommandIfExist": true,
+  "autoHidePDFSidebar": false,
+  "defaultSidebarView": 1,
+  "outlineDrag": true,
+  "outlineContextMenu": true,
+  "outlineLinkDisplayTextFormat": "{{file.basename}}, {{text}}",
+  "outlineLinkCopyFormat": "{{linkWithDisplay}}",
+  "recordHistoryOnOutlineClick": true,
+  "popoverPreviewOnOutlineHover": true,
+  "thumbnailDrag": true,
+  "thumbnailContextMenu": true,
+  "thumbnailLinkDisplayTextFormat": "{{file.basename}}, p.{{pageLabel}}",
+  "thumbnailLinkCopyFormat": "{{linkWithDisplay}}",
+  "recordHistoryOnThumbnailClick": true,
+  "popoverPreviewOnThumbnailHover": true,
+  "annotationPopupDrag": true,
+  "showAnnotationPopupOnHover": true,
+  "useCallout": false,
+  "calloutType": "PDF",
+  "calloutIcon": "highlighter",
+  "highlightBacklinksInEmbed": true,
+  "highlightBacklinksInHoverPopover": true,
+  "highlightBacklinksInCanvas": true,
+  "clickPDFInternalLinkWithModifierKey": true,
+  "clickOutlineItemWithModifierKey": true,
+  "clickThumbnailWithModifierKey": true,
+  "focusEditorAfterAutoPaste": true,
+  "clearSelectionAfterAutoPaste": true,
+  "respectCursorPositionWhenAutoPaste": true,
+  "blankLineAboveAppendedContent": true,
+  "autoCopy": true,
+  "autoFocus": false,
+  "autoPaste": true,
+  "autoFocusTarget": "last-active-and-open-then-last-paste",
+  "autoPasteTarget": "last-active-and-open-then-last-paste",
+  "openAutoFocusTargetIfNotOpened": true,
+  "howToOpenAutoFocusTargetIfNotOpened": "right",
+  "closeHoverEditorWhenLostFocus": true,
+  "closeSidebarWhenLostFocus": false,
+  "openAutoFocusTargetInEditingView": true,
+  "executeCommandWhenTargetNotIdentified": true,
+  "commandToExecuteWhenTargetNotIdentified": "switcher:open",
+  "autoPasteTargetDialogTimeoutSec": 20,
+  "autoCopyToggleRibbonIcon": true,
+  "autoCopyIconName": "highlighter",
+  "autoFocusToggleRibbonIcon": true,
+  "autoFocusIconName": "zap",
+  "autoPasteToggleRibbonIcon": true,
+  "autoPasteIconName": "clipboard-paste",
+  "viewSyncFollowPageNumber": true,
+  "viewSyncPageDebounceInterval": 0.3,
+  "openAfterExtractPages": true,
+  "howToOpenExtractedPDF": "tab",
+  "warnEveryPageDelete": false,
+  "warnBacklinkedPageDelete": true,
+  "extractPageInPlace": false,
+  "askExtractPageInPlace": true,
+  "pageLabelUpdateWhenInsertPage": "keep",
+  "pageLabelUpdateWhenDeletePage": "keep",
+  "pageLabelUpdateWhenExtractPage": "keep",
+  "askPageLabelUpdateWhenInsertPage": true,
+  "askPageLabelUpdateWhenDeletePage": true,
+  "askPageLabelUpdateWhenExtractPage": true,
+  "copyOutlineAsListFormat": "{{linkWithDisplay}}",
+  "copyOutlineAsListDisplayTextFormat": "{{text}}",
+  "copyOutlineAsHeadingsFormat": "{{text}}\n\n{{linkWithDisplay}}",
+  "copyOutlineAsHeadingsDisplayTextFormat": "p.{{pageLabel}}",
+  "copyOutlineAsHeadingsMinLevel": 2,
+  "newFileNameFormat": "",
+  "newFileTemplatePath": "",
+  "newPDFLocation": "current",
+  "newPDFFolderPath": "",
+  "rectEmbedStaticImage": false,
+  "rectImageFormat": "file",
+  "rectImageExtension": "webp",
+  "zoomToFitRect": false,
+  "rectFollowAdaptToTheme": true,
+  "rectEmbedResolution": 100,
+  "includeColorWhenCopyingRectLink": true,
+  "backlinkIconSize": 50,
+  "showBacklinkIconForSelection": false,
+  "showBacklinkIconForAnnotation": false,
+  "showBacklinkIconForOffset": true,
+  "showBacklinkIconForRect": false,
+  "showBoundingRectForBacklinkedAnnot": false,
+  "hideReplyAnnotation": false,
+  "hideStampAnnotation": false,
+  "searchLinkHighlightAll": "true",
+  "searchLinkCaseSensitive": "true",
+  "searchLinkMatchDiacritics": "default",
+  "searchLinkEntireWord": "false",
+  "dontFitWidthWhenOpenPDFLink": true,
+  "preserveCurrentLeftOffsetWhenOpenPDFLink": false,
+  "defaultZoomValue": "page-width",
+  "scrollModeOnLoad": 0,
+  "spreadModeOnLoad": 0,
+  "usePageUpAndPageDown": true,
+  "hoverableDropdownMenuInToolbar": true,
+  "zoomLevelInputBoxInToolbar": true,
+  "popoverPreviewOnExternalLinkHover": true,
+  "actionOnCitationHover": "pdf-plus-bib-popover",
+  "enableBibInEmbed": false,
+  "enableBibInHoverPopover": false,
+  "enableBibInCanvas": true,
+  "citationIdPatterns": "^cite.\n^bib\\d+$",
+  "copyAsSingleLine": true,
+  "removeWhitespaceBetweenCJChars": true,
+  "dummyFileFolderPath": "",
+  "externalURIPatterns": [
+    ".*\\.pdf$",
+    "https://arxiv.org/pdf/.*"
+  ],
+  "modifierToDropExternalPDFToCreateDummy": [
+    "Shift"
+  ],
+  "vim": false,
+  "vimrcPath": "",
+  "vimVisualMotion": true,
+  "vimScrollSize": 40,
+  "vimLargerScrollSizeWhenZoomIn": true,
+  "vimContinuousScrollSpeed": 1.2,
+  "vimSmoothScroll": true,
+  "vimHlsearch": true,
+  "vimIncsearch": true,
+  "enableVimInContextMenu": true,
+  "enableVimOutlineMode": true,
+  "vimSmoothOutlineMode": true,
+  "vimHintChars": "hjklasdfgyuiopqwertnmzxcvb",
+  "vimHintArgs": "all",
+  "PATH": "",
+  "autoCheckForUpdates": true,
+  "fixObsidianTextSelectionBug": true
+}

@@ -1,0 +1,1727 @@
+/* ==========================================================================
+   Plugin CSS Custom Properties (minimal set)
+   ========================================================================== */
+
+.biblib-settings-container {
+  --biblib-spacing-sm: 8px;
+  --biblib-spacing-md: 16px;
+  --biblib-spacing-lg: 20px;
+  --biblib-radius-sm: 4px;
+  --biblib-radius-md: 6px;
+  --biblib-font-sm: 0.85em;
+  --biblib-font-md: 0.9em;
+  --biblib-font-base: 14px;
+  --biblib-shadow-focus: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+/* ==========================================================================
+   Settings Tab Navigation Styles
+   ========================================================================== */
+
+.biblib-tab-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.biblib-tab-button {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.biblib-tab-button:hover {
+  color: var(--text-normal);
+}
+
+.biblib-tab-button:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+.biblib-tab-button.active {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.biblib-settings-container {
+  margin-top: 16px;
+}
+
+/* ==========================================================================
+   Base Modal Styles
+   ========================================================================== */
+
+.modal:has(.bibliography-modal),
+.modal:has(.bibliography-bulk-import-modal) {
+  width: 700px;
+  max-width: 90vw;
+}
+
+/* Move scrolling to modal-content so scrollbar appears at edge */
+.modal:has(.bibliography-modal) .modal-content,
+.modal:has(.bibliography-bulk-import-modal) .modal-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: 0;
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--background-modifier-border) transparent;
+}
+
+/* Webkit scrollbar for modal */
+.modal:has(.bibliography-modal) .modal-content::-webkit-scrollbar,
+.modal:has(.bibliography-bulk-import-modal) .modal-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.modal:has(.bibliography-modal) .modal-content::-webkit-scrollbar-track,
+.modal:has(.bibliography-bulk-import-modal) .modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal:has(.bibliography-modal) .modal-content::-webkit-scrollbar-thumb,
+.modal:has(.bibliography-bulk-import-modal) .modal-content::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 5px;
+  border: 2px solid var(--modal-background);
+}
+
+.modal:has(.bibliography-modal) .modal-content::-webkit-scrollbar-thumb:hover,
+.modal:has(.bibliography-bulk-import-modal) .modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--background-modifier-border-hover);
+}
+
+/* Modal content padding */
+.bibliography-modal,
+.bibliography-bulk-import-modal {
+  padding: 0 16px 20px 0;
+}
+
+/* Modal title */
+.bibliography-modal h2 {
+  margin: 0 0 20px 0;
+  font-size: var(--font-ui-large);
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+/* Section headings */
+.bibliography-modal h3 {
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  font-size: var(--font-ui-medium);
+  font-weight: 600;
+  color: var(--text-normal);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.bibliography-modal h4 {
+  margin: 20px 0 8px 0;
+  font-size: var(--font-ui-small);
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Section dividers */
+.bibliography-modal hr {
+  margin: 24px 0;
+  border: none;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+/* Stack setting items vertically in modal */
+.bibliography-modal .setting-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: none;
+}
+
+.bibliography-modal .setting-item:first-child {
+  padding-top: 0;
+}
+
+.bibliography-modal .setting-item-info {
+  width: 100%;
+}
+
+.bibliography-modal .setting-item-name {
+  font-weight: 500;
+  color: var(--text-normal);
+}
+
+.bibliography-modal .setting-item-description {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.bibliography-modal .setting-item-control {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.bibliography-modal .setting-item-control input[type="text"],
+.bibliography-modal .setting-item-control textarea {
+  flex: 1;
+}
+
+/* Input field styling */
+.bibliography-modal input[type="text"],
+.bibliography-modal textarea,
+.bibliography-modal select {
+  background-color: var(--background-modifier-form-field);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--input-radius);
+  padding: 8px 10px;
+  font-size: var(--font-ui-small);
+  transition: border-color 150ms ease-in-out, box-shadow 150ms ease-in-out;
+}
+
+.bibliography-modal input[type="text"]:focus,
+.bibliography-modal textarea:focus,
+.bibliography-modal select:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+  outline: none;
+}
+
+.bibliography-modal input[type="text"]::placeholder {
+  color: var(--text-faint);
+}
+
+/* ==========================================================================
+   Form Elements
+   ========================================================================== */
+
+/* BibTeX textarea */
+.bibliography-bibtex-input {
+  width: 100%;
+  min-height: 80px;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-smaller);
+  resize: vertical;
+}
+
+/* Full-width inputs where needed */
+.bibliography-input-full {
+  width: 100%;
+}
+
+/* File input hidden */
+.bibliography-modal input[type="file"] {
+  display: none;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+/* Form button container */
+.bibliography-form-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 1.5em;
+  padding-top: 1em;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.bibliography-form-buttons button {
+  flex: 1;
+}
+
+/* Remove buttons - minimal styling */
+.bibliography-remove-contributor-button,
+.bibliography-remove-field-button {
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.bibliography-remove-contributor-button:hover,
+.bibliography-remove-field-button:hover {
+  color: var(--text-error);
+}
+
+/* ==========================================================================
+   Auto-fill Section (custom collapsible for cross-platform compatibility)
+   ========================================================================== */
+
+.bibliography-autofill-container {
+  margin-bottom: 20px;
+  background-color: var(--background-secondary);
+  border-radius: var(--radius-m);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.bibliography-autofill-header {
+  cursor: pointer;
+  padding: 12px 16px;
+  font-weight: 500;
+  font-size: var(--font-ui-small);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.bibliography-autofill-arrow {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  transition: transform 150ms ease;
+  flex-shrink: 0;
+}
+
+.bibliography-autofill-container.is-open .bibliography-autofill-arrow {
+  transform: rotate(90deg);
+}
+
+.bibliography-autofill-header:hover {
+  color: var(--text-normal);
+}
+
+.bibliography-autofill-container.is-open .bibliography-autofill-header {
+  color: var(--text-normal);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.bibliography-autofill-content {
+  padding: 16px;
+}
+
+.bibliography-autofill-content.is-collapsed {
+  display: none;
+}
+
+.bibliography-autofill-content .setting-item:last-child {
+  padding-bottom: 0;
+}
+
+.bibliography-zotero-notice {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   Settings Tab Styles
+   ========================================================================== */
+
+/* Main settings container */
+.biblib-settings-container {
+  /* Use minimal styling that doesn't affect other settings */
+}
+
+/* Plugin-specific resets */
+.bibliography-date-container .setting-item,
+.custom-frontmatter-field .setting-item {
+  border-top: none;
+  padding: 0;
+  margin: 0; /* Ensure reset */
+}
+
+/* Only apply to our specific description elements */
+.biblib-setting-description p {
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
+  line-height: 1.4;
+}
+
+.biblib-setting-description strong {
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* Setting guide subtitles */
+.setting-guide-subtitle {
+    display: block;
+    font-weight: 600;
+    color: var(--text-accent);
+    margin-top: var(--size-4-4);
+    margin-bottom: var(--size-4-2);
+    padding-bottom: var(--size-4-1);
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Legacy Citekey Options Box */
+.settings-legacy-citekey {
+  padding: var(--size-4-3);
+  border-left: 3px solid var(--text-muted); /* Was --text-faint, use --text-muted for consistency */
+  margin-left: var(--size-4-2); /* Was 8px */
+  margin-bottom: var(--size-4-4); /* Was 20px */
+  background-color: var(--background-secondary-alt);
+  border-radius: 0 var(--radius-m) var(--radius-m) 0; /* Use radius var */
+}
+
+/* Indentation Helper */
+.setting-indent {
+  margin-left: var(--size-6-2); /* Was 25px, use var */
+}
+
+/* Template Example Styling */
+.template-example,
+.setting-item-description code.template-example { /* Combine selectors */
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background-color: var(--background-secondary-alt);
+  border-radius: 4px;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  border: 1px dashed var(--text-accent);
+  color: var(--text-accent); /* Ensure color consistency */
+}
+
+/* Template examples container */
+.note-template-examples-container {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Template example item */
+.template-example-item {
+  background-color: var(--background-primary);
+  border-radius: var(--biblib-radius-md);
+  border: 1px solid var(--background-modifier-border);
+  padding: var(--biblib-spacing-md);
+}
+
+/* Template example title */
+.template-example-title {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+/* Template example description */
+.template-example-description {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 4px 0 12px 0;
+  line-height: 1.5;
+}
+
+/* Template example code block */
+.template-example-code {
+  background-color: var(--background-secondary);
+  border-radius: 6px;
+  margin: 0 0 12px 0;
+  padding: 0;
+  overflow: auto;
+  max-height: 300px;
+}
+
+.template-example-code code {
+  display: block;
+  padding: 12px;
+  font-family: var(--font-monospace);
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: normal;
+  color: var(--text-normal);
+  overflow-wrap: break-word;
+}
+
+/* Template example actions */
+.template-example-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Template example copy button */
+.template-example-copy-button {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.template-example-copy-button:hover {
+  background-color: var(--interactive-accent-hover);
+}
+
+/* Template examples details element */
+.template-examples-details {
+  background-color: var(--background-secondary-alt);
+  border-radius: 6px;
+  padding: 0;
+  margin-top: 16px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.template-examples-details summary {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-normal);
+  user-select: none;
+  display: block;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.template-examples-details summary:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-accent);
+}
+
+.template-examples-details[open] summary {
+  border-bottom: 1px solid var(--background-modifier-border);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Text and toggle inputs */
+.setting-item input[type="text"],
+.setting-item textarea {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  padding: 8px;
+  border-radius: 4px;
+  width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+.setting-item input[type="text"]:focus,
+.setting-item textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+}
+
+/* Improved toggle button styling */
+.checkbox-container {
+  border-radius: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.checkbox-container.is-enabled {
+  background-color: var(--interactive-accent);
+}
+
+/* Add a subtle background to details sections */
+.setting-item-description details {
+  background-color: var(--background-secondary-alt);
+  border-radius: 6px;
+  padding: 1px;
+  margin-bottom: 16px;
+}
+
+.setting-item-description details summary {
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.setting-item-description details summary:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+/* Helper text */
+
+.setting-helper-text {
+  margin-top: 4px;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  font-style: italic;
+  padding-left: 8px;
+  border-left: 2px solid var(--text-accent-hover);
+}
+
+
+
+/* ==========================================================================
+   Contributors & Additional Fields
+   ========================================================================== */
+
+.bibliography-contributors,
+.bibliography-additional-fields {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bibliography-contributor,
+.bibliography-additional-field {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  align-items: center;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+}
+
+.bibliography-contributor {
+  grid-template-columns: 100px 1fr 1fr auto;
+}
+
+.bibliography-additional-field {
+  grid-template-columns: 80px 1fr 2fr auto;
+}
+
+/* Non-standard CSL field warning */
+.bibliography-additional-field.non-csl-field {
+  padding: 4px;
+  border-radius: 4px;
+  background-color: var(--background-modifier-error-hover);
+}
+
+.bibliography-field-warning {
+  grid-column: 1 / -1;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Custom Frontmatter Fields (Settings Tab)
+   ========================================================================== */
+
+.custom-frontmatter-fields-container {
+  margin-top: var(--size-4-3); /* Use vars */
+  margin-bottom: var(--size-4-3); /* Use vars */
+}
+
+.custom-frontmatter-field {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--biblib-radius-md);
+  padding: var(--biblib-spacing-md);
+  margin-bottom: var(--biblib-spacing-md);
+  background-color: var(--background-secondary);
+}
+
+/* Header for custom frontmatter field */
+.custom-frontmatter-field-header {
+  margin-bottom: 16px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Labels for field name and template */
+.custom-frontmatter-field label.setting-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-accent);
+}
+
+/* Template textarea */
+.custom-frontmatter-field-textarea {
+  width: 100%;
+  min-height: 120px;
+  font-family: var(--font-monospace);
+  font-size: 14px;
+  padding: 10px;
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  box-sizing: border-box;
+  resize: vertical;
+  margin-top: 8px;
+}
+
+.custom-frontmatter-field-textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+  outline: none;
+}
+
+/* Custom field warning message */
+.custom-field-warning {
+  padding: 6px 10px;
+  border-left: 3px solid var(--text-error);
+  background-color: rgba(var(--color-red-rgb), 0.05);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  font-style: italic;
+  margin-top: 8px !important;
+}
+
+/* Custom field warning visibility classes */
+.custom-field-warning.warning-hidden {
+  display: none;
+}
+
+.custom-field-warning.warning-visible {
+  display: block;
+}
+
+.modal-field-warning.warning-hidden,
+.edit-body-warning.warning-hidden {
+  display: none;
+}
+
+.modal-field-warning.warning-visible,
+.edit-body-warning.warning-visible {
+  display: block;
+}
+
+.custom-frontmatter-field .setting-item-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--size-4-3);
+}
+
+.custom-frontmatter-field .setting-item-control > .text-input { /* Assumes text input has this class */
+  flex: 1 1 150px;
+}
+.custom-frontmatter-field .setting-item-control > .text-area-input { /* Assumes textarea has this class */
+  flex: 1 1 100%;
+  min-width: 250px;
+}
+
+.custom-frontmatter-field .setting-item-control > .setting-editor-extra-button { /* Assumes delete button */
+  flex-shrink: 0;
+  /* Uses base button styles, maybe needs specific alignment? */
+  align-self: center; /* Align button vertically */
+}
+
+/* ==========================================================================
+   Template Variable Guides / Help Sections (Settings Tab)
+   ========================================================================== */
+
+/* <details> wrapper within setting descriptions */
+.setting-item-description details {
+  margin-top: var(--size-4-2);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  background-color: var(--background-secondary);
+  overflow: hidden;
+}
+
+.setting-item-description summary {
+  cursor: pointer;
+  font-weight: 500; /* Was 600, adjusted */
+  padding: var(--size-4-2) var(--size-4-3);
+  background-color: var(--background-secondary-alt);
+  color: var(--text-muted); /* Was --text-accent, use muted for summary */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.setting-item-description summary:hover {
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal); /* Change text color on hover */
+}
+
+.setting-item-description summary::marker {
+  color: var(--text-muted);
+}
+
+/* Content area within the details */
+.template-variables-list,
+.custom-fields-help > div { /* Assuming help content is wrapped */
+  padding: var(--size-4-4);
+  margin: 0;
+  max-height: 500px; /* Limit height */
+  overflow-y: auto;
+  font-size: var(--font-ui-small);
+  background-color: var(--background-secondary); /* Match details background */
+}
+
+/* Headings within guides */
+.template-variables-list h3, .custom-fields-help h3, /* Added h3 */
+.template-variables-list h4, .custom-fields-help h4,
+.template-variables-list h5, .custom-fields-help h5 { /* Added h5 */
+  font-size: var(--font-ui-small); /* Consistent small size */
+  font-weight: 600;
+  color: var(--text-accent);
+  margin: var(--size-4-4) 0 var(--size-4-2) 0;
+  padding-bottom: var(--size-4-1);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+.template-variables-list h3:first-child, /* Reset top margin for first heading */
+.custom-fields-help h3:first-child,
+.template-variables-list h4:first-child,
+.custom-fields-help h4:first-child {
+  margin-top: 0;
+}
+
+/* Lists within guides */
+.template-variables-list ul, .custom-fields-help ul {
+  margin: 0 0 var(--size-4-3) 0; /* Add bottom margin */
+  padding-left: 20px;
+  list-style-type: disc; /* Default list style */
+}
+.template-variables-list li, .custom-fields-help li {
+  margin-bottom: var(--size-4-2); /* Consistent spacing */
+  line-height: 1.4;
+}
+/* Example lists need specific styling */
+.template-examples ul {
+  list-style-type: none;
+  padding-left: 10px;
+  margin-bottom: 15px;
+}
+.template-examples li {
+  margin-bottom: 8px;
+}
+.template-examples code { /* Code blocks within examples */
+  display: block;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  /* Inherits base code styles */
+}
+
+/* Paragraphs within guides */
+.template-variables-list p, .custom-fields-help p {
+  margin: var(--size-4-2) 0;
+  line-height: 1.5;
+}
+
+/* Code snippets within guides */
+.template-variables-list code, .custom-fields-help code {
+  background-color: var(--background-primary);
+  border-radius: var(--radius-s);
+  padding: 0.1em 0.3em;
+  font-family: var(--font-monospace);
+  font-size: 0.95em;
+  color: var(--text-normal);
+}
+
+/* Links within guides */
+.custom-fields-help a {
+  color: var(--text-accent);
+  text-decoration: underline;
+}
+.custom-fields-help a:hover {
+    color: var(--text-accent-hover);
+}
+
+
+/* Tables within guides */
+.template-variables-list table, .custom-fields-help table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--size-4-3) 0;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-m);
+  overflow: hidden; /* Clip content to border radius */
+  font-size: inherit; /* Inherit font size from container */
+}
+
+.template-variables-list th, .custom-fields-help th {
+  background-color: var(--background-secondary-alt);
+  padding: var(--size-4-2);
+  text-align: left;
+  font-weight: 500; /* Less bold */
+  border-bottom: 1px solid var(--background-modifier-border); /* Lighter separator */
+}
+
+.template-variables-list td, .custom-fields-help td {
+  padding: var(--size-4-2);
+  border-top: 1px solid var(--background-modifier-border);
+  vertical-align: top;
+}
+
+.template-variables-list tr:nth-child(even), /* Added zebra striping */
+.custom-fields-help tr:nth-child(even) {
+  background-color: var(--background-primary);
+}
+
+.template-variables-list tr:hover,
+.custom-fields-help tr:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+/* ==========================================================================
+   Bulk Import Modal
+   ========================================================================== */
+
+.bibliography-bulk-import-modal h3 {
+  margin: 1.5em 0 0.5em 0;
+}
+
+.bibliography-bulk-import-modal .bulk-import-warning {
+  color: var(--text-error);
+  margin-bottom: 1em;
+}
+
+.bibliography-bulk-import-modal .file-info {
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 1em 0;
+}
+
+.bibliography-bulk-import-modal .file-info.has-file {
+  color: var(--text-success);
+  font-style: normal;
+}
+
+.bibliography-bulk-import-modal .import-button-container {
+  margin-top: 1.5em;
+  display: flex;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   Zotero Specific Styles
+   ========================================================================== */
+
+.zotero-attachment-indicator {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-accent);
+  margin-left: 4px;
+}
+
+.zotero-note-placeholder {
+  display: none;
+}
+
+.zotero-attachment-note {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   CSL Key Styling
+   ========================================================================== */
+
+/*
+ * CSL field highlighting for frontmatter properties.
+ * To enable: add 'biblib-csl-styling-enabled' class to document.body
+ *
+ * NOTE: Update --biblib-csl-fields when CSL_ALL_CSL_FIELDS changes in
+ * src/utils/csl-variables.ts. Consider generating this list dynamically
+ * in TypeScript for easier maintenance.
+ */
+
+/* Default style for all frontmatter keys (dimmed) */
+body.biblib-csl-styling-enabled .cm-s-obsidian .metadata-container .metadata-property-key,
+body.biblib-csl-styling-enabled .cm-s-obsidian .cm-line .cm-meta.cm-yaml-key {
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* CSL field list - grouped by category for maintainability */
+/* Live Preview mode - using :is() for cleaner selectors */
+body.biblib-csl-styling-enabled .cm-s-obsidian .metadata-container .metadata-property:is(
+  /* Core fields */
+  [data-property-key="id"],
+  [data-property-key="type"],
+  [data-property-key="title"],
+  /* Name fields */
+  [data-property-key="author"],
+  [data-property-key="editor"],
+  [data-property-key="chair"],
+  [data-property-key="translator"],
+  [data-property-key="container-author"],
+  [data-property-key="collection-editor"],
+  /* Date fields */
+  [data-property-key="issued"],
+  [data-property-key="accessed"],
+  [data-property-key="year"],
+  [data-property-key="month"],
+  [data-property-key="day"],
+  /* Number fields */
+  [data-property-key="volume"],
+  [data-property-key="number"],
+  [data-property-key="issue"],
+  [data-property-key="page"],
+  /* Container fields */
+  [data-property-key="container-title"],
+  [data-property-key="collection-title"],
+  /* Identifier fields */
+  [data-property-key="DOI"],
+  [data-property-key="ISBN"],
+  [data-property-key="ISSN"],
+  [data-property-key="URL"],
+  /* Publication fields */
+  [data-property-key="publisher"],
+  [data-property-key="publisher-place"],
+  /* Other standard fields */
+  [data-property-key="abstract"],
+  [data-property-key="language"],
+  [data-property-key="event"],
+  [data-property-key="event-place"],
+  [data-property-key="genre"],
+  [data-property-key="source"],
+  [data-property-key="medium"],
+  [data-property-key="note"],
+  [data-property-key="scale"],
+  [data-property-key="status"]
+) .metadata-property-key {
+  font-style: normal;
+  font-weight: bold;
+  opacity: 1;
+  color: var(--interactive-accent);
+}
+
+/* Source Mode - using :is() for cleaner selectors */
+body.biblib-csl-styling-enabled .cm-s-obsidian .cm-line span.cm-meta.cm-yaml-key:is(
+  /* Core fields */
+  [cm-property-key="id"],
+  [cm-property-key="type"],
+  [cm-property-key="title"],
+  /* Name fields */
+  [cm-property-key="author"],
+  [cm-property-key="editor"],
+  [cm-property-key="chair"],
+  [cm-property-key="translator"],
+  [cm-property-key="container-author"],
+  [cm-property-key="collection-editor"],
+  /* Date fields */
+  [cm-property-key="issued"],
+  [cm-property-key="accessed"],
+  [cm-property-key="year"],
+  [cm-property-key="month"],
+  [cm-property-key="day"],
+  /* Number fields */
+  [cm-property-key="volume"],
+  [cm-property-key="number"],
+  [cm-property-key="issue"],
+  [cm-property-key="page"],
+  /* Container fields */
+  [cm-property-key="container-title"],
+  [cm-property-key="collection-title"],
+  /* Identifier fields */
+  [cm-property-key="DOI"],
+  [cm-property-key="ISBN"],
+  [cm-property-key="ISSN"],
+  [cm-property-key="URL"],
+  /* Publication fields */
+  [cm-property-key="publisher"],
+  [cm-property-key="publisher-place"],
+  /* Other standard fields */
+  [cm-property-key="abstract"],
+  [cm-property-key="language"],
+  [cm-property-key="event"],
+  [cm-property-key="event-place"],
+  [cm-property-key="genre"],
+  [cm-property-key="source"],
+  [cm-property-key="medium"],
+  [cm-property-key="note"],
+  [cm-property-key="scale"],
+  [cm-property-key="status"]
+) {
+  font-style: normal;
+  font-weight: bold;
+  opacity: 1;
+  color: var(--interactive-accent);
+}
+
+/* ==========================================================================
+   Status Bar - Zotero Connector
+   ========================================================================== */
+
+.zotero-connector-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.zotero-connector-status.active {
+  color: var(--text-success);
+}
+
+.zotero-connector-status.inactive {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Utility Classes
+   ========================================================================== */
+
+.setting-hidden {
+  display: none !important;
+}
+
+.attachment-container .hidden {
+  display: none;
+}
+
+.attachment-container .visible {
+  display: block;
+}
+
+/* ==========================================================================
+   Attachments and Related Notes Display
+   ========================================================================== */
+
+.bibliography-attachments-display,
+.bibliography-related-notes-display {
+  margin: 12px 0 0 0;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+.bibliography-attachments-list,
+.bibliography-related-notes-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bibliography-attachments-list li,
+.bibliography-related-notes-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+}
+
+.bibliography-remove-attachment-button,
+.bibliography-remove-related-note-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-s);
+  line-height: 1;
+}
+
+.bibliography-remove-attachment-button:hover,
+.bibliography-remove-related-note-button:hover {
+  color: var(--text-error);
+  background-color: var(--background-modifier-error-hover);
+}
+
+.attachment-type-badge {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media screen and (max-width: 600px) {
+  .bibliography-contributor,
+  .bibliography-additional-field,
+  .bibliography-date-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   Template Preview Styles 
+   ========================================================================== */
+
+.template-preview-container {
+  margin-top: 8px;
+  margin-bottom: 16px;
+  background-color: var(--background-secondary);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.template-preview-label {
+  font-size: 0.85em;
+  margin-bottom: 4px;
+  color: var(--text-muted);
+}
+
+.template-preview-sample-data {
+  font-size: 0.8em;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+
+.template-preview-sample-data details summary {
+  cursor: pointer;
+}
+
+.template-preview-content {
+  font-family: var(--font-monospace);
+  background-color: var(--background-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.template-preview-error {
+  color: var(--text-error);
+}
+
+/* ==========================================================================
+   Template Section Styles 
+   ========================================================================== */
+
+.template-playground-wrapper,
+.template-settings-container,
+.template-guide-container {
+  margin: var(--biblib-spacing-lg) 0;
+  padding-top: var(--biblib-spacing-sm);
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.template-playground-wrapper h3,
+.template-settings-container h3,
+.template-guide-container h3 {
+  margin-top: 0;
+  margin-bottom: var(--biblib-spacing-md);
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--text-normal);
+}
+
+/* Note content template textarea styling */
+.template-textarea-container textarea {
+  width: 100%;
+  height: 200px;
+  font-family: var(--font-monospace);
+  font-size: var(--biblib-font-base);
+  padding: 10px;
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--biblib-radius-sm);
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.template-textarea-container textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+  outline: none;
+}
+
+/* ==========================================================================
+   Template Playground Styles
+   ========================================================================== */
+
+.template-playground-container {
+  margin: var(--biblib-spacing-lg) 0;
+  padding: var(--biblib-spacing-lg);
+  background-color: var(--background-secondary);
+  border-radius: var(--biblib-radius-md);
+  border: 1px solid var(--background-modifier-border);
+}
+
+.template-playground-description {
+  margin-top: 0;
+  margin-bottom: var(--biblib-spacing-md);
+  color: var(--text-normal);
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.template-playground-input-container {
+  margin-bottom: var(--biblib-spacing-md);
+}
+
+.template-playground-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--biblib-spacing-sm);
+  color: var(--text-accent);
+  font-size: var(--biblib-font-base);
+}
+
+.template-playground-textarea {
+  width: 100%;
+  min-height: 180px;
+  font-family: var(--font-monospace);
+  font-size: var(--biblib-font-base);
+  padding: 10px;
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--biblib-radius-sm);
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.template-playground-textarea:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+  outline: none;
+}
+
+.template-playground-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--biblib-spacing-md);
+  margin-bottom: var(--biblib-spacing-lg);
+  padding: var(--biblib-spacing-md);
+  background-color: var(--background-primary);
+  border-radius: var(--biblib-radius-md);
+  border: 1px solid var(--background-modifier-border);
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Mode toggles container */
+.template-playground-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--biblib-spacing-md);
+  flex: 1;
+}
+
+.template-playground-toggle,
+.template-playground-examples {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.template-playground-toggle-label,
+.template-playground-examples-label {
+  font-weight: 600;
+  font-size: var(--biblib-font-base);
+  color: var(--text-accent);
+}
+
+/* Dropdown styling */
+.dropdown-section-header {
+  font-weight: bold;
+  color: var(--text-accent);
+  background-color: var(--background-secondary-alt);
+}
+
+.template-playground-mode-select,
+.template-playground-examples-dropdown {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+  color: var(--text-normal);
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.template-playground-mode-select:focus,
+.template-playground-examples-dropdown:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.2);
+  outline: none;
+}
+
+.template-playground-mode-select:hover,
+.template-playground-examples-dropdown:hover {
+  border-color: var(--interactive-accent);
+}
+
+.template-playground-preview-container {
+  background-color: var(--background-primary);
+  border-radius: var(--biblib-radius-md);
+  padding: var(--biblib-spacing-md);
+  border: 1px solid var(--background-modifier-border);
+  margin-top: var(--biblib-spacing-lg);
+}
+
+.template-playground-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.template-playground-preview-label {
+  font-weight: 600;
+  color: var(--text-accent);
+  font-size: 16px;
+}
+
+.template-playground-sample-data {
+  font-size: 0.9em;
+  color: var(--text-muted);
+  background-color: var(--background-secondary);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.template-playground-sample-data details summary {
+  cursor: pointer;
+  padding: 6px 2px;
+  font-weight: 600;
+  user-select: none;
+  color: var(--text-accent);
+  transition: color 0.2s ease;
+}
+
+.template-playground-sample-data details summary:hover {
+  color: var(--text-accent-hover);
+}
+
+/* Data container styling */
+.template-playground-data-container {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: var(--background-secondary-alt);
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+/* Tabs styling */
+.template-playground-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.tab-button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background-color: var(--background-modifier-hover);
+  border-color: var(--interactive-accent);
+}
+
+.tab-button.active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+
+.template-playground-tab-content {
+  font-size: 0.9em;
+}
+
+.tab-pane {
+  display: none;
+  background-color: var(--background-primary);
+  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+.tab-pane code {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: var(--font-monospace);
+  padding: 10px;
+  border-radius: 4px;
+  line-height: 1.5;
+  background-color: var(--background-secondary-alt);
+  font-size: 14px;
+}
+
+.template-playground-preview-content {
+  padding: 16px;
+  background-color: var(--background-secondary);
+  border-radius: 6px;
+  min-height: 100px;
+  border: 1px solid var(--background-modifier-border);
+  margin-top: 12px;
+  overflow: auto;
+  max-height: 400px;
+  font-size: 14px;
+}
+
+.template-playground-rendered {
+  white-space: pre-wrap;
+  font-family: var(--font-text);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.template-playground-rendered.citekey-rendering {
+  font-family: var(--font-monospace);
+  padding: 10px;
+  background-color: var(--background-primary);
+  border-radius: 4px;
+  border: 1px dashed var(--interactive-accent);
+  color: var(--text-accent);
+}
+
+.template-playground-error {
+  color: var(--text-error);
+  padding: 12px 16px;
+  border-left: 4px solid var(--text-error);
+  background-color: rgba(var(--color-red-rgb), 0.05);
+  border-radius: 0 6px 6px 0;
+  margin: 12px 0;
+  font-weight: 500;
+}
+
+/* Button styling for playground */
+.template-playground-toggle button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid var(--background-modifier-border);
+  background-color: var(--background-primary);
+  transition: all 0.2s ease;
+}
+
+.template-playground-toggle button:hover {
+  background-color: var(--background-modifier-hover);
+  border-color: var(--interactive-accent);
+}
+
+.template-playground-toggle button.is-active {
+  background-color: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border-color: var(--interactive-accent);
+}
+
+/* Frontmatter Preview Styling */
+.frontmatter-preview-code {
+  padding: 0;
+  margin: 0;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  line-height: 1.5;
+  overflow: auto;
+  background-color: var(--background-secondary-alt);
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.frontmatter-preview-code code {
+  display: block;
+  padding: 12px;
+  white-space: pre-wrap;
+}
+
+.yaml-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--biblib-spacing-sm);
+  padding: var(--biblib-spacing-md);
+  background-color: var(--background-primary);
+  border-radius: var(--biblib-radius-sm);
+  border: 1px solid var(--background-modifier-border);
+  margin-top: var(--biblib-spacing-md);
+  max-height: 300px;
+  overflow: auto;
+  /* Firefox scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--background-modifier-border) var(--background-primary);
+}
+
+.yaml-preview-heading {
+  font-size: var(--biblib-font-md);
+  font-weight: 600;
+  margin-bottom: var(--biblib-spacing-sm);
+  color: var(--text-accent);
+}
+
+.standard-rendering {
+  padding: 8px;
+  background-color: var(--background-secondary-alt);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.yaml-preview-code {
+  background-color: var(--background-secondary-alt);
+  border-radius: 4px;
+  padding: 0;
+  margin: 0;
+  overflow: auto;
+  max-height: 200px;
+}
+
+.yaml-preview-code code {
+  display: block;
+  padding: 8px;
+  font-family: var(--font-monospace);
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  color: var(--text-normal);
+}
+
+.yaml-preview-explanation {
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.yaml-preview-biblib-note {
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.yaml-preview-biblib-note h4 {
+  font-size: 0.9em;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: var(--text-accent);
+}
+
+.yaml-preview-biblib-note h5 {
+  font-size: 0.85em;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+  color: var(--text-normal);
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding-bottom: 4px;
+}
+
+.biblib-array-explanation {
+  font-size: 0.85em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* YAML Guide Container and Related Styles */
+.yaml-guide-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.yaml-method-heading {
+  font-weight: 600;
+  color: var(--text-accent);
+  margin: 16px 0 8px 0;
+}
+
+.yaml-example-container {
+  background-color: var(--background-secondary-alt);
+  border-radius: 4px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.yaml-example-container p {
+  margin: 4px 0;
+  font-size: 0.85em;
+}
+
+.yaml-example-container pre {
+  background-color: var(--background-primary);
+  border-radius: 4px;
+  padding: 0;
+  margin: 4px 0 8px 0;
+}
+
+.yaml-example-container code {
+  display: block;
+  padding: 6px;
+  font-family: var(--font-monospace);
+  font-size: 0.85em;
+  white-space: pre-wrap;
+}
+
+/* New styles for array processing */
+.yaml-processing-container {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: var(--background-primary-alt);
+  border-radius: 4px;
+  border-left: 3px solid var(--color-green);
+}
+
+.yaml-processing-warning {
+  color: var(--text-warning);
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.yaml-processing-error {
+  color: var(--text-error);
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.template-preview-array-label {
+  font-size: 0.9em;
+  margin-bottom: 5px;
+  color: var(--text-accent);
+}
+
+/* ==========================================================================
+   Edit Modal Regeneration Options
+   ========================================================================== */
+
+.edit-options-container {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: var(--background-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.edit-options-container h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: var(--text-normal);
+  font-size: 1.1em;
+}
+
+.edit-options-container .setting-item-description {
+  margin-bottom: 15px;
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.edit-body-warning {
+  margin-top: 10px;
+}
+
+.edit-body-warning .callout {
+  margin: 0;
+}
+
+.edit-body-warning .callout-warning {
+  background-color: var(--background-modifier-error-hover);
+  border-left: 4px solid var(--text-error);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.edit-body-warning .callout-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--text-error);
+}
+
+.edit-body-warning .callout-content {
+  font-size: 0.9em;
+  color: var(--text-normal);
+}
