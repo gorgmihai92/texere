@@ -37,7 +37,7 @@ The examples come from philosophy (the vault includes a map of the field with ~3
 ## How it works
 
 1. **Install Obsidian** (free) from [obsidian.md/download](https://obsidian.md/download).
-2. **Download** this repository (**Code → Download ZIP**) and unzip it.
+2. **[Download](https://github.com/gorgmihai92/texere/archive/refs/heads/main.zip)** this repository (**Code → Download ZIP**) and unzip it.
 3. In Obsidian, choose **Open folder as vault** and select the folder.
 4. Choose **Trust author and enable plugins**.
 5. **The setup starts by itself.** A window shows each step as it happens and tells you when it's your turn: you only choose the language (English or Romanian) and where exported files are saved. At the end you get a report with what was done and where to start.
