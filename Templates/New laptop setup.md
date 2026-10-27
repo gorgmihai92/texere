@@ -1,6 +1,6 @@
 <%*
-// Configurare automata pentru un laptop nou (Mac sau Windows). Versiune 2.1.0 (2026-10-27)
-// Porneste singura dupa "Trust author" (pluginul Texere) sau din Ctrl/Cmd + P -> "Texere: Configurare" / "Texere: Setup".
+// Configurare automata pentru un laptop nou (Mac sau Windows). Versiune 2.2.0 (2026-10-27)
+// Porneste singura dupa "Trust author" (pluginul Texere) sau din Ctrl/Cmd + P -> "Texere: Setup" / "Texere: Setup".
 // O fereastra arata pasii pe rand (RO / EN). La final, raportul se scrie direct in nota "Setup report".
 // Pluginul ruleaza scriptul fara nota noua; din Templater ("Create new note from template") se creeaza o nota goala, care se sterge la final.
 const ob = tp.obsidian;
@@ -48,7 +48,7 @@ const findBy = (names, re) => {
   for (const n of names) { const f = app.vault.getAbstractFileByPath(n) || app.vault.getMarkdownFiles().find(x => x.name === n || strip(x.basename) + ".md" === n); if (f && (!f.stat || f.stat.size > 0)) return f; }
   return app.vault.getMarkdownFiles().find(f => (app.metadataCache.getFileCache(f)?.headings || []).some(h => re.test(h.heading))) || null;
 };
-const GHID = { ro: findBy(["02. Texere – Cercetare, lectură și scris, într-un singur loc.md", "01. Texere – Cercetare, lectură și scris, într-un singur loc.md", "Cercetare, lectură și scris, într-un singur loc.md", "Cercetarea într-un singur loc.md"], /Termeni folosiți în ghid/), en: findBy(["01. Texere – Research, reading and writing, in one place.md", "02. Texere – Research, reading and writing, in one place.md", "Research, reading and writing, in one place.md", "Research in One Place.md"], /Terms used in this guide/) };
+const GHID = { ro: findBy(["02. Texere – Un vault de cercetare pentru cei care gândesc.md", "01. Texere – Cercetare, lectură și scris, într-un singur loc.md", "Un vault de cercetare pentru cei care gândesc.md", "Cercetare, lectură și scris, într-un singur loc.md", "Cercetarea într-un singur loc.md"], /Termeni folosiți în ghid/), en: findBy(["01. Texere – A Research Vault for Thinkers.md", "02. Texere – Research, reading and writing, in one place.md", "A Research Vault for Thinkers.md", "Research, reading and writing, in one place.md", "Research in One Place.md"], /Terms used in this guide/) };
 const ghidTxt = { ro: GHID.ro ? await app.vault.cachedRead(GHID.ro) : "", en: GHID.en ? await app.vault.cachedRead(GHID.en) : "" };
 const ghidVer = String(app.metadataCache.getFileCache(GHID.ro || GHID.en || {})?.frontmatter?.version || "");
 const gl = () => (ghidTxt[lang] ? lang : (ghidTxt.ro ? "ro" : "en"));
@@ -285,14 +285,18 @@ class Onboarding extends ob.Modal {
     const btn = (label, fn, opt = {}) => { const b = f.createEl("button", { text: label }); if (opt.cta) b.addClass("mod-cta"); if (opt.off) b.disabled = true; b.onclick = fn; return b; };
     btn("← " + tx(M("Înapoi", "Back")), () => this.go(-1), { off: this.sel === 0 });
     btn(tx(M("Înainte", "Next")) + " →", () => this.go(1), { off: this.sel >= this.reach() });
-    if (finished) btn(tx(M("Închide și citește raportul", "Close and read the report")), () => { this.close(); openReport().catch(() => {}); }, { cta: true });
+    if (finished) btn(tx(M(restart ? "Închide, citește raportul și repornește Obsidian" : "Închide și citește raportul", restart ? "Close, read the report and restart Obsidian" : "Close and read the report")), async () => {
+      this.close();
+      try { await openReport(); } catch (e) {}
+      if (restart) { try { await app.workspace.saveLayout?.(); } catch (e) {} setTimeout(() => { try { app.commands.executeCommandById("app:reload"); } catch (e) { window.location.reload(); } }, 600); }
+    }, { cta: true });
   }
   onClose() { this.closed = true; this.contentEl.empty(); if (this.ask) { const r = this.ask.resolve; this.ask = null; r(null); } }
 }
 const ui = new Onboarding();
 try { ui.open(); } catch (e) { ui.closed = true; }
 
-const begin = async i => { cur = i; STEPS[i].state = "running"; ui.follow(i); await pause(250); };
+const begin = async i => { if (ui.closed) throw STOP; cur = i; STEPS[i].state = "running"; ui.follow(i); await pause(250); };
 const end = async () => { const s = STEPS[cur]; s.doing = null; s.state = s.items.some(x => x.t === "todo") ? "warn" : "done"; ui.render(); await pause(450); };
 const doing = msg => { STEPS[cur].doing = msg; ui.render(); };
 const done = msg => { ok.push(msg); STEPS[cur].doing = null; STEPS[cur].items.push({ t: "ok", msg }); ui.render(); };
@@ -300,10 +304,12 @@ const fix = (msg, you, ref) => { todo.push({ msg, you, ref: ref || null }); STEP
 const info = msg => { STEPS[cur].items.push({ t: "info", msg }); ui.render(); };
 // alegerea din fereastră; dacă fereastra e închisă, întoarce null (se folosește folderul Export)
 const EXP = 4;   // pasul Export
-const choose = (opts, note, step = EXP, q = M("Selectează locația unde salvez fișierele exportate:", "Select the location where I save exported files:")) => new Promise(resolve => {
-  if (ui.closed) return resolve(null);
+const STOP = new Error("texere-stop");   // fereastra a fost închisă: configurarea se oprește
+let restart = false;                     // limba Obsidian se schimbă după repornire
+const choose = (opts, note, step = EXP, q = M("Selectează locația unde salvez fișierele exportate:", "Select the location where I save exported files:")) => new Promise((resolve, reject) => {
+  if (ui.closed) return reject(STOP);
   STEPS[step].state = "ask"; STEPS[step].doing = null;
-  ui.ask = { step, q, opts, note, resolve: v => { STEPS[step].state = "running"; resolve(v); } }; ui.follow(step);
+  ui.ask = { step, q, opts, note, resolve: v => { if (v === null && ui.closed) return reject(STOP); STEPS[step].state = "running"; resolve(v); } }; ui.follow(step);
 });
 
 try {
@@ -313,7 +319,17 @@ await begin(0);
 const lgPick = await choose([{ v: "ro", icon: "languages", label: "Română" }, { v: "en", icon: "languages", label: "English" }], null, 0,
   "Alege limba configurării · Choose the setup language:");
 if (lgPick) setLang(lgPick);
-STEPS[0].items.push({ t: "ok", msg: M("Configurarea continuă în română.", "The setup continues in English.") }); ui.render();
+STEPS[0].items.push({ t: "ok", msg: M("Configurarea continuă în română.", "The setup continues in English.") });
+// limba Obsidian urmează limba aleasă (română = "ro"; engleză = fără setare, adică limba implicită)
+try {
+  const want = lang === "ro" ? "ro" : "", now = window.localStorage.getItem("language") || "";
+  if (want !== now) {
+    if (want) window.localStorage.setItem("language", want); else window.localStorage.removeItem("language");
+    restart = true;
+    STEPS[0].items.push({ t: "ok", msg: M("Obsidian va fi în română după repornire.", "Obsidian will be in English after a restart.") });
+  }
+} catch (e) {}
+ui.render();
 await end();
 
 // 2. Pluginurile
@@ -478,6 +494,7 @@ else try {
 await end();
 
 } catch (e) {
+  if (e === STOP) { new ob.Notice(tx(M("Configurarea s-a oprit. O poți porni oricând: Ctrl/Cmd + P → Texere: Setup.", "Setup stopped. You can start it again any time: Ctrl/Cmd + P → Texere: Setup.")), 8000); return; }
   fix(M(`Configurarea s-a oprit neașteptat (${e.message}).`, `The setup stopped unexpectedly (${e.message}).`),
       M("rulează din nou configurarea; dacă se repetă, urmează pașii din ghid, secțiunea 8.", "run the setup again; if it happens again, follow the steps in section 8 of the guide."), null);
   STEPS.forEach(s => { if (s.state === "running") s.state = "warn"; s.doing = null; });
@@ -492,7 +509,7 @@ const INTRO = tx(M("Fiecare rulare a configurării adaugă aici un raport, cu da
                    "Each setup run adds a report here, with date and time. The newest comes first. You can delete this note at any time.")) + "\n\n";
 const refs = []; todo.forEach(t => { if (t.ref && !refs.some(r => JSON.stringify(r) === JSON.stringify(t.ref))) refs.push(t.ref); });
 const howTo = refs.map(guideFix).filter(Boolean).join("\n\n");
-const gName = (GHID[gl()] || {}).basename || "01. Texere – Cercetare, lectură și scris, într-un singur loc";
+const gName = (GHID[gl()] || {}).basename || "01. Texere – A Research Vault for Thinkers";
 const h8 = ((ghidTxt[gl()] || "").match(/^#{2,3}\s+(8\.\s[^\n]+?)\s*$/m) || [])[1] || "8. Dacă ceva nu merge";
 const entry = `## ${tp.date.now("YYYY-MM-DD HH:mm")}\n\n`
    // 1. de unde începi
@@ -504,7 +521,7 @@ const entry = `## ${tp.date.now("YYYY-MM-DD HH:mm")}\n\n`
    + (todo.length ? `\n\n### ${tx(M("Ce ai de făcut", "What you need to do"))}\n`
        + todo.map(t => `- ${tx(t.msg)}${t.you ? ` **${tx(M("Tu:", "You:"))}** ${tx(t.you)}` : ""}${t.ref ? " " + tx(M("Vezi mai jos", "See below")) + ` (${refLabel(t.ref)}).` : ""}`).join("\n") : "")
    + (howTo ? `\n\n### ${tx(M("Cum rezolvi (din ghid)", "How to fix it (from the guide)"))}\n\n${howTo}\n\n\x5B\x5B${gName}#${h8}|${tx(M("Deschide în ghid", "Open in the guide"))}: ${h8.replace(/^8\.\s*/, "")}]]` : "")
-   + (todo.length ? "\n\n" + tx(M("După ce rezolvi, rulează din nou configurarea: **Ctrl/Cmd + P** → **Texere: Configurare**.",
+   + (todo.length ? "\n\n" + tx(M("După ce rezolvi, rulează din nou configurarea: **Ctrl/Cmd + P** → **Texere: Setup**.",
                                    "Once fixed, run the setup again: **Ctrl/Cmd + P** → **Texere: Setup**.")) : "")
    // 3. ce am făcut eu, automat
    + `\n\n### ${tx(M("Ce am făcut automat", "Done automatically"))}\n`

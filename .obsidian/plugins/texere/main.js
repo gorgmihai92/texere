@@ -2,7 +2,7 @@
  * 1. Imediat după „Trust author and enable plugins”, pornește scriptul „Templates/New laptop setup”
  *    dacă vault-ul nu e configurat pe acest laptop (sau a fost mutat în alt folder).
  * 2. Activează scripturile de pornire din „Scripts” (butonul Ajutor, închiderea capitolelor ghidului).
- * 3. Adaugă comenzile „Texere: Configurare” (română) și „Texere: Setup” (engleză).
+ * 3. Adaugă comenzile „Texere: Setup” (fereastra urmează limba aleasă).
  */
 const { Plugin, Notice, TFile } = require("obsidian");
 
@@ -14,8 +14,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 module.exports = class Texere extends Plugin {
   async onload() {
-    this.addCommand({ id: "configurare", name: "Configurare", callback: () => this.runConfig(false, "ro") });
-    this.addCommand({ id: "setup", name: "Setup", callback: () => this.runConfig(false, "en") });
+    this.addCommand({ id: "setup", name: "Setup", callback: () => this.runConfig(false) });
     this.app.workspace.onLayoutReady(() => { this.start().catch(e => console.error("Texere:", e)); });
   }
 

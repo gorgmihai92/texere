@@ -1,13 +1,13 @@
 # Texere
 
-**Research, reading and writing, in one place.**
-*Cercetare, lectură și scris, într-un singur loc.*
+**A Research Vault for Thinkers.**
+*Un vault de cercetare pentru cei care gândesc.*
 
 Texere is a ready-made [Obsidian](https://obsidian.md) vault for academic research. It brings your sources, PDFs, reading notes, ideas, drafts and the final paper into a single place, and it sets itself up on any laptop. It comes with a step-by-step guide in English and Romanian.
 
 *Texere* (Latin, "to weave") is the root of the word *text*: a text is woven from ideas linked together.
 
-> 🇷🇴 **În română:** Texere este un vault Obsidian gata pregătit pentru cercetare academică. Adună sursele, PDF-urile, notițele de lectură, ideile și lucrarea finală într-un singur loc și se configurează singur pe orice laptop. Ghidul complet în română este în nota `Texere/02. Texere – Cercetare, lectură și scris, într-un singur loc`. Configurarea și butonul Ajutor funcționează în română sau în engleză, la alegere. Primul pas: instalează [Obsidian](https://obsidian.md/download) (gratuit).
+> 🇷🇴 **În română:** Texere este un vault Obsidian gata pregătit pentru cercetare academică. Adună sursele, PDF-urile, notițele de lectură, ideile și lucrarea finală într-un singur loc și se configurează singur pe orice laptop. Ghidul complet în română este în nota `Texere/02. Texere – Un vault de cercetare pentru cei care gândesc`. Configurarea și butonul Ajutor funcționează în română sau în engleză, la alegere. Primul pas: instalează [Obsidian](https://obsidian.md/download) (gratuit).
 
 ---
 
@@ -85,8 +85,8 @@ The vault uses these community plugins: Templater, BibLib, Pandoc Plugin, PDF++,
 
 Open the guide that matches your language:
 
-- 🇬🇧 `Texere/01. Texere – Research, reading and writing, in one place`
-- 🇷🇴 `Texere/02. Texere – Cercetare, lectură și scris, într-un singur loc`
+- 🇬🇧 `Texere/01. Texere – A Research Vault for Thinkers`
+- 🇷🇴 `Texere/02. Texere – Un vault de cercetare pentru cei care gândesc`
 
 ## License
 
