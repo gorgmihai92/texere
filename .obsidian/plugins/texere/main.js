@@ -2,7 +2,7 @@
  * 1. Imediat după „Trust author and enable plugins”, pornește scriptul „Templates/New laptop setup”
  *    dacă vault-ul nu e configurat pe acest laptop (sau a fost mutat în alt folder).
  * 2. Activează scripturile de pornire din „Scripts” (butonul Ajutor, închiderea capitolelor ghidului).
- * 3. Adaugă comenzile „Texere: Setup” (fereastra urmează limba aleasă).
+ * 3. Adaugă comenzile „Texere – The Researcher's Vault: Setup” (fereastra urmează limba aleasă).
  */
 const { Plugin, Notice, TFile } = require("obsidian");
 

@@ -1,6 +1,6 @@
 <%*
 // Configurare automata pentru un laptop nou (Mac sau Windows). Versiune 2.2.0 (2026-10-27)
-// Porneste singura dupa "Trust author" (pluginul Texere) sau din Ctrl/Cmd + P -> "Texere: Setup" / "Texere: Setup".
+// Porneste singura dupa "Trust author" (pluginul Texere) sau din Ctrl/Cmd + P -> "Texere – The Researcher's Vault: Setup" / "Texere – The Researcher's Vault: Setup".
 // O fereastra arata pasii pe rand (RO / EN). La final, raportul se scrie direct in nota "Setup report".
 // Pluginul ruleaza scriptul fara nota noua; din Templater ("Create new note from template") se creeaza o nota goala, care se sterge la final.
 const ob = tp.obsidian;
@@ -494,7 +494,7 @@ else try {
 await end();
 
 } catch (e) {
-  if (e === STOP) { new ob.Notice(tx(M("Configurarea s-a oprit. O poți porni oricând: Ctrl/Cmd + P → Texere: Setup.", "Setup stopped. You can start it again any time: Ctrl/Cmd + P → Texere: Setup.")), 8000); return; }
+  if (e === STOP) { new ob.Notice(tx(M("Configurarea s-a oprit. O poți porni oricând: Ctrl/Cmd + P → Texere – The Researcher's Vault: Setup.", "Setup stopped. You can start it again any time: Ctrl/Cmd + P → Texere – The Researcher's Vault: Setup.")), 8000); return; }
   fix(M(`Configurarea s-a oprit neașteptat (${e.message}).`, `The setup stopped unexpectedly (${e.message}).`),
       M("rulează din nou configurarea; dacă se repetă, urmează pașii din ghid, secțiunea 8.", "run the setup again; if it happens again, follow the steps in section 8 of the guide."), null);
   STEPS.forEach(s => { if (s.state === "running") s.state = "warn"; s.doing = null; });
@@ -521,8 +521,8 @@ const entry = `## ${tp.date.now("YYYY-MM-DD HH:mm")}\n\n`
    + (todo.length ? `\n\n### ${tx(M("Ce ai de făcut", "What you need to do"))}\n`
        + todo.map(t => `- ${tx(t.msg)}${t.you ? ` **${tx(M("Tu:", "You:"))}** ${tx(t.you)}` : ""}${t.ref ? " " + tx(M("Vezi mai jos", "See below")) + ` (${refLabel(t.ref)}).` : ""}`).join("\n") : "")
    + (howTo ? `\n\n### ${tx(M("Cum rezolvi (din ghid)", "How to fix it (from the guide)"))}\n\n${howTo}\n\n\x5B\x5B${gName}#${h8}|${tx(M("Deschide în ghid", "Open in the guide"))}: ${h8.replace(/^8\.\s*/, "")}]]` : "")
-   + (todo.length ? "\n\n" + tx(M("După ce rezolvi, rulează din nou configurarea: **Ctrl/Cmd + P** → **Texere: Setup**.",
-                                   "Once fixed, run the setup again: **Ctrl/Cmd + P** → **Texere: Setup**.")) : "")
+   + (todo.length ? "\n\n" + tx(M("După ce rezolvi, rulează din nou configurarea: **Ctrl/Cmd + P** → **Texere – The Researcher's Vault: Setup**.",
+                                   "Once fixed, run the setup again: **Ctrl/Cmd + P** → **Texere – The Researcher's Vault: Setup**.")) : "")
    // 3. ce am făcut eu, automat
    + `\n\n### ${tx(M("Ce am făcut automat", "Done automatically"))}\n`
    + (ok.length ? ok.map(x => `- ${tx(x)}`).join("\n") : `- ${tx(M("Nimic.", "Nothing."))}`)
