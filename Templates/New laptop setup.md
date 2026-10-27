@@ -1,7 +1,7 @@
 <%*
 // Configurare automata pentru un laptop nou (Mac sau Windows). Versiune 2.1.0 (2026-10-27)
 // Porneste singura dupa "Trust author" (pluginul Texere) sau din Ctrl/Cmd + P -> "Texere: Configurare" / "Texere: Setup".
-// O fereastra arata pasii pe rand (RO / EN). La final, raportul se scrie direct in nota "Raport configurare" / "Setup report".
+// O fereastra arata pasii pe rand (RO / EN). La final, raportul se scrie direct in nota "Setup report".
 // Pluginul ruleaza scriptul fara nota noua; din Templater ("Create new note from template") se creeaza o nota goala, care se sterge la final.
 const ob = tp.obsidian;
 const isWin = ob.Platform.isWin, isMac = ob.Platform.isMacOS;
@@ -80,7 +80,7 @@ const guideFix = ref => {
   return "";
 };
 const refLabel = ref => tx(ref?.step ? M(`pasul ${ref.step} din ghid`, `step ${ref.step} in the guide`) : ref?.row ? M("tabelul de erori din ghid", "the error table in the guide") : "");
-const REPORT = M("Raport configurare", "Setup report");
+const REPORT = "Setup report";   // un singur raport, cu nume în engleză (conținutul urmează limba aleasă)
 // „Începe aici”: etapele de lucru și secțiunea din ghid pentru fiecare (în fereastră și în raport)
 const START = [
   ["3", M("Adaugi o sursă", "Add a source")],
@@ -526,13 +526,13 @@ const self = tp.config.target_file;
 const HOME = "Texere";
 const home = app.vault.getAbstractFileByPath(HOME) ? HOME : (((GHID[gl()] || {}).parent || {}).path || "");
 const inHome = name => (home && home !== "/" ? home + "/" : "") + name;
-// raportul nou primește același tip de nume ca ghidul (ex. „03. Texere – Raport configurare”)
+// raportul nou primește același tip de nume ca ghidul (ex. „03. Texere – Setup report”)
 const gb = (GHID.ro || GHID.en || {}).basename || "";
 const num = gb.slice(0, gb.length - strip(gb).length).replace(/^\d+/, "03");
 // notă temporară = nota goală creată de Templater când scriptul e rulat din „Create new note from template”
 const isTemp = !!self && self !== tp.config.template_file && self.path !== (tp.config.template_file || {}).path;
 try {
-  const old = app.vault.getMarkdownFiles().filter(f => (strip(f.basename) === NAME || strip(f.basename).startsWith(NAME + " ")) && f !== self);
+  const old = app.vault.getMarkdownFiles().filter(f => (strip(f.basename) === NAME || strip(f.basename).startsWith(NAME + " ") || strip(f.basename) === "Raport configurare" || strip(f.basename).startsWith("Raport configurare ")) && f !== self);
   const all = [entry];
   for (const f of old) all.push(...await entriesOf(f));
   all.sort((x, y) => y.slice(3, 19).localeCompare(x.slice(3, 19)));
