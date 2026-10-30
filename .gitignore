@@ -1,18 +1,44 @@
-# macOS / Windows system files
+# Texere – what goes to GitHub.
+# Everything is private by default: only the paths unlocked with "!" below are published.
+# A new folder you create stays on your laptop until you add it here.
+/*
+!/.gitignore
+!/README.md
+!/LICENSE
+!/Home.md
+!/Fields/
+!/01. Sources/
+!/Support/
+!/.obsidian/
+
+# Personal folders: only the empty folders are published (each keeps a hidden .gitkeep), never the notes
+!/02. Notes/
+!/03. Workspace/
+!/04. Export/
+/02. Notes/**
+/03. Workspace/**
+/04. Export/**
+!/02. Notes/**/
+!/03. Workspace/**/
+!/04. Export/**/
+!/02. Notes/**/.gitkeep
+!/03. Workspace/**/.gitkeep
+!/04. Export/**/.gitkeep
+
+# Never published
 .DS_Store
 Thumbs.db
+/Support/Utilities.md
+/Support/Admin/pdf-log.txt
+/Support/Guides/03. Texere – Setup report.md
+/Support/Guides/03. Texere – Raport configurare.md
+/01. Sources/Documents/kop_towards_2023.html
+/01. Sources/**/citekeylist.txt
 
-# Obsidian: personal layout and trash
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.trash/
-
-# Plugin caches and personal data
-.smart-env/
-.copilot/
-.opencode/
-.obsidian/pdf-highlight-backups/
-
-# Setup reports (written on each laptop, contain local paths)
-Texere/03. Texere – Setup report.md
-Texere/03. Texere – Raport configurare.md
+# Obsidian: your layout and settings written on each laptop (paths, caches)
+/.obsidian/workspace.json
+/.obsidian/workspace-mobile.json
+/.obsidian/workspaces.json
+/.obsidian/plugins/texere/data.json
+/.obsidian/plugins/obsidian-pandoc/data.json
+/.obsidian/pdf-highlight-backups/

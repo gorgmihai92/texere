@@ -47,11 +47,11 @@
     },
     {
       "name": "Quote in callout",
-      "template": "> [!{{({\"255,212,0\":\"fact\",\"255,102,102\":\"disagree\",\"95,178,54\":\"agree\",\"46,168,229\":\"connection\",\"229,110,238\":\"question\",\"241,152,55\":\"definition\",\"102,102,102\":\"word\"}[color.replace(/\\s/g, \"\")] || color)}}] {{linkWithDisplay}}\n> > #{{({\"255,212,0\":\"fact\",\"255,102,102\":\"disagree\",\"95,178,54\":\"agree\",\"46,168,229\":\"connection\",\"229,110,238\":\"question\",\"241,152,55\":\"definition\",\"102,102,102\":\"word\"}[color.replace(/\\s/g, \"\")] || color)}} {{text}}\n> \n> "
+      "template": "> [!{{({\"224,71,158\":\"fact\",\"245,168,0\":\"claim\",\"244,91,91\":\"disagree\",\"0,168,150\":\"agree\",\"0,128,255\":\"connection\",\"146,84,222\":\"question\",\"245,119,34\":\"definition\",\"102,102,102\":\"word\"}[color.replace(/\\s/g, \"\")] || color)}}] {{linkWithDisplay}}\n> > #{{({\"224,71,158\":\"fact\",\"245,168,0\":\"claim\",\"244,91,91\":\"disagree\",\"0,168,150\":\"agree\",\"0,128,255\":\"connection\",\"146,84,222\":\"question\",\"245,119,34\":\"definition\",\"102,102,102\":\"word\"}[color.replace(/\\s/g, \"\")] || color)}} {{text}}\n> \n> "
     },
     {
       "name": "Paragraf",
-      "template": "{{((value) => { try { return (function highlightTagForColor(value) { const names = ['fact', 'disagree', 'agree', 'connection', 'question', 'definition', 'word']; const rgbNames = new Map([ ['255,212,0', 'fact'], ['255,102,102', 'disagree'], ['95,178,54', 'agree'], ['46,168,229', 'connection'], ['229,110,238', 'question'], ['241,152,55', 'definition'], ['102,102,102', 'word'] ]); const raw = String(value ?? '').trim(); const name = raw.toLowerCase(); if (names.includes(name)) return '#' + name + ' '; let csv = raw; const rgb = raw.match(/^rgb\\(\\s*(.*?)\\s*\\)$/i); if (rgb) csv = rgb[1]; if (/^#[0-9a-f]{6}$/i.test(csv)) { csv = [1, 3, 5].map((offset) => parseInt(csv.slice(offset, offset + 2), 16)).join(','); } csv = csv.replace(/\\s+/g, ''); const tag = rgbNames.get(csv); if (tag) return '#' + tag + ' '; throw new Error('Culoare de verificat: ' + (raw || '(valoare goală)') + '. Setează o culoare asociată unuia dintre cele șapte taguri.'); })(value); } catch (error) { new obsidian.Notice(error.message, 10000); throw error; } })(colorName)}}{{text.replace(/\\s+/g, \" \").trim()}} {{linkWithDisplay}}"
+      "template": "{{((value) => { try { return (function highlightTagForColor(value) { const names = ['fact', 'claim', 'disagree', 'agree', 'connection', 'question', 'definition', 'word']; const rgbNames = new Map([ ['224,71,158', 'fact'], ['245,168,0', 'claim'], ['244,91,91', 'disagree'], ['0,168,150', 'agree'], ['0,128,255', 'connection'], ['146,84,222', 'question'], ['245,119,34', 'definition'], ['102,102,102', 'word'] ]); const raw = String(value ?? '').trim(); const name = raw.toLowerCase(); if (names.includes(name)) return '#' + name + ' '; let csv = raw; const rgb = raw.match(/^rgb\\(\\s*(.*?)\\s*\\)$/i); if (rgb) csv = rgb[1]; if (/^#[0-9a-f]{6}$/i.test(csv)) { csv = [1, 3, 5].map((offset) => parseInt(csv.slice(offset, offset + 2), 16)).join(','); } csv = csv.replace(/\\s+/g, ''); const tag = rgbNames.get(csv); if (tag) return '#' + tag + ' '; throw new Error('Culoare de verificat: ' + (raw || '(valoare goală)') + '. Setează o culoare asociată unuia dintre cele opt taguri.'); })(value); } catch (error) { new obsidian.Notice(error.message, 10000); throw error; } })(colorName)}}{{text.replace(/\\s+/g, \" \").trim()}} [@{{String(properties.id || md?.basename || file.basename).replace(/^@/, \"\")}}, p. {{pageLabel}}] [[{{linktext}}|PDF]]\n"
     }
   ],
   "useAnotherCopyTemplateWhenNoSelection": false,
@@ -85,20 +85,21 @@
   "highlightOnHoverBacklinkPane": true,
   "backlinkHoverColor": "",
   "colors": {
-    "fact": "#ffd400",
-    "disagree": "#ff6666",
-    "agree": "#5fb236",
-    "connection": "#2ea8e5",
-    "question": "#e56eee",
-    "definition": "#f19837",
+    "fact": "#e0479e",
+    "claim": "#f5a800",
+    "disagree": "#f45b5b",
+    "agree": "#00a896",
+    "connection": "#0080ff",
+    "question": "#9254de",
+    "definition": "#f57722",
     "word": "#666666"
   },
   "defaultColor": "",
-  "defaultColorPaletteItemIndex": 1,
+  "defaultColorPaletteItemIndex": 2,
   "syncColorPaletteItem": true,
   "syncDefaultColorPaletteItem": false,
   "colorPaletteInToolbar": true,
-  "noColorButtonInColorPalette": true,
+  "noColorButtonInColorPalette": false,
   "colorPaletteInEmbedToolbar": false,
   "quietColorPaletteTooltip": false,
   "showStatusInToolbar": true,
@@ -129,7 +130,7 @@
   "syncDefaultWriteFileToggle": false,
   "enableAnnotationDeletion": true,
   "warnEveryAnnotationDelete": false,
-  "warnBacklinkedAnnotationDelete": true,
+  "warnBacklinkedAnnotationDelete": false,
   "enableAnnotationContentEdit": true,
   "enableEditEncryptedPDF": false,
   "pdfLinkColor": "#04a802",

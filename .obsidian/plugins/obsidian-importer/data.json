@@ -1,0 +1,21 @@
+{
+  "secrets": {},
+  "outputLocations": {},
+  "outputSettings": {
+    "apple-notes": {
+      "folder": "Apple Notes",
+      "attachments": {
+        "mode": "folder",
+        "path": "01. Sources/Inbox"
+      },
+      "duplicates": "update",
+      "saveSourceId": true,
+      "idProperty": "apple-notes-id",
+      "template": "",
+      "titleTemplate": "{{title}}"
+    }
+  },
+  "onenoteAttachments": {},
+  "sourceFolders": {},
+  "lastSourceFolder": ""
+}

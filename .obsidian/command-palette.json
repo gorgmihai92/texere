@@ -1,0 +1,9 @@
+{
+  "pinned": [
+    "biblib:create-literature-note",
+    "biblib:build-bibliography",
+    "obsidian-pandoc:pandoc-export-pdf",
+    "ghid-ajutor:help",
+    "texere:setup"
+  ]
+}

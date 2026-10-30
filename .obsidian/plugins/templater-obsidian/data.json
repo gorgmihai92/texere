@@ -1,7 +1,7 @@
 {
   "data_version": 2,
   "command_timeout": 5,
-  "templates_folder": "Templates",
+  "templates_folder": "Support/Templates",
   "templates_pairs": [],
   "trigger_on_file_creation_mode": "none",
   "auto_jump_to_cursor": true,
@@ -14,8 +14,8 @@
   "syntax_highlighting_mobile": true,
   "enabled_templates_hotkeys": [],
   "startup_templates": [
-    "Scripts/Guide folding.md",
-    "Scripts/Help.md"
+    "Support/Admin/Scripts/Guide folding.md",
+    "Support/Admin/Scripts/Help.md"
   ],
   "intellisense_render": "1",
   "ignore_folders_on_creation": []

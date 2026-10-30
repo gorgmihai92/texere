@@ -1,6 +1,6 @@
 {
   "alwaysUpdateLinks": true,
-  "attachmentFolderPath": "Media",
+  "attachmentFolderPath": "Support/Media",
   "pdfExportSettings": {
     "pageSize": "Letter",
     "landscape": false,

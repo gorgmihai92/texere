@@ -8,7 +8,7 @@ Texere is a ready-made [Obsidian](https://obsidian.md) vault for academic resear
 
 *Texere* (Latin, "to weave") is the root of the word *text*: a text is woven from ideas linked together.
 
-> 🇷🇴 **În română:** Texere este un vault Obsidian gata pregătit pentru cercetare academică. Adună sursele, PDF-urile, notițele de lectură, ideile și lucrarea finală într-un singur loc și se configurează singur pe orice laptop. Ghidul complet în română este în nota `Texere/02. Texere – Vault-ul cercetătorului`. Configurarea și butonul Ajutor funcționează în română sau în engleză, la alegere. Primul pas: instalează [Obsidian](https://obsidian.md/download) (gratuit).
+> 🇷🇴 **În română:** Texere este un vault Obsidian gata pregătit pentru cercetare academică. Adună sursele, PDF-urile, notițele de lectură, ideile și lucrarea finală într-un singur loc și se configurează singur pe orice laptop. Ghidul complet în română este în nota `Support/Guides/02. Texere – Vault-ul cercetătorului`; pagina de start este `Home`. Configurarea și butonul Ajutor funcționează în română sau în engleză, la alegere. Primul pas: instalează [Obsidian](https://obsidian.md/download) (gratuit).
 
 ---
 
@@ -19,10 +19,11 @@ Research is usually a fractured experience. Each stage happens in a different ap
 | Stage | Without Texere | With Texere |
 | --- | --- | --- |
 | Finding a source | Saved in Zotero, the browser or a downloads folder | Imported by DOI or ISBN; the note and the PDF appear in the vault |
-| Reading | Underlined PDFs, notes on paper or in Word | Highlights land in the source's note, with the page and a link back to the PDF |
+| Reading | Underlined PDFs, notes on paper or in Word | Highlights land in the source's note, tagged by color, with the citation and a link back to the exact place in the PDF |
 | Connecting ideas | You remember who said what, and where | Notes link to each other; every source on a concept is one click away |
 | Finding a quote again | Searching PDFs, notebooks and folders | Search a word or a tag (e.g. `#disagree`) and get the passage with its page |
-| Citing | Formatting every citation and the bibliography by hand | Write `[@citekey, p. 34]`; citations and bibliography are generated (APA by default) |
+| Citing | Formatting every citation and the bibliography by hand | Type `@` and pick the source; citations show in your style (APA, Chicago, MLA…) and the bibliography is generated |
+| Judging a source | Looking it up on several sites | Each source shows how many papers support, contrast or cite it, year by year |
 | Submitting | Pasting into Word and redoing the layout | Export straight to Word or PDF |
 | **Places you work in** | **6** | **1** |
 
@@ -46,9 +47,9 @@ The examples come from philosophy (the vault includes a map of the field with ~3
 Then you work in four stages, each explained in the guide:
 
 1. **Add a source**: by DOI/ISBN from Obsidian, or from the browser with Zotero Connector.
-2. **Read and highlight**: each highlight color is a type of idea (claim, agreement, disagreement, question, definition…) and becomes a tagged passage in the source's note, linked to the exact page.
-3. **Write and cite**: start from the *New article* template and cite with `[@citekey, p. 34]`.
-4. **Build the bibliography and export** to Word or PDF.
+2. **Read and highlight**: each highlight color is a type of idea (claim, fact, agreement, disagreement, question, definition…) and becomes a tagged passage in the source's note, ending with its citation and a link to the exact place in the PDF. Deleting or recoloring a highlight in the PDF updates the note, and the other way round.
+3. **Write and cite**: start from the *New article* template, type `@` and pick the source. Citations appear already formatted, e.g. *(Craig, 2002, p. 34)*.
+4. **Build the bibliography and export** to Word or PDF, in the same style.
 
 Stuck? Click the **Help** button (the life buoy in the left sidebar) and type your question in your own words, in English or Romanian.
 
@@ -59,6 +60,14 @@ Stuck? Click the **Help** button (the life buoy in the left sidebar) and type yo
 - A LaTeX distribution for PDF only: [MacTeX](https://tug.org/mactex/) on Mac, [MiKTeX](https://miktex.org/download) on Windows
 
 The setup checks for these and tells you what's missing.
+
+### Citation styles
+
+The text of a citation stays `[@citekey, p. 34]`; only its display changes. Click the style at the bottom right of the window (e.g. **APA**) to switch a note to Chicago, MLA, Harvard, IEEE or any of the 10,000+ styles of the [Zotero Style Repository](https://www.zotero.org/styles) (**Add a style…** searches and installs them). The note and the export change together, so you can export in APA and, a minute later, in Chicago.
+
+### Source stats
+
+At the top of every source's note, a small panel shows how the source is received: citations that **support**, **contrast** or **mention** it ([scite](https://scite.ai)), times cited, FWCI and percentile ([OpenAlex](https://openalex.org)), influential citations ([Semantic Scholar](https://www.semanticscholar.org)), open access, the number of citations in each year, and, from your own vault, your highlights by type and the notes that cite it. It refreshes by itself once a day.
 
 ## Why it matters
 
@@ -72,29 +81,34 @@ The setup checks for these and tells you what's missing.
 
 | Folder | Contents |
 | --- | --- |
-| `Texere` | The guide in English and Romanian, export test notes and research-methodology notes |
-| `References` | One note per source; the first 5 are examples you can delete after setup |
-| `Documents` | The sources' PDFs |
-| `Domains`, `Branch`, `Subdomains`, `Theories`, `Concepts`, `Movements`, `Historical Periods` | A map of philosophy, one short note per item, linked together |
-| `Templates` | The *New article* and *New author* templates, plus the setup script |
-| `Scripts` | The scripts behind the Help button and the guide's chapter folding |
-| `biblib` | The bibliography and the citation style (APA) |
-| `Export` | Exported files (examples included) |
+| `Home` | The start page: the guides, the four stages and quick actions |
+| `01. Sources/Literature Notes` | One note per source; the 5 included are examples you can delete after setup |
+| `01. Sources/Documents` | The sources' PDFs |
+| `02. Notes` | Your own notes (Essays, Personal, Poetry); empty |
+| `03. Workspace` | Your work: Courses, Dissertation, Articles, Projects; empty |
+| `04. Export` | Exported Word and PDF files |
+| `Fields/Philosophy` | A map of philosophy (branches, subdomains, theories, concepts, movements, periods), one short linked note per item |
+| `Support/Guides` | The guide in English and Romanian, the export test and research-methodology notes |
+| `Support/Templates` | The *New article* and *New author* templates, plus the setup script |
+| `Support/Admin` | The bibliography, the citation styles and the scripts behind the Help button |
+| `Support/Media` | Images used in notes |
 
-The vault uses these community plugins: Templater, BibLib, Pandoc Plugin, PDF++, Omnisearch, Smart Connections, Style Settings, Callout Manager, Editing Toolbar, plus the small **Texere** plugin that starts the setup.
+The vault uses these community plugins: Templater, BibLib, Pandoc Plugin, PDF++, Omnisearch, Smart Connections, Style Settings, Callout Manager, Editing Toolbar, Excalidraw, Importer, plus the **Texere** plugin: it starts the setup, keeps PDF highlights and notes in sync, formats citations in the chosen style and shows the source stats.
 
 ## Start here
 
 Open the guide that matches your language:
 
-- 🇬🇧 `Texere/01. Texere – The Researcher's Vault`
-- 🇷🇴 `Texere/02. Texere – Vault-ul cercetătorului`
+- 🇬🇧 `Support/Guides/01. Texere – The Researcher's Vault`
+- 🇷🇴 `Support/Guides/02. Texere – Vault-ul cercetătorului`
+
+Or open `Home`, the start page.
 
 ## License
 
-- **Code** (the setup, the Help and folding scripts, the Texere plugin): [MIT](LICENSE)
+- **Code** (the setup, the Help and folding scripts, the Texere plugin): [MIT](LICENSE). The Texere plugin bundles [citeproc-js](https://github.com/Juris-M/citeproc-js) (CPAL/AGPL) and the [CSL styles and locales](https://citationstyles.org) (CC BY-SA 3.0).
 - **Guides and notes** (the guides, the philosophy map, the templates): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Share and adapt freely, with credit.
-- The PDFs in `Documents` and the community plugins belong to their authors and keep their own licenses. Details in [LICENSE](LICENSE).
+- The PDFs in `01. Sources/Documents` and the community plugins belong to their authors and keep their own licenses. Details in [LICENSE](LICENSE).
 
 ---
 

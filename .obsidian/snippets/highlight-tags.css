@@ -1,58 +1,68 @@
-/* Taguri pentru evidențieri: culorile din paleta CSS inițială.
-   Reading view, Live Preview și Source mode.
-   Fundal transparent și contur discret; stilul este limitat la cele șapte taguri. */
+/* Texere: etichetele evidențierilor (#fact, #claim…), în culorile din paleta PDF++.
+   Text în culoarea etichetei, contur gri (ca liniile de separare din Obsidian), fundal transparent. Reading view, Live Preview și Source mode. */
 
-a.tag:is([href="#fact"], [href="#disagree"], [href="#agree"],
-         [href="#connection"], [href="#question"], [href="#definition"], [href="#word"]),
-.cm-hashtag:is(.cm-tag-fact, .cm-tag-disagree, .cm-tag-agree,
-               .cm-tag-connection, .cm-tag-question, .cm-tag-definition, .cm-tag-word) {
+a.tag:is([href="#fact"], [href="#claim"], [href="#disagree"], [href="#agree"], [href="#connection"], [href="#question"], [href="#definition"], [href="#word"]),
+.cm-hashtag:is(.cm-tag-fact, .cm-tag-claim, .cm-tag-disagree, .cm-tag-agree, .cm-tag-connection, .cm-tag-question, .cm-tag-definition, .cm-tag-word) {
   --tag-color: var(--highlight-tag-color) !important;
   --tag-color-hover: var(--highlight-tag-color) !important;
   --tag-background: transparent !important;
   --tag-background-hover: transparent !important;
-  --tag-border-color: var(--background-modifier-border) !important;
-  --tag-border-color-hover: var(--background-modifier-border) !important;
+  --tag-border-color: var(--divider-color) !important;
+  --tag-border-color-hover: var(--divider-color) !important;
   --tag-border-width: 1px !important;
   --tag-radius: 999px;
   --tag-decoration: none;
   --tag-decoration-hover: none;
   color: var(--highlight-tag-color) !important;
   background-color: transparent !important;
-  border-color: var(--background-modifier-border) !important;
+  border-color: var(--divider-color) !important;
   text-decoration: none !important;
 }
 
 a.tag[href="#fact"],
 .cm-hashtag.cm-tag-fact {
-  --highlight-tag-color: #ffd400;
+  --highlight-tag-color: #E0479E;
+}
+
+a.tag[href="#claim"],
+.cm-hashtag.cm-tag-claim {
+  --highlight-tag-color: #F5A800;
 }
 
 a.tag[href="#disagree"],
 .cm-hashtag.cm-tag-disagree {
-  --highlight-tag-color: #ff6666;
+  --highlight-tag-color: #F45B5B;
 }
 
 a.tag[href="#agree"],
 .cm-hashtag.cm-tag-agree {
-  --highlight-tag-color: #5fb236;
+  --highlight-tag-color: #00A896;
 }
 
 a.tag[href="#connection"],
 .cm-hashtag.cm-tag-connection {
-  --highlight-tag-color: #2ea8e5;
+  --highlight-tag-color: #0080FF;
 }
 
 a.tag[href="#question"],
 .cm-hashtag.cm-tag-question {
-  --highlight-tag-color: #e56eee;
+  --highlight-tag-color: #9254DE;
 }
 
 a.tag[href="#definition"],
 .cm-hashtag.cm-tag-definition {
-  --highlight-tag-color: #f19837;
+  --highlight-tag-color: #F57722;
 }
 
 a.tag[href="#word"],
 .cm-hashtag.cm-tag-word {
   --highlight-tag-color: #666666;
+}
+
+/* toate etichetele din vault: același contur gri ca liniile de separare din Obsidian */
+a.tag, .cm-hashtag {
+  --tag-border-color: var(--divider-color) !important;
+  --tag-border-color-hover: var(--divider-color) !important;
+  --tag-border-width: 1px !important;
+  border-color: var(--divider-color) !important;
 }

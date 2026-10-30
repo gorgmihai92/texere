@@ -1,24 +1,29 @@
 Texere is released under two licenses, depending on the type of content.
 
 1. Code: MIT License
-   Applies to: Scripts/, Templates/New laptop setup.md and .obsidian/plugins/texere/
+   Applies to: Support/Admin/Scripts/, Support/Templates/New laptop setup.md and
+   .obsidian/plugins/texere/ (except the bundled third-party files listed below).
 
 2. Guides and notes: Creative Commons Attribution 4.0 International (CC BY 4.0)
-   Applies to: the guides and notes in Texere/, the philosophy map (Domains/, Branch/,
-   Subdomains/, Theories/, Concepts/, Movements/, Historical Periods/), the templates
-   in Templates/ and the example notes in References/.
+   Applies to: Home.md, the guides and notes in Support/Guides/, the philosophy map
+   in Fields/, the templates in Support/Templates/ and the example notes in
+   01. Sources/Literature Notes/.
    Full text: https://creativecommons.org/licenses/by/4.0/legalcode
    You may share and adapt this material for any purpose, as long as you give
    appropriate credit to George Mihai (https://www.georgemihai.com) and indicate if
    changes were made.
 
 Not covered by these licenses:
-   - The PDFs and other files in Documents/, which belong to their respective authors
-     and publishers.
+   - The PDFs and other files in 01. Sources/Documents/, which belong to their
+     respective authors and publishers.
    - The community plugins in .obsidian/plugins/ (other than texere), which are
      distributed under their own licenses by their authors.
-   - The citation style in biblib/apa.csl, distributed under CC BY-SA 3.0 by the
-     Citation Style Language project.
+   - .obsidian/plugins/texere/citeproc.js (citeproc-js by Frank Bennett, CPAL 1.0 or
+     AGPL 3.0).
+   - The citation styles (Support/Admin/biblib/*.csl), the CSL locales
+     (.obsidian/plugins/texere/locales/) and the style list
+     (.obsidian/plugins/texere/styles-index.json), distributed under CC BY-SA 3.0 by
+     the Citation Style Language project.
 
 -------------------------------------------------------------------------------
 
