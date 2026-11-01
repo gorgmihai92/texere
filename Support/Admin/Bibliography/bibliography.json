@@ -1,0 +1,264 @@
+[
+  {
+    "id": "vica_avatarobots_2026",
+    "type": "article-journal",
+    "title": "Avatarobots and the crisis of democracy: From bot armies to metaverse swarms",
+    "issued": {
+      "date-parts": [
+        [
+          2026
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.14763/2026.3.2118",
+    "DOI": "10.14763/2026.3.2118",
+    "container-title": "Internet Policy Review",
+    "volume": 15,
+    "number": 3,
+    "abstract": "In this paper, we argue that immersive virtual reality environments, which we call the metaverse, can reproduce and intensify the risks social media platforms raise for democracies.At the center of our analysis are avatarobots, digital agents that resemble human beings, usually in their speech and behaviour, but sometimes also in their appearance, while operating partly or entirely without continuous direct human control.We examine how AI-powered avatarobots can fabricate synthetic majorities, simulate political agency, and distort the signals on which democratic legitimacy depends.To evaluate these risks, we develop the Principle of Accountable Free Expression (PAFE), structured around three criteria: authenticity, non-domination, and verifiability.These correspond to responsibility for speech, insulation from economic domination, and the verifiable origin of political communication.We ",
+    "author": [
+      {
+        "family": "Vică",
+        "given": "Constantin"
+      },
+      {
+        "family": "Uszkai",
+        "given": "Radu"
+      },
+      {
+        "family": "Dancu",
+        "given": "Alexandru"
+      },
+      {
+        "family": "Voinea",
+        "given": "Cristina"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          31
+        ]
+      ]
+    },
+    "citation-key": "vica_avatarobots_2026",
+    "ISSN": "2197-6775",
+    "year": "2026",
+    "dateCreated": "2026-10-31",
+    "reading-status": "#unread",
+    "aliases": [
+      "Avatarobots and the crisis of democracy: From bot armies to metaverse swarms",
+      "@vica_avatarobots_2026"
+    ],
+    "author-links": [
+      "[[Author/Constantin Vică]]",
+      "[[Author/Radu Uszkai]]",
+      "[[Author/Alexandru Dancu]]",
+      "[[Author/Cristina Voinea]]"
+    ],
+    "attachment": [
+      "[[Vică et al. 2026 – Avatarobots and the crisis of democracy. From bot armies to metaverse swarms.pdf]]"
+    ],
+    "domain": [],
+    "branch": [],
+    "subdomain": [],
+    "concepts": [],
+    "theories": [],
+    "historical-period": [],
+    "obsidianPath": "01. Sources/Literature Notes/Vică et al. 2026 – Avatarobots and the crisis of democracy. From bot armies to metaverse swarms.md"
+  },
+  {
+    "id": "dummett_origins_1996",
+    "type": "book",
+    "title": "Origins of Analytical Philosophy",
+    "issued": {
+      "date-parts": [
+        [
+          1996,
+          9
+        ]
+      ]
+    },
+    "publisher": "Harvard University Press",
+    "author": [
+      {
+        "family": "Dummett",
+        "given": "Michael"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          21
+        ]
+      ]
+    },
+    "citation-key": "dummett_origins_1996",
+    "ISBN": "9780674644731",
+    "keyword": "Analysis (philosophy),Analysis (Philosophy),Phenomenology,Philosophie analytique,Phénoménologie",
+    "note": "OCLC: 38153975 Open Library ID: OL26820651M",
+    "year": "1996",
+    "dateCreated": "2026-10-21",
+    "reading-status": "#unread",
+    "aliases": [
+      "Origins of Analytical Philosophy",
+      "@dummett_origins_1996"
+    ],
+    "author-links": [
+      "[[Author/Michael Dummett]]"
+    ],
+    "attachment": [
+      "[[Dummett 1996 – Origins of Analytical Philosophy.pdf]]"
+    ],
+    "domain": [],
+    "branch": [],
+    "subdomain": [],
+    "concepts": [],
+    "theories": [],
+    "historical-period": [],
+    "obsidianPath": "01. Sources/Literature Notes/Dummett 1996 – Origins of Analytical Philosophy.md"
+  },
+  {
+    "id": "craig_philosophy_2002",
+    "type": "book",
+    "title": "Philosophy: a very short introduction",
+    "issued": {
+      "date-parts": [
+        [
+          2002
+        ]
+      ]
+    },
+    "title-short": "Philosophy",
+    "publisher": "Oxford University Press",
+    "publisher-place": "Oxford ; New York",
+    "author": [
+      {
+        "family": "Craig",
+        "given": "Edward"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          6
+        ]
+      ]
+    },
+    "collection-number": "55",
+    "collection-title": "Very short introductions",
+    "citation-key": "craig_philosophy:_2002",
+    "ISBN": "9780192854216",
+    "keyword": "Philosophy",
+    "year": "2002",
+    "dateCreated": "2026-10-06",
+    "reading-status": "#read",
+    "aliases": [
+      "Philosophy — A very short introduction",
+      "@craig_philosophy_2002"
+    ],
+    "author-links": [
+      "[[Author/Edward Craig]]"
+    ],
+    "attachment": [
+      "[[Craig 2002 – Philosophy. A very short introduction.pdf]]"
+    ],
+    "domain": [
+      "[[Philosophy]]"
+    ],
+    "branch": [
+      "[[Introduction]]"
+    ],
+    "subdomain": [],
+    "concepts": [],
+    "theories": [
+      "[[Dualism]]",
+      "[[Idealism]]",
+      "[[Materialism]]",
+      "[[Skepticism]]"
+    ],
+    "historical-period": [
+      "[[Contemporary (20th Century - Present)]]"
+    ],
+    "obsidianPath": "01. Sources/Literature Notes/Craig 2002 – Philosophy. A very short introduction.md"
+  },
+  {
+    "id": "blackburn_gandeste_2009",
+    "type": "book",
+    "title": "Gândește: O introducere convingătoare în filosofie",
+    "issued": {
+      "date-parts": [
+        [
+          2009
+        ]
+      ]
+    },
+    "title-short": "Gândește",
+    "publisher": "Editura ALL",
+    "publisher-place": "București",
+    "language": "ro",
+    "author": [
+      {
+        "family": "Blackburn",
+        "given": "Simon"
+      }
+    ],
+    "translator": [
+      {
+        "family": "Constantinescu",
+        "given": "Cristian"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          31
+        ]
+      ]
+    },
+    "citation-key": "blackburn_gandeste_2009",
+    "ISBN": "9789735717964",
+    "original-date": {
+      "date-parts": [
+        [
+          1999
+        ]
+      ]
+    },
+    "original-title": "Think: A Compelling Introduction to Philosophy",
+    "year": "2009",
+    "dateCreated": "2026-10-31",
+    "reading-status": "#unread",
+    "aliases": [
+      "Gândește: O introducere convingătoare în filosofie",
+      "@blackburn_gandeste_2009"
+    ],
+    "author-links": [
+      "[[Author/Simon Blackburn]]"
+    ],
+    "attachment": [
+      "[[Blackburn 1999 (2009) – Gândește. O introducere convingătoare în filosofie.pdf]]"
+    ],
+    "domain": [
+      "[[Philosophy]]"
+    ],
+    "branch": [
+      "[[Introduction]]"
+    ],
+    "subdomain": [],
+    "concepts": [],
+    "theories": [],
+    "historical-period": [
+      "[[Contemporary (20th Century - Present)]]"
+    ],
+    "obsidianPath": "01. Sources/Literature Notes/Blackburn 1999 (2009) – Gândește. O introducere convingătoare în filosofie.md"
+  }
+]

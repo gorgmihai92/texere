@@ -1,11 +1,12 @@
 Texere is released under two licenses, depending on the type of content.
 
 1. Code: MIT License
-   Applies to: Support/Admin/Scripts/, Support/Templates/New laptop setup.md and
-   .obsidian/plugins/texere/ (except the bundled third-party files listed below).
+   Applies to: Support/Admin/Scripts/, Support/Templates/New laptop setup.md and the
+   Texere plugins in .obsidian/plugins/texere/, .obsidian/plugins/texere-sources/ and
+   .obsidian/plugins/texere-export/ (except the bundled third-party files listed below).
 
 2. Guides and notes: Creative Commons Attribution 4.0 International (CC BY 4.0)
-   Applies to: Home.md, the guides and notes in Support/Guides/, the philosophy map
+   Applies to: the guides and notes in Support/About/ and Support/Guides/, the philosophy map
    in Fields/, the templates in Support/Templates/ and the example notes in
    01. Sources/Literature Notes/.
    Full text: https://creativecommons.org/licenses/by/4.0/legalcode
@@ -16,14 +17,17 @@ Texere is released under two licenses, depending on the type of content.
 Not covered by these licenses:
    - The PDFs and other files in 01. Sources/Documents/, which belong to their
      respective authors and publishers.
-   - The community plugins in .obsidian/plugins/ (other than texere), which are
-     distributed under their own licenses by their authors.
-   - .obsidian/plugins/texere/citeproc.js (citeproc-js by Frank Bennett, CPAL 1.0 or
-     AGPL 3.0).
-   - The citation styles (Support/Admin/biblib/*.csl), the CSL locales
-     (.obsidian/plugins/texere/locales/) and the style list
-     (.obsidian/plugins/texere/styles-index.json), distributed under CC BY-SA 3.0 by
-     the Citation Style Language project.
+   - The community plugins in .obsidian/plugins/ (other than texere, texere-sources and
+     texere-export), which are distributed under their own licenses by their authors.
+   - .obsidian/plugins/texere-sources/sources/citeproc.js (citeproc-js by Frank Bennett,
+     CPAL 1.0 or AGPL 3.0).
+   - The citation styles (Support/Admin/Bibliography/*.csl), the CSL locales
+     (.obsidian/plugins/texere-sources/sources/locales/) and the style list
+     (.obsidian/plugins/texere-sources/sources/styles-index.json), distributed under
+     CC BY-SA 3.0 by the Citation Style Language project.
+   - The libraries bundled in .obsidian/plugins/texere-export/: lib-docx.js (docx by
+     Dolan Miu), lib-markdown.js (markdown-it and markdown-it-footnote) and lib-paged.js
+     (Paged.js), each under the MIT License by its authors.
 
 -------------------------------------------------------------------------------
 

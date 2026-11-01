@@ -2,13 +2,10 @@
   "templater-obsidian",
   "pdf-plus",
   "obsidian-style-settings",
-  "callout-manager",
-  "editing-toolbar",
   "omnisearch",
-  "smart-connections",
-  "biblib",
-  "obsidian-pandoc",
-  "texere",
   "obsidian-excalidraw-plugin",
-  "obsidian-importer"
+  "editing-toolbar",
+  "texere",
+  "texere-sources",
+  "texere-export"
 ]

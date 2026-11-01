@@ -5,7 +5,6 @@
 !/.gitignore
 !/README.md
 !/LICENSE
-!/Home.md
 !/Fields/
 !/01. Sources/
 !/Support/
@@ -30,8 +29,8 @@
 Thumbs.db
 /Support/Utilities.md
 /Support/Admin/pdf-log.txt
-/Support/Guides/03. Texere – Setup report.md
-/Support/Guides/03. Texere – Raport configurare.md
+/Support/**/*Setup report*.md
+/Support/**/*Raport configurare*.md
 /01. Sources/Documents/kop_towards_2023.html
 /01. Sources/**/citekeylist.txt
 
@@ -39,6 +38,12 @@ Thumbs.db
 /.obsidian/workspace.json
 /.obsidian/workspace-mobile.json
 /.obsidian/workspaces.json
-/.obsidian/plugins/texere/data.json
-/.obsidian/plugins/obsidian-pandoc/data.json
 /.obsidian/pdf-highlight-backups/
+
+# Texere plugins: your settings stay on your laptop (catalog and Zotero keys, export folder, caches);
+# a new vault starts from the plugins' defaults
+/.obsidian/plugins/texere/data.json
+/.obsidian/plugins/texere-sources/data.json
+/.obsidian/plugins/texere-export/data.json
+/.obsidian/plugins/texere-sources/sources/sources-test.log
+/.obsidian/plugins/texere-sources/sources/pdf-log.txt

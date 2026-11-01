@@ -1,6 +1,7 @@
 <%*
-// Configurare automata pentru un laptop nou (Mac sau Windows). Versiune 2.2.0 (2026-10-27)
-// Porneste singura dupa "Trust author" (pluginul Texere) sau din Ctrl/Cmd + P -> "Texere – The Researcher's Vault: Setup" / "Texere – The Researcher's Vault: Setup".
+// Configurare automata pentru un laptop nou (Mac sau Windows). Versiune 3.0.0 (2026-11-01)
+// Porneste singura dupa "Trust author" (pluginul Texere · The Researcher's Vault) sau din Ctrl/Cmd + P -> "Texere · The Researcher's Vault: Setup".
+// Pasii: limba; pluginurile Texere (Sources, Export) si cele de care depind (PDF++, Templater) + harta domeniilor; bibliografia; folderul exportului; butonul Ajutor.
 // O fereastra arata pasii pe rand (RO / EN). La final, raportul se scrie direct in nota "Setup report".
 // Pluginul ruleaza scriptul fara nota noua; din Templater ("Create new note from template") se creeaza o nota goala, care se sterge la final.
 const ob = tp.obsidian;
@@ -10,24 +11,9 @@ const sep = isWin ? "\\" : "/";
 const ad = app.vault.adapter;
 const base = ad.getBasePath ? ad.getBasePath() : ad.basePath;
 const join = (...p) => p.join(sep);
-let fs = null, cp = null;
-try { fs = window.require("fs"); cp = window.require("child_process"); } catch (e) {}
-const env = (typeof process !== "undefined" && process.env) ? process.env : {};
+let fs = null;
+try { fs = window.require("fs"); } catch (e) {}
 const exists = p => { try { return !!fs && fs.existsSync(p); } catch (e) { return false; } };
-const which = cmd => {
-  if (!cp) return null;
-  try {
-    const out = isWin ? cp.execSync(`where ${cmd}`, { encoding: "utf8" })
-                      : cp.execSync(`/bin/zsh -lc "command -v ${cmd}"`, { encoding: "utf8" });
-    const lines = out.split(/\r?\n/).map(s => s.trim()).filter(s => s && (isWin ? /\.exe$/i.test(s) : s.startsWith("/")));
-    return lines.length ? lines[lines.length - 1] : null;
-  } catch (e) { return null; }
-};
-const find = (cmd, cands) => cands.find(exists) || which(cmd);
-const L = env.LOCALAPPDATA || "", PF = env.ProgramFiles || "C:\\Program Files";
-const pandocC = isWin ? [`${L}\\Pandoc\\pandoc.exe`, `${PF}\\Pandoc\\pandoc.exe`] : ["/opt/homebrew/bin/pandoc", "/usr/local/bin/pandoc"];
-const texC = isWin ? [`${L}\\Programs\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe`, `${PF}\\MiKTeX\\miktex\\bin\\x64\\xelatex.exe`]
-                   : ["/Library/TeX/texbin/xelatex", "/opt/homebrew/bin/xelatex", "/usr/local/bin/xelatex"];
 const pause = ms => new Promise(r => setTimeout(r, ms));
 
 // ---------- limba (RO / EN): aceeași alegere ca în butonul Ajutor ----------
@@ -67,9 +53,7 @@ const guideFix = ref => {
     const A = secLines(txt, "8.1"), i = A.findIndex(l => l.startsWith(ref.step + ". "));
     if (i < 0) return "";
     let j = i + 1; while (j < A.length && /^(\t|  )/.test(A[j])) j++;
-    let out = `**${tx(M(`Pasul ${ref.step} din configurarea manuală`, `Step ${ref.step} of the manual setup`))}**\n\n` + [A[i].replace(/^\d+\.\s*/, "")].concat(A.slice(i + 1, j).map(l => l.replace(/^(\t|    |  )/, ""))).join("\n");
-    if (ref.step === 5) { const k = A.findIndex(l => /^> \[!tip\] (Cum afli locația|How to find the vault)/.test(l)); if (k >= 0) { let e = k; while (e < A.length && A[e].startsWith(">")) e++; out += "\n\n" + A.slice(k, e).join("\n"); } }
-    return out;
+    return `**${tx(M(`Pasul ${ref.step} din configurarea manuală`, `Step ${ref.step} of the manual setup`))}**\n\n` + [A[i].replace(/^\d+\.\s*/, "")].concat(A.slice(i + 1, j).map(l => l.replace(/^(\t|    |  )/, ""))).join("\n");
   }
   if (ref.row) {
     const row = secLines(txt, "8.2").find(l => l.startsWith("|") && l.includes(tx(ref.row)));
@@ -86,7 +70,7 @@ const START = [
   ["3", M("Adaugi o sursă", "Add a source")],
   ["4", M("Citești și evidențiezi pasajele importante", "Read and highlight the key passages")],
   ["5", M("Scrii și citezi", "Write and cite")],
-  ["6", M("Generezi bibliografia și exporți în Word sau PDF", "Build the bibliography and export to Word or PDF")],
+  ["6", M("Exporți în PDF sau Word", "Export to PDF or Word")],
 ];
 const secHead = num => ((ghidTxt[gl()] || "").match(new RegExp("^#{2,3}\\s+(" + num + "\\.\\s[^\\n]+?)\\s*$", "m")) || [])[1];
 
@@ -94,14 +78,12 @@ const secHead = num => ((ghidTxt[gl()] || "").match(new RegExp("^#{2,3}\\s+(" + 
 const STEPS = [
   { icon: "languages", label: M("Limba", "Language"), title: M("Alege limba", "Choose the language"), ask: true,
     what: M("Configurarea, raportul și butonul Ajutor vor folosi limba aleasă. O poți schimba oricând din colțul ferestrei.", "The setup, the report and the Help button will use the language you choose. You can change it any time from the corner of the window.") },
-  { icon: "puzzle", label: M("Pluginuri", "Plugins"), title: M("Verific pluginurile", "Checking the plugins"),
-    what: M("Verific dacă pluginurile necesare sunt pornite.", "I check that the plugins the guide needs are on.") },
-  { icon: "book-open", label: M("Bibliografie", "Bibliography"), title: M("Generez bibliografia", "Generating the bibliography"),
-    what: M("Adun sursele din References într-o listă. Din ea se fac citările.", "I gather the sources in References into one list. Citations are made from it.") },
-  { icon: "search", label: M("Programe", "Programs"), title: M("Caut programele pentru export", "Looking for the export programs"),
-    what: M("Caut Pandoc (pentru Word și PDF) și LaTeX (doar pentru PDF).", "I look for Pandoc (for Word and PDF) and LaTeX (only for PDF).") },
-  { icon: "download", label: M("Export", "Export"), title: M("Pregătesc exportul", "Setting up export"), ask: true,
-    what: M("Pregătesc exportul pentru acest laptop. Tu alegi doar folderul.", "I set up export for this laptop. You only choose the folder.") },
+  { icon: "puzzle", label: M("Pluginuri", "Plugins"), title: M("Pornesc pluginurile", "Turning on the plugins"),
+    what: M("Pornesc pluginurile Texere (Sources și Export) și verific PDF++, Templater și harta domeniilor. Dacă lipsește ceva, te întreb o dată.", "I turn on the Texere plugins (Sources and Export) and check PDF++, Templater and the map of fields. If something's missing, I ask you once.") },
+  { icon: "book-open", label: M("Bibliografie", "Bibliography"), title: M("Verific bibliografia", "Checking the bibliography"),
+    what: M("Adun sursele din Literature Notes într-o listă. Din ea se fac citările și bibliografia.", "I gather the sources in Literature Notes into one list. Citations and the bibliography come from it.") },
+  { icon: "download", label: M("Export", "Export"), title: M("Aleg folderul exportului", "Choosing the export folder"), ask: true,
+    what: M("Exportul nu are nevoie de alte programe. Tu alegi doar folderul în care apar fișierele exportate.", "Export needs no other program. You only choose the folder where exported files appear.") },
   { icon: "life-buoy", label: M("Ajutor", "Help"), title: M("Pornesc butonul Ajutor", "Turning on the Help button"),
     what: M("Pornesc butonul Ajutor și închiderea capitolelor din ghid.", "I turn on the Help button and chapter folding in the guide.") },
   { icon: "flag", label: M("Gata", "Done"), title: M("Gata", "All done"), what: "" },
@@ -303,7 +285,7 @@ const done = msg => { ok.push(msg); STEPS[cur].doing = null; STEPS[cur].items.pu
 const fix = (msg, you, ref) => { todo.push({ msg, you, ref: ref || null }); STEPS[cur].doing = null; STEPS[cur].items.push({ t: "todo", msg, you }); ui.render(); };
 const info = msg => { STEPS[cur].items.push({ t: "info", msg }); ui.render(); };
 // alegerea din fereastră; dacă fereastra e închisă, întoarce null (se folosește folderul Export)
-const EXP = 4;   // pasul Export
+const EXP = 3;   // pasul Export
 const STOP = new Error("texere-stop");   // fereastra a fost închisă: configurarea se oprește
 let restart = false;                     // limba Obsidian se schimbă după repornire
 const choose = (opts, note, step = EXP, q = M("Selectează locația unde salvez fișierele exportate:", "Select the location where I save exported files:")) => new Promise((resolve, reject) => {
@@ -332,103 +314,92 @@ try {
 ui.render();
 await end();
 
-// 2. Pluginurile
+// 2. Pluginurile: Texere · Sources și Texere · Export (vin cu vault-ul) se pornesc singure;
+//    ce lipsește (PDF++, Templater, harta domeniilor) se face după o singură întrebare (pasul 3 din ghid)
 await begin(1);
-const P = app.plugins.plugins, bib = P["biblib"], pan = P["obsidian-pandoc"];
-const miss = [!bib && "BibLib", !pan && "Pandoc Plugin"].filter(Boolean);
-if (miss.length) fix(M(`Nu sunt pornite: ${miss.join(", ")}.`, `Not turned on: ${miss.join(", ")}.`),
-  M("pornește-le din Settings → Community plugins, apoi rulează din nou configurarea.", "turn them on in Settings → Community plugins, then run the setup again."), { step: 2 });
-else done(M("Pluginurile de care ai nevoie sunt pornite.", "The plugins you need are on."));
+const core = app.plugins.plugins["texere"];
+const PL = ["texere-sources", "texere-export", "pdf-plus", "templater-obsidian"];
+const PNAME = { "texere-sources": "Texere · Sources", "texere-export": "Texere · Export", "pdf-plus": "PDF++", "templater-obsidian": "Templater" };
+const isOn = id => !!app.plugins.enabledPlugins?.has?.(id);
+const waitPlugin = async (id, ok, ms = 12000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { try { if (ok(app.plugins.plugins[id])) return true; } catch (e) {} await pause(300); } return false; };
+if (!core || !core.todo) {
+  fix(M("Pluginul Texere · The Researcher's Vault nu e pornit.", "The Texere · The Researcher's Vault plugin isn't on."),
+      M("pornește-l din Settings → Community plugins, apoi rulează din nou configurarea.", "turn it on in Settings → Community plugins, then run the setup again."), { step: 3 });
+} else {
+  let items = [];
+  try { items = await core.todo(); } catch (e) {}
+  for (const it of items.filter(x => x.kind === "texere")) {
+    doing(M(`Pornesc ${it.p.name}…`, `Turning on ${it.p.name}…`));
+    try { await core.doItem(it); done(M(`Am pornit ${it.p.name}.`, `Turned on ${it.p.name}.`)); }
+    catch (e) { fix(M(`Nu am putut porni ${it.p.name} (${e.message}).`, `I couldn't turn on ${it.p.name} (${e.message}).`), M("urmează pasul 3 din ghid.", "follow step 3 in the guide."), { step: 3 }); }
+  }
+  const rest = items.filter(x => x.kind !== "texere");
+  if (rest.length) {
+    const list = rest.map(x => x.label).join(" · ");
+    const v = await choose([
+      { v: "yes", icon: "download", label: M("Fă-le acum", "Do them now"), rec: true, desc: list },
+      { v: "no", icon: "clock", label: M("Nu acum", "Not now") },
+    ], null, 1, M("Mai lipsesc câteva lucruri. Le fac acum?", "A few things are still missing. Shall I do them now?"));
+    for (const it of rest) {
+      if (v !== "yes") { fix(M(`Încă de făcut: ${it.label}.`, `Still to do: ${it.label}.`), M("Settings → Texere · The Researcher's Vault, unde un clic face tot.", "Settings → Texere · The Researcher's Vault, where one click does it all."), { step: 3 }); continue; }
+      doing(M(`${it.label}…`, `${it.label}…`));
+      try { await core.doItem(it); done(M(`Gata: ${it.label}.`, `Done: ${it.label}.`)); }
+      catch (e) { fix(M(`Nu a mers: ${it.label} (${e.message}).`, `Didn't work: ${it.label} (${e.message}).`), M("urmează pasul 3 din ghid.", "follow step 3 in the guide."), { step: 3 }); }
+    }
+  }
+  try { core.settings.onboarded = true; await core.save(); } catch (e) {}   // fereastra de la prima pornire nu mai are ce arăta
+  const off = PL.filter(id => !isOn(id));
+  if (!off.length) done(M("Pluginurile Texere, PDF++ și Templater sunt pornite.", "The Texere plugins, PDF++ and Templater are on."));
+  else if (!todo.some(t => t.ref && t.ref.step === 3)) fix(M(`Nu sunt pornite: ${off.map(id => PNAME[id]).join(", ")}.`, `Not turned on: ${off.map(id => PNAME[id]).join(", ")}.`),
+      M("pornește-le din Settings → Texere · The Researcher's Vault, apoi rulează din nou configurarea.", "turn them on in Settings → Texere · The Researcher's Vault, then run the setup again."), { step: 3 });
+  for (const id of PL) if (isOn(id)) { const v = app.plugins.manifests?.[id]?.version; if (v) techAdd(PNAME[id], v); }
+}
 await end();
 
-// 2. Bibliografia (pasul 3 din ghid)
+// 3. Bibliografia (pasul 4 din ghid): Texere · Sources o ține la zi din notele de literatură; aici o refacem o dată și numărăm
 await begin(2);
-if (!bib) info(M("Sărit: BibLib nu e pornit.", "Skipped: BibLib isn't on."));
+if (!isOn("texere-sources")) info(M("Sărit: Texere · Sources nu e pornit.", "Skipped: Texere · Sources isn't on."));
 else try {
-  doing(M("Setez eticheta notelor de literatură…", "Setting the literature note tag…"));
-  bib.settings.literatureNoteTag = "literature_note, #literature_note";
-  // locațiile din vault (structura Texere): note de literatură, PDF-uri, bibliografie
-  Object.assign(bib.settings, { literatureNotePath: "01. Sources/Literature Notes/", attachmentFolderPath: "01. Sources/Documents", bibliographyJsonPath: "Support/Admin/biblib/bibliography.json", citekeyListPath: "Support/Admin/citekeylist.md", bibtexFilePath: "Support/Admin/biblib/bibliography.bib" });
-  await bib.saveSettings();
-  techAdd(M("Eticheta notelor de literatură", "Literature note tag"), "`literature_note, #literature_note`");
-  doing(M("Adun sursele din References…", "Gathering the sources in References…"));
-  app.commands.executeCommandById("biblib:build-bibliography");
-  await pause(2500);
-  let n = 0;
-  try { n = JSON.parse(await ad.read("Support/Admin/biblib/bibliography.json")).length; } catch (e) {}
-  const refs = app.vault.getMarkdownFiles().filter(f => f.path.startsWith("01. Sources/Literature Notes/")).length;
+  doing(M("Adun sursele din Literature Notes…", "Gathering the sources in Literature Notes…"));
+  await waitPlugin("texere-sources", p => p?.sources?.lib && p.sources.T_);
+  const src = app.plugins.plugins["texere-sources"]?.sources;
+  if (!src?.rebuildFromNotes) throw new Error(tx(M("Texere · Sources nu a pornit încă", "Texere · Sources hasn't started yet")));
+  const n = await src.rebuildFromNotes(true);
+  const dir = src.litDir();
+  const notes = app.vault.getMarkdownFiles().filter(f => f.path.startsWith(dir)).length;
   // sursele-exemplu din vault (păstrate ca model; se pot șterge după configurare)
-  const EX = ["blackburn_think_2001", "constantinescu_understanding_2021", "craig_philosophy_2002", "dummett_origins_1996", "vica_constantin_avatarobots_2026"];
-  const nEx = app.vault.getMarkdownFiles().filter(f => f.path.startsWith("01. Sources/Literature Notes/") && EX.includes(f.basename.replace(/^@/, ""))).length;
-  if (n >= refs) done(nEx && n <= nEx
+  const EX = ["blackburn_gandeste_2009", "craig_philosophy_2002", "dummett_origins_1996", "verbeek_what_2005", "vica_avatarobots_2026"];
+  const nEx = src.lib.all().filter(e => EX.includes(e.id)).length;
+  techAdd(M("Bibliografia", "Bibliography"), "`" + src.bibPath() + "`");
+  if (n >= notes) done(nEx && n <= nEx
     ? M(`Lista surselor e gata: ${n} surse-exemplu, păstrate ca să vezi cum arată o notă de literatură. Le poți șterge după configurare.`, `The source list is ready: ${n} example sources, kept to show what a literature note looks like. You can delete them after setup.`)
     : nEx ? M(`Lista surselor tale e gata: ${n} surse, dintre care ${nEx} exemple (le poți șterge).`, `Your source list is ready: ${n} sources, ${nEx} of them examples (you can delete those).`)
     : M(`Lista surselor tale e gata: ${n} ${n === 1 ? "sursă" : "surse"}, pe care le poți cita.`, `Your source list is ready: ${n} ${n === 1 ? "source" : "sources"} you can cite.`));
-  else fix(M(`Am găsit ${n} surse, dar în References sunt ${refs} note.`, `I found ${n} sources, but References has ${refs} notes.`),
-           M("adaugă eticheta literature_note notelor care nu o au, apoi rulează din nou configurarea.", "add the literature_note tag to the notes that lack it, then run the setup again."), { step: 3 });
-} catch (e) { fix(M(`Nu am putut face bibliografia (${e.message}).`, `I couldn't build the bibliography (${e.message}).`), M("urmează pasul 3 din ghid.", "follow step 3 in the guide."), { step: 3 }); }
+  else fix(M(`Am găsit ${n} surse, dar în Literature Notes sunt ${notes} note.`, `I found ${n} sources, but Literature Notes has ${notes} notes.`),
+           M("adaugă eticheta literature_note notelor care nu o au, apoi rulează din nou configurarea.", "add the literature_note tag to the notes that lack it, then run the setup again."), { step: 4 });
+} catch (e) { fix(M(`Nu am putut verifica bibliografia (${e.message}).`, `I couldn't check the bibliography (${e.message}).`), M("urmează pasul 4 din ghid.", "follow step 4 in the guide."), { step: 4 }); }
 await end();
 
-// 3. Programele pentru export (pasul 4 din ghid)
+// 4. Folderul exportului (pasul 5 din ghid): un folder din vault (04. Export) sau oricare de pe laptop
 await begin(3);
-doing(M("Caut Pandoc și LaTeX pe acest laptop…", "Looking for Pandoc and LaTeX on this laptop…"));
-await pause(300);
-let pandocPath = null, texPath = null;
-try { pandocPath = find("pandoc", pandocC); texPath = find("xelatex", texC); } catch (e) {}
-if (pandocPath) { done(M("Poți exporta în Word (Pandoc e instalat).", "You can export to Word (Pandoc is installed).")); techAdd("Pandoc", "`" + pandocPath + "`"); }
-else fix(M("Pandoc nu e instalat, deci exportul nu merge.", "Pandoc isn't installed, so export won't work."),
-         M("instalează [Pandoc](https://pandoc.org/installing.html), apoi rulează din nou configurarea.", "install [Pandoc](https://pandoc.org/installing.html), then run the setup again."), { step: 4 });
-const texName = isWin ? "MiKTeX" : "MacTeX", texUrl = isWin ? "https://miktex.org/download" : "https://tug.org/mactex/";
-if (texPath) { done(M("Poți exporta și în PDF (LaTeX e instalat).", "You can also export to PDF (LaTeX is installed).")); techAdd("LaTeX", "`" + texPath + "`"); }
-else fix(M("LaTeX nu e instalat, deci exportul în PDF nu merge (Word merge).", "LaTeX isn't installed, so PDF export won't work (Word will)."),
-         M(`instalează [${texName}](${texUrl}), apoi rulează din nou configurarea.`, `install [${texName}](${texUrl}), then run the setup again.`), { step: 4 });
-await end();
-
-// 4. Setările exportului (pasul 5 din ghid)
-await begin(4);
-if (!pan) info(M("Sărit: Pandoc Plugin nu e pornit.", "Skipped: Pandoc Plugin isn't on."));
+if (!isOn("texere-export")) info(M("Sărit: Texere · Export nu e pornit.", "Skipped: Texere · Export isn't on."));
 else try {
-  doing(M("Pregătesc exportul pentru acest laptop…", "Setting up export for this laptop…"));
-  const s = pan.settings;
-  const old = (s.extraArguments || "").split("\n").map(l => l.trim()).filter(Boolean);
-  const oldCsl = old.find(l => l.startsWith("--csl="));
-  let cslName = oldCsl ? oldCsl.split(/[\\/]/).pop() : "apa.csl";
-  if (!exists(join(base, "Support", "Admin", "biblib", cslName))) cslName = "apa.csl";
-  const known = /^--(citeproc$|defaults=|lua-filter=|bibliography=|csl=|from=|metadata=link-citations|pdf-engine=|shift-heading-level-by=)/;
-  const engine = texPath || (isWin ? "xelatex" : "/Library/TeX/texbin/xelatex");
-  // Pandoc Plugin împarte argumentele la spații, deci o cale cu spații (ex. „Texere EN”) strică exportul.
-  // Căile (bibliografia, stilul, LaTeX, folderul Media pentru imagini) merg într-un fișier „defaults” din folderul Pandoc, folosit după nume: --defaults=texere-…
-  const home = env.HOME || env.USERPROFILE || "";
-  const pdDir = isWin ? join(env.APPDATA || join(home, "AppData", "Roaming"), "pandoc")
-    : (exists(join(home, ".pandoc")) ? join(home, ".pandoc") : join(env.XDG_DATA_HOME || join(home, ".local", "share"), "pandoc"));
-  const dfName = "texere-" + base.split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36);
-  const q = v => JSON.stringify(v);   // un șir JSON e și un șir YAML valid
-  let dfOk = false, dfSync = () => {};
-  try {
-    fs.mkdirSync(join(pdDir, "defaults"), { recursive: true });
-    fs.writeFileSync(join(pdDir, "defaults", dfName + ".yaml"), [`bibliography: ${q(join(base, "Support", "Admin", "biblib", "bibliography.json"))}`, `pdf-engine: ${q(engine)}`, `resource-path: [${q(".")}, ${q(join(base, "Support", "Media"))}, ${q(base)}, ${q(join(base, "Support", "Admin", "biblib"))}]`].join("\n") + "\n");
-    // stilul de citare: implicit din pluginul Texere (bara de jos → stilul), iar proprietatea csl a notei are prioritate
-    const tx = app.plugins.plugins["texere"];
-    dfSync = () => { try { tx?.syncPandocStyle?.(); } catch (e) {} };
-    dfOk = true; techAdd(M("Fișier Pandoc defaults", "Pandoc defaults file"), "`" + join(pdDir, "defaults", dfName + ".yaml") + "`");
-  } catch (e) {}
-  s.extraArguments = (dfOk ? ["--citeproc", `--defaults=${dfName}`]
-      : ["--citeproc", `--bibliography=${join(base, "Support", "Admin", "biblib", "bibliography.json")}`, `--csl=${join(base, "Support", "Admin", "biblib", cslName)}`, `--pdf-engine=${engine}`])
-    .concat(["--from=markdown+wikilinks_title_after_pipe", "--metadata=link-citations:true", "--shift-heading-level-by=-1", ...old.filter(l => !known.test(l))]).join("\n");
-  s.pandoc = pandocPath || "";
-  dfSync();   // după ce Pandoc Plugin știe numele fișierului defaults
-  await pause(300);
-  done(M("Exportul e pregătit pentru acest laptop.", "Export is set up for this laptop."));
-  { const tx = app.plugins.plugins["texere"], id = tx?.cite?.defaultId?.() || cslName.replace(/\.csl$/, "");
-    techAdd(M("Stil de citare", "Citation style"), `${tx?.cite?.label?.(id) || id.toUpperCase()} (\`${id}.csl\`)`); }
-  const prev = s.outputFolder && exists(s.outputFolder) ? s.outputFolder : "";
+  await waitPlugin("texere-export", p => p?.settings);
+  const xp = app.plugins.plugins["texere-export"];
+  if (!xp) throw new Error("Texere · Export");
+  xp.settings = xp.settings || {};
+  const s = xp.settings.export = xp.settings.export || {};
+  const isAbs = p => /^(\/|~(\/|$)|[A-Za-z]:[\\/]|\\\\)/.test(String(p || "").trim());
+  const absOf = p => isAbs(p) ? p : join(base, ...String(p).split("/"));
+  const inVault = p => !!p && app.vault.getAbstractFileByPath(p);
+  const prev = s.folder && (isAbs(s.folder) ? exists(s.folder) : inVault(s.folder)) ? s.folder : "";
   const opts = [
     { v: "export", icon: "folder-open", label: M("Folderul 04. Export din Obsidian", "The 04. Export folder in Obsidian"), rec: true },
-    { v: "pick", icon: "folder-open", label: M("Alege un fișier", "Choose a folder") },
+    { v: "pick", icon: "folder-open", label: M("Alege un folder", "Choose a folder") },
   ];
   // „același folder ca data trecută” apare doar dacă e altul decât folderul Export
-  const prevName = prev.replace(/[\\/]+$/, "").split(/[\\/]/).pop();
-  if (prev && prev.replace(/[\\/]+$/, "") !== join(base, "04. Export")) opts.unshift({ v: "keep", icon: "folder-open", label: M(`Folderul de data trecută: ${prevName}`, `Last time's folder: ${prevName}`), tip: prev });
+  const prevName = String(prev).replace(/[\\/]+$/, "").split(/[\\/]/).pop();
+  if (prev && prev.replace(/[\\/]+$/, "") !== "04. Export") opts.unshift({ v: "keep", icon: "folder-open", label: M(`Folderul de data trecută: ${prevName}`, `Last time's folder: ${prevName}`), tip: absOf(prev) });
   // fereastra sistemului pentru alegerea unui folder: întoarce calea, "" dacă ai închis-o, null dacă nu se poate deschide
   const pickFolder = async () => {
     let dlg = null;
@@ -441,7 +412,7 @@ else try {
       return (!r.canceled && r.filePaths && r.filePaths[0]) || "";
     } catch (e) { return null; }
   };
-  const useExport = async () => { if (!app.vault.getAbstractFileByPath("04. Export")) await app.vault.createFolder("04. Export"); s.outputFolder = join(base, "04. Export"); };
+  const useExport = async () => { if (!app.vault.getAbstractFileByPath("04. Export")) await app.vault.createFolder("04. Export"); s.folder = "04. Export"; };
   let where = null, picked = "", note = null;
   while (true) {
     where = await choose(opts, note);
@@ -459,28 +430,32 @@ else try {
   doing(M("Salvez alegerea ta…", "Saving your choice…"));
   if (where === "pick") {
     if (picked && fs && !exists(picked)) { try { fs.mkdirSync(picked, { recursive: true }); } catch (e) {} }
-    if (picked && (!fs || exists(picked))) s.outputFolder = picked;
-    else {
+    if (picked && (!fs || exists(picked))) {
+      // un folder din vault se ține ca folder din vault (merge și pe alt laptop)
+      const b = base.replace(/[\\/]+$/, "");
+      s.folder = picked.startsWith(b + sep) ? picked.slice(b.length + 1).split(sep).join("/") : picked;
+    } else {
       await useExport();
       fix(M("Nu am putut crea folderul ales, așa că folosesc folderul 04. Export.", "I couldn't create the chosen folder, so I'm using the 04. Export folder."),
           M("dacă vrei alt folder, rulează din nou configurarea.", "if you want another folder, run the setup again."), { step: 5 });
     }
-  } else if (where === "keep") s.outputFolder = prev;
+  } else if (where === "keep") s.folder = prev;
   else {
     await useExport();
     // fereastra a fost închisă înainte de alegere: folderul Export e doar o variantă provizorie, iar raportul o spune
     if (where === null) fix(M("Nu ai ales folderul pentru export (ai închis fereastra), așa că am folosit folderul 04. Export.", "You didn't choose the export folder (you closed the window), so I used the 04. Export folder."),
       M("dacă vrei alt folder, rulează din nou configurarea și alege-l.", "if you want another folder, run the setup again and choose it."), null);
   }
-  await pan.saveSettings();
-  const outName = (s.outputFolder || "").replace(/[\\/]+$/, "").split(/[\\/]/).pop();
-  done(s.outputFolder ? M(`Fișierele exportate apar în folderul **${outName}**.`, `Exported files appear in the **${outName}** folder.`) : M("Fișierele exportate apar lângă notă.", "Exported files appear next to the note."));
-  if (s.outputFolder) techAdd(M("Folderul pentru export", "Export folder"), "`" + s.outputFolder + "`");
-} catch (e) { fix(M(`Nu am putut pregăti exportul (${e.message}).`, `I couldn't set up export (${e.message}).`), M("urmează pasul 5 din ghid.", "follow step 5 in the guide."), { step: 5 }); }
+  await xp.saveData(xp.settings);
+  const outName = String(s.folder || "").replace(/[\\/]+$/, "").split(/[\\/]/).pop();
+  done(M(`Fișierele exportate apar în folderul **${outName}**.`, `Exported files appear in the **${outName}** folder.`));
+  techAdd(M("Folderul pentru export", "Export folder"), "`" + absOf(s.folder) + "`");
+  try { const id = app.plugins.plugins["texere-sources"]?.cite?.defaultId?.(); if (id) techAdd(M("Stil de citare implicit", "Default citation style"), `${app.plugins.plugins["texere-sources"].cite.label?.(id) || id.toUpperCase()} (\`${id}.csl\`)`); } catch (e) {}
+} catch (e) { fix(M(`Nu am putut alege folderul exportului (${e.message}).`, `I couldn't set the export folder (${e.message}).`), M("urmează pasul 5 din ghid.", "follow step 5 in the guide."), { step: 5 }); }
 await end();
 
-// 5. Scripturile de pornire: plierea ghidului și butonul Ajutor (startup templates Templater)
-await begin(5);
+// 5. Scripturile de pornire: plierea ghidului și butonul Ajutor (startup templates Templater; pasul 7 din ghid)
+await begin(4);
 const HELP_ROW = M("lipsește butonul", "**Help** button");
 const T = app.plugins.plugins["templater-obsidian"], STARTS = ["Support/Admin/Scripts/Guide folding.md", "Support/Admin/Scripts/Help.md"].filter(x => app.vault.getAbstractFileByPath(x));
 if (!T || !STARTS.length) fix(M("Lipsește folderul Scripts, deci butonul Ajutor nu poate porni.", "The Scripts folder is missing, so the Help button can't start."),
@@ -502,7 +477,7 @@ else try {
 await end();
 
 } catch (e) {
-  if (e === STOP) { new ob.Notice(tx(M("Configurarea s-a oprit. O poți porni oricând: Ctrl/Cmd + P → Texere – The Researcher's Vault: Setup.", "Setup stopped. You can start it again any time: Ctrl/Cmd + P → Texere – The Researcher's Vault: Setup.")), 8000); return; }
+  if (e === STOP) { new ob.Notice(tx(M("Configurarea s-a oprit. O poți porni oricând: Ctrl/Cmd + P → Texere · The Researcher's Vault: Setup.", "Setup stopped. You can start it again any time: Ctrl/Cmd + P → Texere · The Researcher's Vault: Setup.")), 8000); return; }
   fix(M(`Configurarea s-a oprit neașteptat (${e.message}).`, `The setup stopped unexpectedly (${e.message}).`),
       M("rulează din nou configurarea; dacă se repetă, urmează pașii din ghid, secțiunea 8.", "run the setup again; if it happens again, follow the steps in section 8 of the guide."), null);
   STEPS.forEach(s => { if (s.state === "running") s.state = "warn"; s.doing = null; });
@@ -517,7 +492,7 @@ const INTRO = tx(M("Fiecare rulare a configurării adaugă aici un raport, cu da
                    "Each setup run adds a report here, with date and time. The newest comes first. You can delete this note at any time.")) + "\n\n";
 const refs = []; todo.forEach(t => { if (t.ref && !refs.some(r => JSON.stringify(r) === JSON.stringify(t.ref))) refs.push(t.ref); });
 const howTo = refs.map(guideFix).filter(Boolean).join("\n\n");
-const gName = (GHID[gl()] || {}).basename || "01. Texere – The Researcher's Vault";
+const gName = (GHID[gl()] || {}).basename || "Texere – The Researcher's Vault";
 const h8 = ((ghidTxt[gl()] || "").match(/^#{2,3}\s+(8\.\s[^\n]+?)\s*$/m) || [])[1] || "8. Dacă ceva nu merge";
 const entry = `## ${tp.date.now("YYYY-MM-DD HH:mm")}\n\n`
    // 1. de unde începi
@@ -529,8 +504,8 @@ const entry = `## ${tp.date.now("YYYY-MM-DD HH:mm")}\n\n`
    + (todo.length ? `\n\n### ${tx(M("Ce ai de făcut", "What you need to do"))}\n`
        + todo.map(t => `- ${tx(t.msg)}${t.you ? ` **${tx(M("Tu:", "You:"))}** ${tx(t.you)}` : ""}${t.ref ? " " + tx(M("Vezi mai jos", "See below")) + ` (${refLabel(t.ref)}).` : ""}`).join("\n") : "")
    + (howTo ? `\n\n### ${tx(M("Cum rezolvi (din ghid)", "How to fix it (from the guide)"))}\n\n${howTo}\n\n\x5B\x5B${gName}#${h8}|${tx(M("Deschide în ghid", "Open in the guide"))}: ${h8.replace(/^8\.\s*/, "")}]]` : "")
-   + (todo.length ? "\n\n" + tx(M("După ce rezolvi, rulează din nou configurarea: **Ctrl/Cmd + P** → **Texere – The Researcher's Vault: Setup**.",
-                                   "Once fixed, run the setup again: **Ctrl/Cmd + P** → **Texere – The Researcher's Vault: Setup**.")) : "")
+   + (todo.length ? "\n\n" + tx(M("După ce rezolvi, rulează din nou configurarea: **Ctrl/Cmd + P** → **Texere · The Researcher's Vault: Setup**.",
+                                   "Once fixed, run the setup again: **Ctrl/Cmd + P** → **Texere · The Researcher's Vault: Setup**.")) : "")
    // 3. ce am făcut eu, automat
    + `\n\n### ${tx(M("Ce am făcut automat", "Done automatically"))}\n`
    + (ok.length ? ok.map(x => `- ${tx(x)}`).join("\n") : `- ${tx(M("Nimic.", "Nothing."))}`)
@@ -549,7 +524,7 @@ const entriesOf = async f => {
 };
 const self = tp.config.target_file;
 const HOME = "Support/Guides";
-const home = app.vault.getAbstractFileByPath(HOME) ? HOME : (((GHID[gl()] || {}).parent || {}).path || "");
+const home = (((GHID[gl()] || {}).parent || {}).path || "") || (app.vault.getAbstractFileByPath(HOME) ? HOME : "");   // raportul stă lângă ghid
 const inHome = name => (home && home !== "/" ? home + "/" : "") + name;
 // raportul nou primește același tip de nume ca ghidul (ex. „03. Texere – Setup report”)
 const gb = (GHID.ro || GHID.en || {}).basename || "";

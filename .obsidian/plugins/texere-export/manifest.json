@@ -1,0 +1,10 @@
+{
+  "id": "texere-export",
+  "name": "Texere · Export",
+  "version": "1.0.1",
+  "minAppVersion": "1.4.0",
+  "description": "Export a note to PDF, Word, LaTeX, HTML or Markdown, with contents, page layout and thesis templates. Citations and bibliography come from Texere · Sources when it's on. Part of Texere · The Researcher's Vault.",
+  "author": "George Mihai",
+  "authorUrl": "https://www.georgemihai.com",
+  "isDesktopOnly": true
+}

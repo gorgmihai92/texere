@@ -1,0 +1,10 @@
+{
+  "id": "texere-sources",
+  "name": "Texere · Sources",
+  "version": "1.2.0",
+  "minAppVersion": "1.4.0",
+  "description": "Search catalogs and add sources with their free PDFs, import from Zotero, cite in any style and keep your PDF highlights in your notes. Part of Texere · The Researcher's Vault.",
+  "author": "George Mihai",
+  "authorUrl": "https://www.georgemihai.com",
+  "isDesktopOnly": true
+}
