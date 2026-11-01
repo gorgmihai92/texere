@@ -53,8 +53,11 @@ They use PDF++ (highlights) and Templater (setup and Help). The vault also has S
 | Folder | What's in it |
 | --- | --- |
 | `01. Sources` | PDFs in `Documents`, one note per source in `Literature Notes` (the ones included are examples) |
-| `02. Notes`, `03. Workspace` | your notes and your work (empty) |
+| `02. Notes` | your notes: Essays, Personal, Poetry (empty) |
+| `03. Workspace` | your work: Courses, Thesis, Articles, Projects (empty) |
 | `04. Export` | exported files |
+
+The folders are a suggestion: Texere creates them the first time it starts, and you can change them as you like.
 | `Fields/Philosophy` | a map of philosophy, about 300 linked notes |
 | `Support` | guides, templates, images, scripts, the bibliography and the citation styles |
 

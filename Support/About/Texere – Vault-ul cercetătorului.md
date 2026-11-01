@@ -79,13 +79,15 @@ Folosesc două pluginuri din comunitate, care vin cu vault-ul: **PDF++** (sublin
 | Folder | Ce conține |
 | --- | --- |
 | **01. Sources** | **Documents** (PDF-urile) și **Literature Notes** (câte o notă pentru fiecare sursă) |
-| **02. Notes** | notițele și ideile tale |
-| **03. Workspace** | cursuri, disertație, articole, proiecte |
+| **02. Notes** | notițele și ideile tale: **Essays**, **Personal**, **Poetry** |
+| **03. Workspace** | lucrul tău: **Courses**, **Thesis** (licență, disertație, doctorat), **Articles**, **Projects** |
 | **04. Export** | fișierele exportate |
 | **Fields** | hărți ale domeniilor. **Philosophy** are nota [[Philosophy\|Filosofie]] și note pentru ramuri, teorii, concepte, curente, perioade și autori |
 | **Support** | ghiduri, șabloane, imagini și **Admin** (scripturi, bibliografie, stiluri de citare) |
 
-Nu redenumi **01. Sources**, cele două foldere din el și **Support**: Texere le caută după nume. Folderele surselor se pot schimba în **Settings → Texere · Sources → Nume și foldere**. Nu schimba `id`-ul unei note de literatură. Restul e al tău.
+Nu redenumi **01. Sources**, cele două foldere din el și **Support**: Texere le caută după nume. Folderele surselor se pot schimba în **Settings → Texere · Sources → Nume și foldere**. Nu schimba `id`-ul unei note de literatură.
+
+Restul e o propunere. Texere creează folderele astea la prima pornire; redenumește-le, mută-le sau șterge-le cum vrei. Nu le mai pune la loc decât dacă îi ceri: **Settings → Texere · The Researcher's Vault → Folderele**.
 
 Fiecare notă din **Fields/Philosophy** are nume în engleză și alias în română: scrii `[[Etică` și primești **Ethics**. Folosește aceste note în proprietăți. [[Craig 2002 – Philosophy. A very short introduction]] are la **branch** valoarea [[Introduction|Introduceri]]; deschide [[Introduction|Introduceri]], iar **Backlinks** arată toate sursele din ramura asta. Nu ai folderul **Fields**? **Settings → Texere · The Researcher's Vault → Creează harta**. Ai nevoie de alt domeniu? Scrie la [hi@georgemihai.com](mailto:hi@georgemihai.com).
 
@@ -259,7 +261,7 @@ Configurarea face singură pașii 3–5 și 7.
 
 ## 11. Istoric versiuni
 
-- **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l în Downloads sau trage-l în Inbox, iar Texere îl atașează; Zotero își găsește mereu portul liber
+- **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; Texere creează structura de foldere propusă (**02. Thesis** în loc de 02. Disertation); un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l în Downloads sau trage-l în Inbox, iar Texere îl atașează; Zotero își găsește mereu portul liber
 - **3.0.0** · 1 noiembrie 2026 · sursele, citările și exportul vin din trei pluginuri Texere, fără BibLib, Pandoc sau LaTeX; importul din Zotero cu evidențieri; exportul cu previzualizare și șabloanele facultății; bibliografia s-a mutat în **Support/Admin/Bibliography**
 - **2.3.0** · 30 octombrie 2026 · foldere noi: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support și **Home**
 - **2.0.0 – 2.2.1** · 27 octombrie 2026 · un singur vault pentru ambele limbi: ghiduri în română și engleză, configurarea și Ajutorul în limba ta, note cu nume în engleză și aliasuri în română

@@ -1,9 +1,9 @@
 {
   "id": "texere",
   "name": "Texere · The Researcher's Vault",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "minAppVersion": "1.4.0",
-  "description": "Texere · The Researcher's Vault / Vault-ul cercetătorului: sets up the vault on a new laptop, turns on the Texere plugins and the ones they need, creates the map of fields (Philosophy) and shows a dashboard in every new tab. Help button included.",
+  "description": "Texere · The Researcher's Vault / Vault-ul cercetătorului: sets up the vault on a new laptop, turns on the Texere plugins and the ones they need, creates the suggested folders and the map of fields (Philosophy), and shows a dashboard in every new tab. Help button included.",
   "author": "George Mihai",
   "authorUrl": "https://www.georgemihai.com",
   "isDesktopOnly": true

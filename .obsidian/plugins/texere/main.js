@@ -1,4 +1,4 @@
-/* Texere · The Researcher's Vault — versiune 3.3.0 (2026-11-01)
+/* Texere · The Researcher's Vault — versiune 3.4.0 (2026-11-01)
  * Pluginul general al vault-ului și intrarea spre celelalte pluginuri Texere:
  *  1. Configurarea pe un laptop nou (scriptul „Support/Templates/New laptop setup”) și scripturile de pornire
  *     (butonul Ajutor, închiderea capitolelor ghidului), prin Templater.
@@ -8,6 +8,8 @@
  *  3. La prima pornire, o singură dată: ce lipsește, cu un buton care face tot (doar când configurarea nu poate porni,
  *     de ex. fără Templater; altfel o face configurarea, la pasul „Pluginuri”).
  *  4. Panoul din fiecare tab nou: ce trebuie reparat (cu un buton), Adaugă o sursă · Exportă · Ajutor, ultimele 5 fișiere.
+ *  5. Structura de foldere propusă (01. Sources … 04. Export): creată o singură dată, la prima pornire, doar ce lipsește;
+ *     o poți schimba oricum, Texere n-o mai pune la loc decât dacă îi ceri (Setări).
  * Texere · Sources și Texere · Export sunt pluginuri separate (fiecare cu folderul lui în .obsidian/plugins).
  */
 const { Plugin, Notice, TFile, Modal, Setting, PluginSettingTab, requestUrl, normalizePath, setIcon } = require("obsidian");
@@ -28,6 +30,8 @@ const DEPS = [
   { id: "pdf-plus", name: "PDF++", repo: "RyotaUshio/obsidian-pdf-plus", by: "texere-sources", ro: "Evidențierile din PDF: culorile, etichetele și legăturile spre locul din PDF (Texere · Sources).", en: "PDF highlights: colors, tags and links back to the place in the PDF (Texere · Sources)." },
   { id: "templater-obsidian", name: "Templater", repo: "SilentVoid13/Templater", by: "texere", ro: "Butonul Ajutor, ghidurile și configurarea pe un laptop nou.", en: "The Help button, the guides and the setup on a new laptop." },
 ];
+// structura de foldere propusă: drumul de lucru, în ordine (sursele → notițele tale → lucrările → exportul)
+const FOLDERS = ["02. Notes/Essays", "02. Notes/Personal", "02. Notes/Poetry", "03. Workspace/01. Courses", "03. Workspace/02. Thesis", "03. Workspace/03. Articles", "03. Workspace/04. Projects"];
 // hărțile domeniilor: notele din Fields/<domeniu>, din care vin valorile proprietăților notelor (ramură, concepte, teorii…)
 const MAPS = [
   { id: "philosophy", folder: "Philosophy", ro: "Filosofie", en: "Philosophy", file: "fields/philosophy.json" },
@@ -43,6 +47,8 @@ module.exports = class Texere extends Plugin {
     this.addCommand({ id: "set-up-plugins", name: this.T("Ce lipsește: pluginuri și hartă", "What's missing: plugins and map"), callback: () => this.onboard(true) });
     this.addSettingTab(new TexereSettingTab(this));
     this.app.workspace.onLayoutReady(() => { this.start().catch(e => console.error("Texere:", e)); });
+    // structura de foldere: o singură dată, după ce pornesc și celelalte pluginuri Texere (folderele lor pot avea alte nume)
+    this.app.workspace.onLayoutReady(() => setTimeout(() => this.foldersOnce().catch(e => console.error("Texere: folderele", e)), 3000));
     // panoul din tab-ul nou
     this.app.workspace.onLayoutReady(() => {
       try { this.home(); } catch (e) { console.error("Texere: panoul", e); }
@@ -171,6 +177,36 @@ module.exports = class Texere extends Plugin {
     if (it.kind === "texere") { await this.enable(it.p.id); return; }
     if (it.kind === "map") { await this.createMap(it.m); return; }
   }
+  // ——— structura de foldere ———
+  // folderele propuse; cele ale surselor și exportului, cu numele din setările lor (dacă le-ai schimbat)
+  folders() {
+    const P = this.app.plugins.plugins, root = p => { p = String(p || "").replace(/\/+$/, ""); const i = p.indexOf("{{"); return i < 0 ? p : p.slice(0, i).replace(/\/[^/]*$/, "").replace(/\/+$/, ""); };
+    const f = P["texere-sources"]?.settings?.sources?.files || {}, ex = String(P["texere-export"]?.settings?.export?.folder || "04. Export");
+    const out = [root(f.pdfs) || "01. Sources/Documents", root(f.notes) || "01. Sources/Literature Notes", ...FOLDERS];
+    if (!/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push(root(ex) || "04. Export");   // exportul într-un folder din afara vault-ului: nimic de creat
+    return [...new Set(out.filter(Boolean))];
+  }
+  missingFolders() { return this.folders().filter(p => !this.app.vault.getAbstractFileByPath(normalizePath(p))); }
+  async createFolders() {
+    let made = 0;
+    for (const p of this.missingFolders()) {
+      let cur = ""; for (const part of normalizePath(p).split("/")) { cur = cur ? `${cur}/${part}` : part; if (!this.app.vault.getAbstractFileByPath(cur)) { try { await this.app.vault.createFolder(cur); made++; } catch (e) {} } }
+    }
+    return made;
+  }
+  // prima pornire: „02. Disertation” (din vault-urile vechi) devine „02. Thesis”, prin Obsidian (linkurile urmează); apoi folderele care lipsesc
+  async foldersOnce() {
+    if (!this.settings.thesisFolder) {
+      const from = this.app.vault.getAbstractFileByPath("03. Workspace/02. Disertation"), to = "03. Workspace/02. Thesis";
+      if (from && !this.app.vault.getAbstractFileByPath(to)) { try { await this.app.fileManager.renameFile(from, to); } catch (e) { console.warn("Texere: 02. Thesis", e); } }
+      this.settings.thesisFolder = true; await this.save();
+    }
+    if (this.settings.foldersDone) return;
+    const made = await this.createFolders();
+    this.settings.foldersDone = true; await this.save();
+    if (made) new Notice(this.T("Texere a creat structura de foldere propusă: 01. Sources, 02. Notes, 03. Workspace, 04. Export. Schimb-o cum vrei.", "Texere created the suggested folders: 01. Sources, 02. Notes, 03. Workspace, 04. Export. Change them as you like."), 10000);
+  }
+
   // ——— panoul din tab-ul nou ———
   // ce trebuie reparat în vault sau în setări: [{ text, why, btn, fn }]
   async problems() {
@@ -342,6 +378,15 @@ class TexereSettingTab extends PluginSettingTab {
         chip(s, st.have >= st.total ? T("creată", "created") : st.have ? T("parțial", "partly") : T("necreată", "not created"), st.have >= st.total ? "ok" : st.have ? "warn" : "bad");
         if (st.have < st.total) s.addButton(b => b.setButtonText(st.have ? T(`Adaugă ce lipsește (${st.total - st.have})`, `Add what's missing (${st.total - st.have})`) : T("Creează harta", "Create the map")).setCta().onClick(() => busy(b, async () => { const n = await P.createMap(m); new Notice(T(`Am creat ${n} note în ${st.folder}.`, `Created ${n} notes in ${st.folder}.`), 6000); })));
       }).catch(e => s.setDesc(T("Nu pot citi harta: ", "Couldn't read the map: ") + e.message));
+    }
+
+    new Setting(el).setName(T("Folderele", "Folders")).setHeading();
+    {
+      const miss = P.missingFolders(), s = new Setting(el).setName(T("Structura propusă", "Suggested structure"))
+        .setDesc(T("01. Sources (Documents, Literature Notes) · 02. Notes (Essays, Personal, Poetry) · 03. Workspace (Courses, Thesis, Articles, Projects) · 04. Export. Texere le creează o dată, la prima pornire. Redenumește, mută sau șterge ce vrei: Texere nu le mai pune la loc decât dacă apeși aici.",
+          "01. Sources (Documents, Literature Notes) · 02. Notes (Essays, Personal, Poetry) · 03. Workspace (Courses, Thesis, Articles, Projects) · 04. Export. Texere creates them once, the first time it starts. Rename, move or delete any of them: Texere doesn't put them back unless you click here."));
+      chip(s, miss.length ? T(`lipsesc ${miss.length}`, `${miss.length} missing`) : T("toate", "all there"), miss.length ? "warn" : "ok");
+      if (miss.length) s.addButton(b => b.setButtonText(T(`Creează ce lipsește (${miss.length})`, `Create what's missing (${miss.length})`)).onClick(() => busy(b, async () => { const n = await P.createFolders(); new Notice(T(`Am creat ${n} foldere.`, `Created ${n} folders.`), 5000); })));
     }
 
     new Setting(el).setName(T("Configurarea", "Setup")).setHeading();

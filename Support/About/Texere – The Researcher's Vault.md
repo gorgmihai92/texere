@@ -79,13 +79,15 @@ They use two community plugins that come with the vault: **PDF++** (highlights) 
 | Folder | What's in it |
 | --- | --- |
 | **01. Sources** | **Documents** (PDFs) and **Literature Notes** (one note per source) |
-| **02. Notes** | your notes and ideas |
-| **03. Workspace** | courses, dissertation, articles, projects |
+| **02. Notes** | your notes and ideas: **Essays**, **Personal**, **Poetry** |
+| **03. Workspace** | your work: **Courses**, **Thesis** (bachelor's, master's, PhD), **Articles**, **Projects** |
 | **04. Export** | exported files |
 | **Fields** | maps of fields. **Philosophy** has [[Philosophy]] and notes for its branches, theories, concepts, movements, periods and authors |
 | **Support** | guides, templates, images, and **Admin** (scripts, bibliography, citation styles) |
 
-Don't rename **01. Sources**, its two folders or **Support**: Texere looks for them by name. The source folders can be changed in **Settings → Texere · Sources → Names & folders**. Don't change a literature note's `id`. Everything else is yours.
+Don't rename **01. Sources**, its two folders or **Support**: Texere looks for them by name. The source folders can be changed in **Settings → Texere · Sources → Names & folders**. Don't change a literature note's `id`.
+
+The rest is a suggestion. Texere creates these folders the first time it starts; rename, move or delete them as you like. It won't put them back unless you ask: **Settings → Texere · The Researcher's Vault → Folders**.
 
 Each note in **Fields/Philosophy** has an English name and a Romanian alias: type `[[Etică` and you get **Ethics**. Use these notes in your properties. [[Craig 2002 – Philosophy. A very short introduction]] has [[Introduction]] as **branch**; open [[Introduction]] and **Backlinks** shows every source in that branch. No **Fields** folder? **Settings → Texere · The Researcher's Vault → Create the map**. Need another field? Write to [hi@georgemihai.com](mailto:hi@georgemihai.com).
 
@@ -260,7 +262,7 @@ The setup does steps 3 to 5 and 7 for you.
 
 ## 11. Version history
 
-- **3.1.0** · 1 November 2026 · a shorter guide; a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it to Downloads or drag it into Inbox, and Texere attaches it; Zotero always finds its port free
+- **3.1.0** · 1 November 2026 · a shorter guide; Texere creates the suggested folders (**02. Thesis** replaces 02. Disertation); a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it to Downloads or drag it into Inbox, and Texere attaches it; Zotero always finds its port free
 - **3.0.0** · 1 November 2026 · sources, citations and export come from three Texere plugins, without BibLib, Pandoc or LaTeX; Zotero import with highlights; export with preview and thesis templates; the bibliography moved to **Support/Admin/Bibliography**
 - **2.3.0** · 30 October 2026 · new folders: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support, and **Home**
 - **2.0.0 – 2.2.1** · 27 October 2026 · one vault for both languages: English and Romanian guides, setup and Help in your language, English note names with Romanian aliases
