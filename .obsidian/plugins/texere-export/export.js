@@ -885,7 +885,14 @@ ${mode === "html" ? `body { max-width: 42em; margin: 3em auto; padding: 0 1.2em;
     }
     else if (format === "html") data = enc(await this.htmlFile(built, s));
     else data = enc(this.mdFile(built, s));
-    const path = at(`${file.basename}.${ext}`);
+    // în vault, două fișiere cu același nume (ex. PDF-ul sursei, care are numele notei) încurcă linkurile: Obsidian le poate muta spre export când redenumești folderul.
+    // așa că exportul primește „(export)” dacă numele e deja luat de alt fișier din vault
+    let base = file.basename;
+    if (!outside) {
+      const taken = n => (this.app.vault.getFiles?.() || []).some(f => f.name.toLowerCase() === n.toLowerCase() && f.path !== at(n));
+      if (taken(`${base}.${ext}`)) { base = `${file.basename} (export)`; for (let i = 2; taken(`${base}.${ext}`); i++) base = `${file.basename} (export ${i})`; }
+    }
+    const path = at(`${base}.${ext}`);
     await put(path, data);
     return path;
   }
@@ -1261,7 +1268,7 @@ class ExportSettingTab extends PluginSettingTab {
     const cur = String(s.folder || DEFAULTS.folder).replace(/\/+$/, ""), outside = isAbsDir(cur), gone = !outside && !X.app.vault.getAbstractFileByPath(cur);
     const fset = new Setting(body).setName(T("Folderul exportului", "Export folder")).setDesc(outside
       ? T(`În afara vault-ului: ${cur}. Fișierul are numele notei.`, `Outside the vault: ${cur}. The file has the note's name.`)
-      : T("Un folder din vault (alege-l din listă) sau, cu „Alege…”, oricare folder de pe calculator. Fișierul are numele notei.", "A folder in your vault (pick it from the list) or, with “Choose…”, any folder on this computer. The file has the note's name."));
+      : T("Un folder din vault (alege-l din listă) sau, cu „Alege…”, oricare folder de pe calculator. Fișierul are numele notei; dacă în vault e deja un fișier cu acest nume (ex. PDF-ul sursei), primește „(export)”, ca linkurile să nu se încurce.", "A folder in your vault (pick it from the list) or, with “Choose…”, any folder on this computer. The file has the note's name; if a file with that name is already in the vault (e.g. the source's PDF), it gets “(export)”, so links don't get mixed up."));
     fset.addDropdown(d => {
       const folders = X.vaultFolders();
       if (outside) d.addOption(cur, T(`Pe calculator: ${cur}`, `On this computer: ${cur}`));
