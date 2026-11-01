@@ -1,4 +1,4 @@
-/* Texere · Export — versiune 1.0.1 (2026-11-01)
+/* Texere · Export — versiune 1.1.0 (2026-11-01)
  * Plugin separat: nota ta → PDF, Word (.docx), LaTeX, HTML sau Markdown, cu cuprins, pagină și șabloanele facultății.
  * Citările și bibliografia vin din Texere · Sources, dacă e pornit (îl găsește singur); fără el, exportul merge, iar citările
  * rămân cum le-ai scris. Codul e în export.js (și bibliotecile lib-*.js); aici doar îl pornim.

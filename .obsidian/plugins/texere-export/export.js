@@ -112,17 +112,52 @@ class Exporter {
     return e;
   }
   save() { return this.S.save(); }
-  // șablonul notei: proprietatea export (ex. „licenta”, „disertatie”), altfel cel general
+  // folderele din vault (pentru selectorul folderului exportului), în ordine
+  vaultFolders() {
+    const v = this.app.vault, out = new Set(), walk = f => { for (const c of f.children || []) if (Array.isArray(c.children)) { out.add(c.path); walk(c); } };
+    try { if (v.getAllFolders) for (const f of v.getAllFolders()) out.add(f.path); else if (v.getRoot) walk(v.getRoot()); else for (const f of v.getAllLoadedFiles?.() || []) if (Array.isArray(f.children)) out.add(f.path); } catch (e) {}
+    return [...out].filter(p => p && p !== "/" && !p.split("/").some(x => x.startsWith("."))).sort((a, b) => a.localeCompare(b));
+  }
+  // un folder de pe calculator (fereastra sistemului); unul din vault rămâne cale din vault
+  async chooseDir(current) {
+    const T = (a, b) => this.T(a, b); let dir = null;
+    try { const el = require("electron"), dlg = el.remote?.dialog || el.dialog; const r = await dlg.showOpenDialog({ title: T("Folderul exportului", "Export folder"), properties: ["openDirectory", "createDirectory"], defaultPath: isAbsDir(current) ? homeDir(current) : this.app.vault.adapter.getBasePath?.() }); if (!r.canceled && r.filePaths?.[0]) dir = r.filePaths[0]; }
+    catch (e) { new Notice(T("Nu pot deschide fereastra de alegere a folderului.", "Couldn't open the folder picker."), 8000); }
+    if (!dir) return null;
+    const base = this.app.vault.adapter.getBasePath?.() || "";
+    return base && (dir === base || dir.startsWith(base + "/") || dir.startsWith(base + "\\")) ? (dir.slice(base.length + 1).replace(/\\/g, "/") || DEFAULTS.folder) : dir;
+  }
+  // folderul exportului nu mai e în vault (redenumit, mutat, șters): întreabă unde salvează; null = renunți
+  askFolder(missing) { return new Promise(res => new FolderModal(this, missing, res).open()); }
+  // ——— șabloanele: cele generale (""), ale facultății (PRESETS) și ale tale (c.custom: { id: { name, base, settings } }) ———
+  custom() { const c = this.conf(); return (c.custom = c.custom && typeof c.custom === "object" ? c.custom : {}); }
+  isCustom(id) { return !!(id && this.custom()[id]); }
+  exists(id) { return id === "" || !!PRESETS[id] || this.isCustom(id); }
+  templates() { return ["", ...Object.keys(PRESETS), ...Object.keys(this.custom()).sort((a, b) => String(this.custom()[a].name).localeCompare(String(this.custom()[b].name)))]; }
+  baseOf(id) { let b = this.isCustom(id) ? this.custom()[id].base : id; for (let i = 0; i < 5 && this.isCustom(b); i++) b = this.custom()[b].base; return PRESETS[b] ? b : ""; }
+  slug(t) { return String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40); }
+  // un șablon nou, pornit din altul (setările lui, copiate); id-ul e numele, scris pentru proprietatea export
+  async addTemplate(name, from) {
+    const c = this.custom(); let id = this.slug(name) || "sablon", n = 2; while (this.exists(id)) id = `${this.slug(name) || "sablon"}-${n++}`;
+    c[id] = { name: String(name).trim() || id, base: this.exists(from) ? from : "", settings: clone(this.pickVis(this.target(from))) };
+    await this.save(); return id;
+  }
+  async renameTemplate(id, name) { if (!this.isCustom(id)) return; this.custom()[id].name = String(name).trim() || this.custom()[id].name; await this.save(); }
+  async deleteTemplate(id) { if (!this.isCustom(id)) return; const c = this.conf(); delete this.custom()[id]; if (c.defaultPreset === id) c.defaultPreset = ""; await this.save(); }
+  pickVis(o) { const r = {}; for (const k of VIS) r[k] = clone(o[k] ?? DEFAULTS[k]); return r; }
+  // șablonul notei: proprietatea export (ex. „licenta”, „disertatie” sau numele unui șablon al tău), altfel cel implicit
   presetFor(fm) {
     const v = String(fm?.export || fm?.["export-template"] || "").trim().toLowerCase(), d = this.conf().defaultPreset;
-    if (!v) return PRESETS[d] ? d : "";   // nota nu spune: șablonul implicit
-    if (PRESETS[v]) return v;
+    if (!v) return this.exists(d) ? d : "";   // nota nu spune: șablonul implicit
+    if (PRESETS[v] || this.isCustom(v)) return v;
+    const mine = Object.keys(this.custom()).find(k => this.slug(this.custom()[k].name) === this.slug(v)); if (mine) return mine;
     if (/licen/.test(v)) return "licenta-ff-ub";
     if (/disert|master/.test(v)) return "disertatie-ff-ub";
     return "";   // „general” sau altceva: setările generale
   }
   // ai schimbat ceva față de valorile de pornire (ghidul, la șabloanele facultății; ale lui Texere, la cele generale)?
   changed(preset) {
+    if (this.isCustom(preset)) return false;   // ale tale nu au „valori de pornire”: le schimbi, le dublezi sau le ștergi
     const cur = this.target(preset), base = preset && PRESETS[preset] ? PRESETS[preset].settings : DEFAULTS;
     return VIS.some(k => JSON.stringify(cur[k] ?? null) !== JSON.stringify(base[k] ?? DEFAULTS[k] ?? null));
   }
@@ -135,7 +170,13 @@ class Exporter {
   resetLabel(preset) { return preset && PRESETS[preset] ? this.T("Înapoi la ghid", "Back to the guide") : this.T("Înapoi la valorile implicite", "Reset to defaults"); }
   // setările după care iese documentul: cele generale sau copia șablonului (pornită din ghid; ce schimbi rămâne la șablon)
   target(preset) {
-    const c = this.conf(); if (!preset || !PRESETS[preset]) return c;
+    const c = this.conf();
+    if (this.isCustom(preset)) {   // al tău: setările lui; ce lipsește vine din șablonul din care a pornit
+      const o = (this.custom()[preset].settings = this.custom()[preset].settings || {}), b = this.baseOf(preset), src = b ? PRESETS[b].settings : c;
+      for (const k of VIS) if (o[k] === undefined) o[k] = clone(src[k] ?? DEFAULTS[k]);
+      o.unit = c.unit; o.latexCites = c.latexCites; return o;
+    }
+    if (!preset || !PRESETS[preset]) return c;
     const p = (c.presets = c.presets || {});
     if (!p[preset]) p[preset] = clone(PRESETS[preset].settings);
     const o = p[preset];
@@ -146,8 +187,10 @@ class Exporter {
     return o;
   }
   resetPreset(preset) { return this.reset(preset); }
-  layout(preset) { return (preset && PRESETS[preset]?.layout) || {}; }
-  presetLabel(id) { const p = PRESETS[id]; return p ? this.T(p.label[0], p.label[1]) : this.T("Setările generale", "General settings"); }
+  layout(preset) { const b = this.isCustom(preset) ? this.baseOf(preset) : preset; return (b && PRESETS[b]?.layout) || {}; }
+  presetLabel(id) { if (this.isCustom(id)) return this.custom()[id].name; const p = PRESETS[id]; return p ? this.T(p.label[0], p.label[1]) : this.T("Setările generale", "General settings"); }
+  // ce scrii în proprietatea export ca nota să folosească șablonul
+  presetKey(id) { return this.isCustom(id) ? id : id === "licenta-ff-ub" ? "licenta" : id === "disertatie-ff-ub" ? "disertatie" : "general"; }
   async lib(name) {
     if (!this.libs[name]) {
       const code = await this.app.vault.adapter.read(`${this.dir}/${name}.js`);
@@ -376,7 +419,7 @@ class Exporter {
     // coperta (șabloanele facultății): Anexa I din ghid
     if (L.cover) {
       const year = String(fm.an || fm.year || new Date().getFullYear()), who = String(fm.autor || (typeof fm.author === "string" ? fm.author : "") || ""), coord = String(fm.coordonator || fm.coordinator || "");
-      const kind = String(fm.tip || PRESETS[preset]?.kind || ""), cov = doc.createElement("section"); cov.className = "cover";
+      const kind = String(fm.tip || PRESETS[this.baseOf(preset)]?.kind || ""), cov = doc.createElement("section"); cov.className = "cover";
       cov.innerHTML = `<div class="cv-top">${esc(kind)}</div><div class="cv-title">${esc(title)}</div>` +
         `<div class="cv-people"><div><div class="cv-l">${esc(L.studentLabel)}</div><div class="cv-n">${esc(who || "…")}</div></div><div><div class="cv-l">${esc(L.coordLabel)}</div><div class="cv-n">${esc(coord || "…")}</div></div></div>` +
         `<div class="cv-bottom"><div>${esc(L.faculty)}</div><div>${esc(L.university)}</div><div>${esc(year)}</div></div>`;
@@ -817,6 +860,12 @@ ${mode === "html" ? `body { max-width: 42em; margin: 3em auto; padding: 0 1.2em;
     const ext = (FORMATS.find(f => f[0] === format) || FORMATS[0])[2];
     const outside = isAbsDir(c.folder), fs = outside ? require("fs") : null, P = outside ? require("path") : null;
     const dir = outside ? homeDir(c.folder).replace(/[\\/]+$/, "") : normalizePath(String(c.folder || DEFAULTS.folder).replace(/\/+$/, ""));
+    if (!outside && !opts.created && !this.app.vault.getAbstractFileByPath(dir)) {   // folderul exportului a dispărut: nu-l refac fără să te întreb
+      const pick = await this.askFolder(dir);
+      if (!pick) throw Object.assign(new Error("cancelled"), { cancelled: true });
+      c.folder = pick; c.folderMoved = null; await this.save();
+      return this.export(file, format, { ...opts, built, created: true });
+    }
     if (outside) fs.mkdirSync(dir, { recursive: true }); else await this.S.ensureFolder(dir);
     const put = outside   // în afara vault-ului: direct pe disc
       ? async (path, data) => { fs.mkdirSync(P.dirname(path), { recursive: true }); fs.writeFileSync(path, Buffer.from(data)); }
@@ -955,8 +1004,7 @@ class ExportModal extends Modal {
     this.preset = X.presetFor(fm);
     const pr = side.createDiv("tx-row"); pr.createEl("label", { text: T("Șablonul", "Template") });
     const pd = this.presetSel = pr.createDiv("tx-ctl").createEl("select", { cls: "dropdown" });
-    pd.createEl("option", { value: "", text: T("Setările generale", "General settings") });
-    for (const id of Object.keys(PRESETS)) pd.createEl("option", { value: id, text: X.presetLabel(id) });
+    for (const id of X.templates()) pd.createEl("option", { value: id, text: X.presetLabel(id) });
     pd.value = this.preset; pd.addEventListener("change", () => { this.preset = pd.value; this.renderForm(); this.refresh(true); });
     this.presetInfo = side.createDiv("tx-preset-info");
     // stilul citărilor pentru acest export (implicit: al notei, altfel cel implicit)
@@ -993,7 +1041,7 @@ class ExportModal extends Modal {
     const s = X.target(this.preset);
     const info = () => {
       this.presetInfo.empty();
-      this.presetInfo.createSpan({ text: this.preset ? T("După ", "Following the ") + T(GUIDE[0], GUIDE[1]) + ". " : T("Setările tale, pentru notele fără șablon. ", "Your settings, for notes without a template. ") });
+      this.presetInfo.createSpan({ text: X.isCustom(this.preset) ? T(`Șablonul tău (pornit din „${X.presetLabel(X.custom()[this.preset].base)}”). `, `Your template (started from “${X.presetLabel(X.custom()[this.preset].base)}”). `) : this.preset ? T("După ", "Following the ") + T(GUIDE[0], GUIDE[1]) + ". " : T("Setările tale, pentru notele fără șablon. ", "Your settings, for notes without a template. ") });
       if (X.changed(this.preset)) { const a = this.presetInfo.createEl("a", { text: X.resetLabel(this.preset) }); a.addEventListener("click", async () => { await X.reset(this.preset); this.renderForm(); this.refresh(true); }); }
     };
     info();
@@ -1050,6 +1098,7 @@ class ExportModal extends Modal {
       const n = new Notice(frag, 10000); a.addEventListener("click", e => { e.preventDefault(); n.hide(); X.openFile(path); });
       this.close();
     } catch (e) {
+      if (e.cancelled) return;
       console.error("Texere Export", e);
       if (e.noPrint && this.frame?.contentWindow) { new Notice(T("Obsidian nu poate salva PDF-ul direct aici: în fereastra de tipărire alege „Salvează ca PDF”.", "Obsidian can't save the PDF directly here: in the print window choose “Save as PDF”."), 10000); this.frame.contentWindow.postMessage({ texere: "print" }, "*"); }
       else new Notice(T("Exportul nu a mers: ", "The export didn't work: ") + e.message, 10000);
@@ -1118,60 +1167,157 @@ class ExportPicker extends Modal {
 
 // ——— Setări → Texere · Export ———
 // ——— Setări → Texere · Export: întâi șablonul (General, Licență, Disertație), apoi setările lui; fișierele exportate la final ———
+// ——— „Unde salvez exportul?”: folderul exportului a fost redenumit, mutat sau șters ———
+// aceleași variante ca în Setări: un folder din vault (din listă) sau, cu „Alege…”, oricare folder de pe calculator
+class FolderModal extends Modal {
+  constructor(X, missing, done) { super(X.app); this.X = X; this.missing = missing; this.done = done; this.val = null; this.picked = null; }
+  onOpen() {
+    const X = this.X, T = (a, b) => X.T(a, b), el = this.contentEl;
+    this.modalEl.addClass("tx-folder-ask"); this.titleEl.setText(T("Unde salvez exportul?", "Where should I save the export?"));
+    const moved = X.conf().folderMoved;
+    folderAlert(el, X, T, this.missing, moved, async to => { this.picked = to; this.close(); });
+    const folders = X.vaultFolders(), ren = moved && moved.from === this.missing && X.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
+    this.val = ren || folders.find(f => /export/i.test(f.split("/").pop())) || folders[0] || this.missing;
+    const s1 = new Setting(el).setName(T("Alt folder din vault", "Another folder in your vault"));
+    s1.addDropdown(d => { for (const f of folders) d.addOption(f, f); d.setValue(this.val).onChange(v => { this.val = v; s2.setDesc(T("Și în afara vault-ului.", "Outside the vault too.")); }); d.selectEl.style.minWidth = "200px"; d.selectEl.style.maxWidth = "300px"; });
+    const s2 = new Setting(el).setName(T("Sau un folder de pe calculator", "Or a folder on this computer")).setDesc(T("Și în afara vault-ului.", "Outside the vault too."));
+    s2.addButton(b => b.setButtonText(T("Alege…", "Choose…")).onClick(async () => { const dir = await X.chooseDir(this.val); if (!dir) return; this.val = dir; s2.setDesc(dir); }));
+    const bc = el.createDiv("modal-button-container");
+    bc.createEl("button", { text: T("Renunț", "Cancel") }).addEventListener("click", () => this.close());
+    bc.createEl("button", { cls: "mod-cta", text: T("Salvează aici", "Save here") }).addEventListener("click", () => { this.picked = this.val; this.close(); });
+  }
+  onClose() { this.contentEl.empty(); const d = this.done; this.done = null; d?.(this.picked); }
+}
+
 class ExportSettingTab extends PluginSettingTab {
-  constructor(X) { super(X.app, X.host); this.X = X; this.id = "texere-export"; this.name = "Texere · Export"; this.sel = null; }
+  constructor(X) { super(X.app, X.host); this.X = X; this.id = "texere-export"; this.name = "Texere · Export"; this.sel = null; this.tab = "templates"; }
   display() {
     const X = this.X, T = (a, b) => X.T(a, b), c = this.containerEl, s = X.conf();
-    if (this.sel === null || (this.sel && !PRESETS[this.sel])) this.sel = PRESETS[s.defaultPreset] ? s.defaultPreset : "";
-    const keep = c.scrollTop; c.empty(); c.addClass("texere-settings"); c.addClass("texere-xsettings");
+    if (this.sel === null || !X.exists(this.sel)) this.sel = X.exists(s.defaultPreset) ? s.defaultPreset : "";
+    const keep = this._top ? 0 : c.scrollTop; this._top = false; c.empty(); c.addClass("texere-settings"); c.addClass("texere-xsettings");
     try { X.S.settingTab?.css?.(); } catch (e) {}   // același aspect ca Texere · Sources (stilurile lui), chiar dacă pagina lui n-a fost deschisă
+    // antetul: titlul și filele, ca la Texere · Sources
     const head = c.createDiv("ts-head"); head.createSpan({ cls: "ts-head-t", text: "Texere · Export" });
+    const nav = head.createDiv("ts-nav");
+    for (const [id, label, tip] of [["templates", T("Șabloane", "Templates"), T("Șabloanele exportului: ale lui Texere, ale facultății și ale tale", "Export templates: Texere's, the faculty's and yours")],
+      ["page", T("Pagina și textul", "Page & text"), T("Cum arată documentul: pagina, fontul, rândurile, cuprinsul", "How the document looks: page, font, lines, contents")],
+      ["files", T("Fișierele", "Files"), T("Formatul, folderul exportului și citările", "Format, export folder and citations")]]) {
+      const b = nav.createSpan({ cls: "ts-navbtn" + (this.tab === id ? " on" : ""), text: label }); b.title = tip;
+      b.addEventListener("click", () => { if (this.tab === id) return; this.tab = id; this._top = true; this.display(); });
+    }
     const body = c.createDiv("ts-body");
-    body.createEl("p", { cls: "ts-intro", text: T("Nota → PDF, Word, LaTeX, HTML sau Markdown, cu citările în stilul ales, cuprinsul din titluri și bibliografia cu sursele citate.", "A note → PDF, Word, LaTeX, HTML or Markdown, with citations in the chosen style, a table of contents from the headings and a bibliography of the cited sources.") });
-    // de unde vin citările: Texere · Sources (pornit sau nu)
+    if (this.tab === "page") this.pageTab(body, X, T, s); else if (this.tab === "files") this.filesTab(body, X, T, s); else this.templatesTab(body, X, T, s);
+    for (const it of body.querySelectorAll(".setting-item:not(.setting-item-heading)")) if (it.querySelector(".setting-item-control input[type='text'], .setting-item-control select")) it.addClass("ts-grid-row");
+    c.scrollTop = keep;
+  }
+  // ——— 1. Șabloanele: fiecare pe un rând; „Editează” te duce la Pagina și textul; ale tale le redenumești, dublezi, ștergi ———
+  templatesTab(body, X, T, s) {
+    body.createEl("p", { cls: "ts-intro", text: T("Fiecare export pornește dintr-un șablon. O notă îl alege cu proprietatea export (ex. export: licenta); fără ea, folosește șablonul implicit. În fereastra exportului îl poți schimba oricând.", "Every export starts from a template. A note picks one with its export property (e.g. export: licenta); without it, it uses the default. You can switch in the export window anytime.") });
+    const def = X.exists(s.defaultPreset) ? s.defaultPreset : "";
+    for (const id of X.templates()) {
+      const mine = X.isCustom(id), st = new Setting(body).setName(X.presetLabel(id));
+      st.setDesc((mine ? T(`Al tău, pornit din „${X.presetLabel(X.custom()[id].base)}”.`, `Yours, started from “${X.presetLabel(X.custom()[id].base)}”.`)
+        : id ? T("După ghidul de redactare al facultății: copertă, capitole, cuprins.", "After the faculty's writing guide: cover, chapters, contents.") : T("Setările lui Texere, pentru orice lucrare.", "Texere's settings, for any paper.")) + " " + T("În notă: ", "In a note: ") + "export: " + X.presetKey(id));
+      if (id === def) st.nameEl.createSpan({ cls: "ts-chip ok", text: T("implicit", "default") });
+      if (X.changed(id)) st.nameEl.createSpan({ cls: "ts-chip warn", text: T("modificat", "changed") });
+      st.addButton(b => b.setButtonText(T("Editează", "Edit")).onClick(() => { this.sel = id; this.tab = "page"; this._top = true; this.display(); }));
+      if (id !== def) st.addExtraButton(b => b.setIcon("star").setTooltip(T("Fă-l implicit", "Make it the default")).onClick(async () => { s.defaultPreset = id; await X.save(); this.display(); }));
+      st.addExtraButton(b => b.setIcon("copy").setTooltip(T("Dublează (un șablon nou, pornit din acesta)", "Duplicate (a new template, started from this one)")).onClick(() => new NameModal(X, T("Șablon nou", "New template"), T(`${X.presetLabel(id)} (copie)`, `${X.presetLabel(id)} (copy)`), async name => { this.sel = await X.addTemplate(name, id); this.tab = "page"; this._top = true; this.display(); }).open()));
+      if (mine) {
+        st.addExtraButton(b => b.setIcon("pencil").setTooltip(T("Redenumește", "Rename")).onClick(() => new NameModal(X, T("Redenumește șablonul", "Rename the template"), X.presetLabel(id), async name => { await X.renameTemplate(id, name); this.display(); }).open()));
+        st.addExtraButton(b => b.setIcon("trash-2").setTooltip(T("Șterge", "Delete")).onClick(() => new ConfirmModal(X, T(`Ștergi șablonul „${X.presetLabel(id)}”?`, `Delete the template “${X.presetLabel(id)}”?`), T("Notele care îl folosesc vor folosi șablonul implicit.", "Notes that use it will use the default template."), async () => { await X.deleteTemplate(id); if (this.sel === id) this.sel = ""; this.display(); }).open()));
+      } else if (X.changed(id)) st.addExtraButton(b => b.setIcon("rotate-ccw").setTooltip(X.resetLabel(id)).onClick(async () => { await X.reset(id); this.display(); }));
+    }
+    const nw = new Setting(body).setName(T("Un șablon nou", "A new template")).setDesc(T("Pornește dintr-unul de mai sus; apoi îl reglezi în Pagina și textul.", "It starts from one of the above; then you set it up in Page & text."));
+    let from = def;
+    nw.addDropdown(d => { for (const id of X.templates()) d.addOption(id, T("din ", "from ") + X.presetLabel(id)); d.setValue(from).onChange(v => { from = v; }); d.selectEl.style.maxWidth = "260px"; });
+    nw.addButton(b => b.setButtonText(T("Creează…", "Create…")).setCta().onClick(() => new NameModal(X, T("Șablon nou", "New template"), "", async name => { this.sel = await X.addTemplate(name, from); this.tab = "page"; this._top = true; this.display(); }).open()));
+  }
+  // ——— 2. Pagina și textul: șablonul pe care îl reglezi, apoi setările lui ———
+  pageTab(body, X, T, s) {
+    const def = X.exists(s.defaultPreset) ? s.defaultPreset : "";
+    new Setting(body).setName(T("Șablonul", "Template")).setDesc(T("Ce schimbi aici rămâne la acest șablon.", "What you change here stays with this template."))
+      .addDropdown(d => { for (const id of X.templates()) d.addOption(id, X.presetLabel(id) + (id === def ? T(" · implicit", " · default") : "")); d.setValue(this.sel).onChange(v => { this.sel = v; this.display(); }); d.selectEl.style.maxWidth = "320px"; })
+      .settingEl.addClass("tx-tpl-pick");
+    const about = body.createDiv("tx-tpl-about");
+    const upd = () => {
+      about.empty(); const mine = X.isCustom(this.sel);
+      about.createSpan({ text: mine ? T(`Al tău, pornit din „${X.presetLabel(X.custom()[this.sel].base)}”. `, `Yours, started from “${X.presetLabel(X.custom()[this.sel].base)}”. `) : this.sel ? T("După ", "Following the ") + T(GUIDE[0], GUIDE[1]) + ". " : T("Setările lui Texere: le reglezi cum vrei. ", "Texere's settings: set them as you like. ") });
+      if (X.changed(this.sel)) { const a = about.createEl("a", { text: X.resetLabel(this.sel), href: "#" }); a.addEventListener("click", async e => { e.preventDefault(); await X.reset(this.sel); this.display(); }); }
+    };
+    upd();
+    const form = body.createDiv("tx-form");
+    pageForm(X, form, async key => { await X.save(); if (key === "unit") return this.display(); upd(); }, T, { asSettings: true, s: X.target(this.sel) });
+  }
+  // ——— 3. Fișierele: formatul, folderul exportului, citările ———
+  filesTab(body, X, T, s) {
     { const on = !!X.host.cite?.ready, st = new Setting(body).setName(T("Citările și bibliografia", "Citations and bibliography"))
         .setDesc(on ? T("Din Texere · Sources, în stilul ales în notă (sau în fereastra exportului).", "From Texere · Sources, in the style chosen in the note (or in the export window).") : T("Texere · Sources e oprit sau lipsește: exportul merge, dar citările rămân cum le-ai scris ([@cheie]) și nu se face bibliografia.", "Texere · Sources is off or missing: exporting works, but citations stay as you wrote them ([@key]) and there's no bibliography."));
       st.nameEl.createSpan({ cls: "ts-chip " + (on ? "ok" : "warn"), text: on ? T("Texere · Sources pornit", "Texere · Sources on") : T("fără Texere · Sources", "without Texere · Sources") }); }
-    // 1. șablonul: un selector; detaliile lui (implicit, resetare) apar după ce îl alegi
-    const ids = ["", ...Object.keys(PRESETS)], def = PRESETS[s.defaultPreset] ? s.defaultPreset : "";
-    new Setting(body).setName(T("Șablonul", "Template")).setDesc(T("Exportul pornește dintr-un șablon. Alege-l pe cel pe care îl modifici.", "Every export starts from a template. Choose the one you want to edit."))
-      .addDropdown(d => { for (const id of ids) d.addOption(id, X.presetLabel(id) + (id === def ? T(" · implicit", " · default") : "")); d.setValue(this.sel).onChange(v => { this.sel = v; this.display(); }); })
-      .settingEl.addClass("tx-tpl-pick");
-    const det = body.createDiv("tx-tpl-det");
-    det.createDiv({ cls: "tx-tpl-about", text: this.sel ? T("După ", "Following the ") + T(GUIDE[0], GUIDE[1]) + "." : T("Setările tale: le reglezi cum vrei. Pornesc de la valorile lui Texere.", "Your own settings, to set as you like. They start from Texere's defaults.") });
-    new Setting(det).setName(T("Implicit", "Default")).setDesc(T("Pentru notele fără proprietatea export.", "For notes without an export property."))
-      .addToggle(t => t.setValue(this.sel === def).setDisabled(this.sel === def).onChange(async v => { if (!v) return; s.defaultPreset = this.sel; await X.save(); this.display(); }));
-    const resetRow = new Setting(det).setName(T("Valorile de pornire", "Starting values"));
-    const upd = () => { const ch = X.changed(this.sel); resetRow.settingEl.toggleClass("tx-hide", !ch); resetRow.setDesc(this.sel ? T("Ai schimbat câteva setări față de ghid.", "You changed some settings from the guide.") : T("Ai schimbat câteva setări față de valorile lui Texere.", "You changed some settings from Texere's defaults.")); };
-    resetRow.addButton(bt => bt.setButtonText(X.resetLabel(this.sel)).onClick(async () => { await X.reset(this.sel); this.display(); }));
-    upd();
-    // 2. setările șablonului ales
-    new Setting(body).setName(T(`Setările: ${X.presetLabel(this.sel)}`, `Settings: ${X.presetLabel(this.sel)}`)).setHeading().settingEl.addClass("tx-editing");
-    const form = body.createDiv("tx-form");
-    pageForm(X, form, async key => { await X.save(); if (key === "unit") return this.display(); upd(); }, T, { asSettings: true, s: X.target(this.sel) });
-    // 3. fișierele exportate (pentru toate șabloanele)
-    new Setting(body).setName(T("Fișierele exportate", "Exported files")).setHeading();
-    new Setting(body).setName(T("Formatul implicit", "Default format")).setDesc(T("Fila deschisă când pornești exportul.", "The tab that opens when you start an export.")).addDropdown(d => { for (const [id, l] of FORMATS) d.addOption(id, id === "docx" ? "Word (.docx)" : id === "latex" ? "LaTeX (.tex)" : l); d.setValue(s.format).onChange(async v => { s.format = v; await X.save(); }); });
-    const fset = new Setting(body).setName(T("Folderul exportului", "Export folder"));
-    const fdesc = () => fset.setDesc(isAbsDir(s.folder)
-      ? T(`În afara vault-ului: ${s.folder}. Fișierul are numele notei.`, `Outside the vault: ${s.folder}. The file has the note's name.`)
-      : T("Un folder din vault (scrie și alege din listă) sau, cu „Alege…”, oricare folder de pe calculator. Fișierul are numele notei.", "A folder in your vault (type and pick from the list) or, with “Choose…”, any folder on this computer. The file has the note's name."));
-    let fin = null;
-    fset.addText(t => { fin = t.inputEl; t.setValue(s.folder).setPlaceholder(DEFAULTS.folder).onChange(async v => { s.folder = v.trim() || DEFAULTS.folder; fdesc(); await X.save(); }); X.S.folderSuggest?.(t.inputEl); t.inputEl.style.minWidth = "240px"; });
+    new Setting(body).setName(T("Formatul implicit", "Default format")).setDesc(T("Fila deschisă când pornești exportul.", "The tab that opens when you start an export."))
+      .addDropdown(d => { for (const [id, l] of FORMATS) d.addOption(id, id === "docx" ? "Word (.docx)" : id === "latex" ? "LaTeX (.tex)" : l); d.setValue(s.format || DEFAULTS.format).onChange(async v => { s.format = v; await X.save(); }); });
+    const cur = String(s.folder || DEFAULTS.folder).replace(/\/+$/, ""), outside = isAbsDir(cur), gone = !outside && !X.app.vault.getAbstractFileByPath(cur);
+    const fset = new Setting(body).setName(T("Folderul exportului", "Export folder")).setDesc(outside
+      ? T(`În afara vault-ului: ${cur}. Fișierul are numele notei.`, `Outside the vault: ${cur}. The file has the note's name.`)
+      : T("Un folder din vault (alege-l din listă) sau, cu „Alege…”, oricare folder de pe calculator. Fișierul are numele notei.", "A folder in your vault (pick it from the list) or, with “Choose…”, any folder on this computer. The file has the note's name."));
+    fset.addDropdown(d => {
+      const folders = X.vaultFolders();
+      if (outside) d.addOption(cur, T(`Pe calculator: ${cur}`, `On this computer: ${cur}`));
+      else if (gone) d.addOption(cur, T(`${cur} (nu mai e în vault)`, `${cur} (not in the vault anymore)`));
+      for (const f of folders) d.addOption(f, f);
+      d.setValue(cur).onChange(async v => { s.folder = v; s.folderMoved = null; await X.save(); this.display(); });
+      d.selectEl.style.minWidth = "220px"; d.selectEl.style.maxWidth = "320px";
+    });
     fset.addButton(b => b.setButtonText(T("Alege…", "Choose…")).setTooltip(T("Oricare folder de pe calculator, și în afara vault-ului", "Any folder on this computer, outside the vault too")).onClick(async () => {
-      let dir = null;
-      try { const el = require("electron"), dlg = el.remote?.dialog || el.dialog; const r = await dlg.showOpenDialog({ title: T("Folderul exportului", "Export folder"), properties: ["openDirectory", "createDirectory"], defaultPath: isAbsDir(s.folder) ? homeDir(s.folder) : X.app.vault.adapter.getBasePath?.() }); if (!r.canceled && r.filePaths?.[0]) dir = r.filePaths[0]; }
-      catch (e) { new Notice(T("Nu pot deschide fereastra de alegere: scrie calea întreagă a folderului (ex. ~/Desktop/Export).", "Couldn't open the folder picker: type the folder's full path (e.g. ~/Desktop/Export)."), 8000); }
-      if (!dir) return;
-      const base = X.app.vault.adapter.getBasePath?.() || "";   // un folder din vault, ales din fereastră: rămâne cale din vault
-      s.folder = base && (dir === base || dir.startsWith(base + "/") || dir.startsWith(base + "\\")) ? (dir.slice(base.length + 1).replace(/\\/g, "/") || DEFAULTS.folder) : dir;
-      if (fin) fin.value = s.folder; fdesc(); await X.save();
+      const picked = await X.chooseDir(s.folder); if (!picked) return;
+      s.folder = picked; s.folderMoved = null; await X.save(); this.display();
     }));
-    fdesc();
-    body.createEl("p", { cls: "ts-intro", text: T("O notă folosește șablonul din proprietatea export (licenta, disertatie, general); fără ea, șablonul implicit. În fereastra exportului poți alege oricând altul. Notele de pornire din Support/Templates au deja proprietatea.", "A note uses the template in its export property (licenta, disertatie, general); without it, the default template. In the export window you can always pick another. The starter notes in Support/Templates already have the property.") });
-    for (const it of body.querySelectorAll(".setting-item")) if (it.querySelector("input, select")) it.addClass("ts-grid-row");
-    c.scrollTop = keep;
+    // folderul a fost redenumit sau șters: spune-o chiar sub el, cu ce poți face
+    if (gone) folderAlert(body, X, T, cur, s.folderMoved, async to => { s.folder = to; s.folderMoved = null; await X.save(); this.display(); });
   }
+}
+
+// sub un folder care a dispărut: ce s-a întâmplat și ce poți face (folosește numele nou · pune-l la loc · creează-l din nou · alege altul, din lista de deasupra)
+function folderAlert(el, X, T, cur, moved, use) {
+  const to = moved && moved.from === cur && X.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
+  const box = el.createDiv("tx-falert");
+  box.createDiv({ cls: "tx-falert-t", text: to ? T(`Ai redenumit folderul: „${cur}” e acum „${to}”.`, `You renamed the folder: “${cur}” is now “${to}”.`) : T(`Folderul „${cur}” nu mai e în vault: l-ai redenumit, mutat sau șters.`, `The folder “${cur}” isn't in your vault anymore: you renamed, moved or deleted it.`) });
+  box.createDiv({ cls: "tx-falert-d", text: T("Alege ce faci, sau alege alt folder din lista de deasupra.", "Choose what to do, or pick another folder from the list above.") });
+  const bt = box.createDiv("tx-falert-b");
+  if (to) {
+    bt.createEl("button", { cls: "mod-cta", text: T(`Folosește „${to}”`, `Use “${to}”`) }).addEventListener("click", () => use(to));
+    bt.createEl("button", { text: T(`Pune-i înapoi numele „${cur}”`, `Put back the name “${cur}”`) }).addEventListener("click", async () => {
+      try { const f = X.app.vault.getAbstractFileByPath(to); const parent = cur.includes("/") ? cur.slice(0, cur.lastIndexOf("/")) : ""; if (parent) await X.S.ensureFolder(parent); await X.app.fileManager.renameFile(f, cur); await use(cur); }
+      catch (e) { new Notice(T("N-am putut redenumi folderul: ", "Couldn't rename the folder: ") + e.message, 8000); }
+    });
+  } else bt.createEl("button", { cls: "mod-cta", text: T(`Creează din nou „${cur}”`, `Create “${cur}” again`) }).addEventListener("click", async () => { await X.S.ensureFolder(cur); await use(cur); });
+  return box;
+}
+
+// un nume (șablon nou, redenumire): câmp + Renunț / Salvează
+class NameModal extends Modal {
+  constructor(X, title, value, done) { super(X.app); this.X = X; this.t = title; this.v = value; this.done = done; }
+  onOpen() {
+    const T = (a, b) => this.X.T(a, b); this.titleEl.setText(this.t); this.modalEl.addClass("tx-name-modal");
+    const inp = this.contentEl.createEl("input", { type: "text", cls: "tx-name-in" }); inp.value = this.v; inp.placeholder = T("Numele șablonului", "Template name");
+    const bc = this.contentEl.createDiv("modal-button-container");
+    bc.createEl("button", { text: T("Renunț", "Cancel") }).addEventListener("click", () => this.close());
+    const ok = bc.createEl("button", { cls: "mod-cta", text: T("Salvează", "Save") });
+    const go = () => { const v = inp.value.trim(); if (!v) return inp.focus(); this.close(); this.done(v); };
+    ok.addEventListener("click", go); inp.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+    setTimeout(() => { inp.focus(); inp.select(); }, 0);
+  }
+  onClose() { this.contentEl.empty(); }
+}
+class ConfirmModal extends Modal {
+  constructor(X, title, text, yes) { super(X.app); this.X = X; this.t = title; this.x = text; this.yes = yes; }
+  onOpen() {
+    const T = (a, b) => this.X.T(a, b); this.titleEl.setText(this.t); this.contentEl.createEl("p", { text: this.x });
+    const bc = this.contentEl.createDiv("modal-button-container");
+    bc.createEl("button", { text: T("Renunț", "Cancel") }).addEventListener("click", () => this.close());
+    bc.createEl("button", { cls: "mod-warning", text: T("Șterge", "Delete") }).addEventListener("click", () => { this.close(); this.yes(); });
+  }
+  onClose() { this.contentEl.empty(); }
 }
 
 // ——— cuprinsul în notă: blocul ```cuprins arată titlurile de sub el, se actualizează când le schimbi; un clic te duce la titlu ———
@@ -1221,7 +1367,12 @@ class TocView extends RenderChild {
   }
 }
 
-const CSS = `.modal.texere-export{width:min(1220px,96vw);max-width:96vw;height:min(900px,92vh);max-height:92vh;margin-top:3vh}
+const CSS = `.modal.tx-folder-ask{width:min(560px,94vw)}
+.tx-falert{margin:6px 0 14px;padding:10px 12px;border-radius:8px;background:rgba(var(--color-orange-rgb),.1);border:1px solid rgba(var(--color-orange-rgb),.3)}
+.tx-falert-t{font-weight:600;font-size:var(--font-ui-small)}.tx-falert-d{color:var(--text-muted);font-size:var(--font-ui-smaller);margin-top:2px}
+.tx-falert-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.tx-name-modal .tx-name-in{width:100%}.texere-xsettings .tx-tpl-about{color:var(--text-muted);font-size:var(--font-ui-small);margin:-4px 0 10px}
+.modal.texere-export{width:min(1220px,96vw);max-width:96vw;height:min(900px,92vh);max-height:92vh;margin-top:3vh}
 .texere-export .modal-title{position:relative}.texere-export .tx-file{position:absolute;right:36px;top:4px;font-size:var(--font-ui-smaller);color:var(--text-faint);max-width:30%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
 .texere-export .tx-body{display:flex;gap:16px;flex:1;min-height:0}
 .texere-export .tx-prev{flex:1;min-width:0;border:1px solid var(--background-modifier-border);border-radius:8px;overflow:hidden;background:#e9e9e9;display:flex}
@@ -1289,6 +1440,8 @@ module.exports = {
   Exporter, imageSize, toBib, PRESETS,
   async install(S, dir) {
     const X = new Exporter(S, dir), h = S.host, T = (a, b) => S.T(a, b);
+    // redenumești folderul exportului în Obsidian: la următorul export te întreb, cu numele nou deja ales
+    if (S.app.vault?.on) h.registerEvent(S.app.vault.on("rename", (f, old) => { try { const cur = String(X.conf().folder || "").replace(/\/+$/, ""); if (!Array.isArray(f.children) || isAbsDir(cur)) return; if (old === cur || cur.startsWith(old + "/")) { X.conf().folderMoved = { from: cur, to: f.path + cur.slice(old.length) }; X.save(); } } catch (e) {} }));
     const st = document.createElement("style"); st.id = "texere-export-css"; document.getElementById(st.id)?.remove(); st.textContent = CSS; document.head.appendChild(st); h.register(() => st.remove());
     h.addCommand({ id: "export-note", name: "Export this note… / Exportă nota…", checkCallback: chk => { const f = S.app.workspace.getActiveFile?.(); if (!(f instanceof TFile) || f.extension !== "md") return false; if (!chk) X.open(f); return true; } });
     h.addCommand({ id: "export-pick", name: "Choose a note to export… / Alege nota pe care o exporți…", callback: () => X.pick() });

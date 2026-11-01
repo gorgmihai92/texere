@@ -1,4 +1,4 @@
-/* Texere · The Researcher's Vault — versiune 3.4.0 (2026-11-01)
+/* Texere · The Researcher's Vault — versiune 3.5.0 (2026-11-01)
  * Pluginul general al vault-ului și intrarea spre celelalte pluginuri Texere:
  *  1. Configurarea pe un laptop nou (scriptul „Support/Templates/New laptop setup”) și scripturile de pornire
  *     (butonul Ajutor, închiderea capitolelor ghidului), prin Templater.
@@ -47,6 +47,8 @@ module.exports = class Texere extends Plugin {
     this.addCommand({ id: "set-up-plugins", name: this.T("Ce lipsește: pluginuri și hartă", "What's missing: plugins and map"), callback: () => this.onboard(true) });
     this.addSettingTab(new TexereSettingTab(this));
     this.app.workspace.onLayoutReady(() => { this.start().catch(e => console.error("Texere:", e)); });
+    // folderele de care are nevoie Texere: când redenumești sau muți unul, îți spune pe loc ce înseamnă
+    this.app.workspace.onLayoutReady(() => { if (this.app.vault.on) this.registerEvent(this.app.vault.on("rename", (f, old) => { try { this.onRename(f, old); } catch (e) { console.error("Texere: folderele", e); } })); });
     // structura de foldere: o singură dată, după ce pornesc și celelalte pluginuri Texere (folderele lor pot avea alte nume)
     this.app.workspace.onLayoutReady(() => setTimeout(() => this.foldersOnce().catch(e => console.error("Texere: folderele", e)), 3000));
     // panoul din tab-ul nou
@@ -144,7 +146,8 @@ module.exports = class Texere extends Plugin {
   async mapData(m) { if (!this._maps) this._maps = {}; if (!this._maps[m.id]) this._maps[m.id] = JSON.parse(await this.app.vault.adapter.read(normalizePath(`${this.manifest.dir}/${m.file}`))); return this._maps[m.id]; }
   async mapStatus(m) {
     const d = await this.mapData(m), root = d.root || "Fields", files = Object.keys(d.files).filter(p => p.startsWith(m.folder + "/"));
-    const have = files.filter(p => this.app.vault.getAbstractFileByPath(normalizePath(`${root}/${p}`))).length;
+    const names = new Set((this.app.vault.getMarkdownFiles?.() || []).map(f => f.name));
+    const have = files.filter(p => this.app.vault.getAbstractFileByPath(normalizePath(`${root}/${p}`)) || names.has(p.split("/").pop())).length;
     return { total: files.length, have, folder: `${root}/${m.folder}` };
   }
   // creează notele care lipsesc (nu atinge ce ai deja)
@@ -177,13 +180,76 @@ module.exports = class Texere extends Plugin {
     if (it.kind === "texere") { await this.enable(it.p.id); return; }
     if (it.kind === "map") { await this.createMap(it.m); return; }
   }
+  // ——— folderele de care are nevoie Texere ———
+  // fixe: nu se redenumesc și nu se mută (bibliografia și stilurile de citare, scripturile de pornire, șabloanele și configurarea)
+  fixedFolders() {
+    const T = (a, b) => this.T(a, b), bib = String(this.app.plugins.plugins["texere-sources"]?.settings?.sources?.bibPath || "Support/Admin/Bibliography/bibliography.json");
+    return [
+      { path: bib.slice(0, bib.lastIndexOf("/")) || "Support/Admin/Bibliography", mark: bib.split("/").pop(), why: T("Texere ține aici bibliografia și stilurile de citare.", "Texere keeps the bibliography and the citation styles here.") },
+      { path: "Support/Admin/Scripts", mark: "Help.md", why: T("Aici sunt butonul Ajutor și scripturile de pornire.", "The Help button and the startup scripts live here.") },
+      { path: "Support/Templates", mark: "New laptop setup.md", why: T("Aici sunt șabloanele și configurarea pe un laptop nou.", "The templates and the new-laptop setup live here.") },
+    ];
+  }
+  // pot fi schimbate (din Setări): folderele surselor și al exportului
+  movableFolders() {
+    const T = (a, b) => this.T(a, b), P = this.app.plugins.plugins, out = [];
+    const src = P["texere-sources"]?.sources, f = P["texere-sources"]?.settings?.sources?.files || {}, root = p => { p = String(p || "").replace(/\/+$/, ""); const i = p.indexOf("{{"); return i < 0 ? p : p.slice(0, i).replace(/\/[^/]*$/, "").replace(/\/+$/, ""); };
+    for (const [k, def, label] of [["notes", "01. Sources/Literature Notes", T("folderul notelor de literatură", "the literature notes folder")], ["pdfs", "01. Sources/Documents", T("folderul PDF-urilor", "the PDF folder")]])
+      out.push({ key: k, path: root(f[k]) || def, label, plugin: "texere-sources", use: to => src?.setFolderRoot?.(k, to), choose: () => src?.checkFolders?.() });
+    const X = P["texere-export"]?.exporter, ex = String(P["texere-export"]?.settings?.export?.folder || "04. Export").replace(/\/+$/, "");
+    if (X && !/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push({ key: "export", path: ex, label: T("folderul exportului", "the export folder"), plugin: "texere-export",
+      use: async to => { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); }, choose: async () => { const to = await X.askFolder(ex); if (to) { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); } } });
+    return out;
+  }
+  // un folder redenumit sau mutat: unul fix → „trebuie să rămână acolo” + Pune-l la loc; unul al surselor sau al exportului → Folosește numele nou
+  onRename(f, old) {
+    if (!Array.isArray(f?.children) || this._putting) return;   // doar folderele; nu și când îl punem noi la loc
+    const T = (a, b) => this.T(a, b), hit = p => old === p || p.startsWith(old + "/"), now = p => f.path + p.slice(old.length);
+    const fixed = this.fixedFolders().filter(x => hit(x.path));
+    if (fixed.length) {
+      (this.settings.moved = (this.settings.moved || []).filter(m => m.to !== old)).push({ from: old, to: f.path }); this.save();
+      const frag = document.createDocumentFragment();
+      frag.append(T(`„${fixed[0].path}” trebuie să-și păstreze numele și locul. ${fixed[0].why} `, `“${fixed[0].path}” must keep its name and place. ${fixed[0].why} `));
+      const a = document.createElement("a"); a.href = "#"; a.textContent = T("Pune-l la loc", "Put it back"); frag.append(a);
+      const n = new Notice(frag, 0); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await this.putBack(fixed[0].path); this.home(true); });
+      this.home(true); return;
+    }
+    const mv = this.movableFolders().find(x => hit(x.path));
+    if (mv) {
+      const to = now(mv.path), frag = document.createDocumentFragment();
+      frag.append(T(`Ai redenumit ${mv.label}: „${mv.path}” e acum „${to}”. `, `You renamed ${mv.label}: “${mv.path}” is now “${to}”. `));
+      const a = document.createElement("a"); a.href = "#"; a.textContent = T(`Folosește „${to}”`, `Use “${to}”`); frag.append(a);
+      const n = new Notice(frag, 15000); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await mv.use(to); this.home(true); });
+      setTimeout(() => this.home(true), 300);
+    }
+  }
+  // pune la loc un folder fix: după redenumirea ținută minte, altfel după fișierul lui (ex. bibliography.json)
+  async putBack(path) {
+    const T = (a, b) => this.T(a, b), V = this.app.vault; this._putting = true;
+    try {
+      if (V.getAbstractFileByPath(path)) return true;
+      const rec = (this.settings.moved || []).slice().reverse().find(m => (path === m.from || path.startsWith(m.from + "/")) && V.getAbstractFileByPath(m.to) && !V.getAbstractFileByPath(m.from));
+      let from = rec ? V.getAbstractFileByPath(rec.to) : null, to = rec ? rec.from : path;
+      if (!from) { const x = this.fixedFolders().find(y => y.path === path), mark = x && V.getFiles().find(g => g.name === x.mark && g.parent && g.parent.path !== path); if (mark) from = mark.parent; }
+      if (!from) { new Notice(T(`Nu găsesc „${path}” în vault. Copiază-l din vault-ul Texere.`, `I can't find “${path}” in the vault. Copy it from the Texere vault.`), 10000); return false; }
+      const parent = to.includes("/") ? to.slice(0, to.lastIndexOf("/")) : ""; let cur = "";
+      for (const part of parent ? parent.split("/") : []) { cur = cur ? `${cur}/${part}` : part; if (!V.getAbstractFileByPath(cur)) await V.createFolder(cur); }
+      await this.app.fileManager.renameFile(from, to);
+      this.settings.moved = (this.settings.moved || []).filter(m => m !== rec); await this.save();
+      new Notice(T(`„${to}” e din nou la locul lui.`, `“${to}” is back in its place.`), 5000);
+      return true;
+    } catch (e) { new Notice(T("N-am putut pune folderul la loc: ", "Couldn't put the folder back: ") + e.message, 10000); return false; }
+    finally { this._putting = false; }
+  }
+
   // ——— structura de foldere ———
   // folderele propuse; cele ale surselor și exportului, cu numele din setările lor (dacă le-ai schimbat)
   folders() {
     const P = this.app.plugins.plugins, root = p => { p = String(p || "").replace(/\/+$/, ""); const i = p.indexOf("{{"); return i < 0 ? p : p.slice(0, i).replace(/\/[^/]*$/, "").replace(/\/+$/, ""); };
     const f = P["texere-sources"]?.settings?.sources?.files || {}, ex = String(P["texere-export"]?.settings?.export?.folder || "04. Export");
     const out = [root(f.pdfs) || "01. Sources/Documents", root(f.notes) || "01. Sources/Literature Notes", ...FOLDERS];
-    if (!/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push(root(ex) || "04. Export");   // exportul într-un folder din afara vault-ului: nimic de creat
+    // folderul exportului e al lui Texere · Export (îl creează la export și te întreabă dacă l-ai redenumit); fără el, îl creăm aici
+    if (!P["texere-export"] && !/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push(root(ex) || "04. Export");
     return [...new Set(out.filter(Boolean))];
   }
   missingFolders() { return this.folders().filter(p => !this.app.vault.getAbstractFileByPath(normalizePath(p))); }
@@ -204,7 +270,7 @@ module.exports = class Texere extends Plugin {
     if (this.settings.foldersDone) return;
     const made = await this.createFolders();
     this.settings.foldersDone = true; await this.save();
-    if (made) new Notice(this.T("Texere a creat structura de foldere propusă: 01. Sources, 02. Notes, 03. Workspace, 04. Export. Schimb-o cum vrei.", "Texere created the suggested folders: 01. Sources, 02. Notes, 03. Workspace, 04. Export. Change them as you like."), 10000);
+    if (made) new Notice(this.T("Texere a creat structura de foldere propusă (01. Sources, 02. Notes, 03. Workspace). Schimb-o cum vrei.", "Texere created the suggested folders (01. Sources, 02. Notes, 03. Workspace). Change them as you like."), 10000);
   }
 
   // ——— panoul din tab-ul nou ———
@@ -227,6 +293,14 @@ module.exports = class Texere extends Plugin {
       else if (!window.__ghidAsk && Date.now() - this.loadedAt > 10000) out.push({ text: T("Lipsește butonul Ajutor.", "The Help button is missing."), why: T("Scripturile de pornire (Templater) nu au rulat.", "The startup scripts (Templater) didn't run."), btn: T("Repară", "Fix"), fn: () => this.enableStartupScripts() });
     }
     for (const m of MAPS) { try { const s = await this.mapStatus(m); if (!s.have) out.push({ text: T(`Harta domeniilor (${m.ro}) nu e creată.`, `The map of fields (${m.en}) isn't created.`), why: T(`${s.total} note în ${s.folder}.`, `${s.total} notes in ${s.folder}.`), btn: T("Creează", "Create"), fn: () => this.createMap(m) }); } catch (e) {} }
+    // folderele de care are nevoie Texere
+    for (const x of this.fixedFolders()) if (!this.app.vault.getAbstractFileByPath(x.path))
+      out.push({ text: T(`„${x.path}” nu mai e la locul lui.`, `“${x.path}” isn't in its place anymore.`), why: T("Trebuie să rămână acolo, cu numele lui. ", "It must stay there, with its name. ") + x.why, btn: T("Pune-l la loc", "Put it back"), fn: () => this.putBack(x.path) });
+    for (const x of this.movableFolders()) if (!this.app.vault.getAbstractFileByPath(x.path)) {
+      const m = x.key === "export" ? P.plugins["texere-export"]?.settings?.export?.folderMoved : P.plugins["texere-sources"]?.settings?.sources?.folderMoved?.[x.key], to = m && m.from === x.path && this.app.vault.getAbstractFileByPath(m.to) ? m.to : null;
+      out.push(to ? { text: T(`Ai redenumit ${x.label}: „${x.path}” e acum „${to}”.`, `You renamed ${x.label}: “${x.path}” is now “${to}”.`), why: T("Texere salvează acolo doar după ce alegi.", "Texere saves there only after you choose."), btn: T(`Folosește „${to}”`, `Use “${to}”`), fn: () => x.use(to) }
+        : { text: T(`Nu mai există ${x.label}: „${x.path}”.`, `${x.label[0].toUpperCase() + x.label.slice(1)} is gone: “${x.path}”.`), why: T("Alege unde salvează Texere de acum încolo.", "Choose where Texere saves from now on."), btn: T("Alege…", "Choose…"), fn: () => x.choose() });
+    }
     if (this.app.vault.getConfig?.("alwaysUpdateLinks") === false) out.push({ text: T("Linkurile nu se actualizează când redenumești o notă.", "Links don't update when you rename a note."), why: T("Texere redenumește note; fără asta, linkurile spre ele se rup.", "Texere renames notes; without this, links to them break."), btn: T("Repară", "Fix"), fn: () => this.app.vault.setConfig("alwaysUpdateLinks", true) });
     return out;
   }

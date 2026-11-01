@@ -85,7 +85,7 @@ Folosesc două pluginuri din comunitate, care vin cu vault-ul: **PDF++** (sublin
 | **Fields** | hărți ale domeniilor. **Philosophy** are nota [[Philosophy\|Filosofie]] și note pentru ramuri, teorii, concepte, curente, perioade și autori |
 | **Support** | ghiduri, șabloane, imagini și **Admin** (scripturi, bibliografie, stiluri de citare) |
 
-Nu redenumi **01. Sources**, cele două foldere din el și **Support**: Texere le caută după nume. Folderele surselor se pot schimba în **Settings → Texere · Sources → Nume și foldere**. Nu schimba `id`-ul unei note de literatură.
+Trei foldere rămân unde sunt: **Support/Admin/Bibliography** (bibliografia și stilurile de citare), **Support/Admin/Scripts** (Ajutorul) și **Support/Templates**. Dacă redenumești sau muți unul, Texere îți spune și îți dă un buton care îl pune la loc. Folderele surselor și al exportului sunt ale tale: le redenumești, iar Texere te întreabă unde salvează data viitoare. Nu schimba `id`-ul unei note de literatură.
 
 Restul e o propunere. Texere creează folderele astea la prima pornire; redenumește-le, mută-le sau șterge-le cum vrei. Nu le mai pune la loc decât dacă îi ceri: **Settings → Texere · The Researcher's Vault → Folderele**.
 
@@ -199,7 +199,7 @@ Stilul apare în dreapta jos (**APA**). Dă clic pe el ca să schimbi stilul not
 
 Bibliografia se face singură, din sursele pe care le citezi. Intră sub titlul **Bibliografie**, sau la final.
 
-În fereastra exportului alegi șablonul (general sau al facultății), stilul citărilor, pagina (format, margini, numerele paginilor), textul (font, spațiere, aliniere), cuprinsul și câteva opțiuni (fiecare H2 de la pagină nouă, culori, etichete). Alegerile rămân. Formatul implicit și folderul exportului, în vault sau în afara lui, sunt în **Settings → Texere · Export**.
+În fereastra exportului alegi șablonul (general sau al facultății), stilul citărilor, pagina (format, margini, numerele paginilor), textul (font, spațiere, aliniere), cuprinsul și câteva opțiuni (fiecare H2 de la pagină nouă, culori, etichete). Alegerile rămân. Îți faci propriile șabloane în **Settings → Texere · Export → Șabloane**: pornești din unul existent, îl schimbi în **Pagina și textul**, îl redenumești sau îl ștergi; o notă îl folosește cu `export: <numele lui>`. Formatul implicit și folderul exportului, în vault sau în afara lui, sunt în **Fișierele**.
 
 **Cuprinsul.** **Texere · Export · Pune cuprinsul aici** adaugă un cuprins care se actualizează pe măsură ce scrii. În PDF și Word primește numerele paginilor. Word cere să actualizeze câmpurile când deschizi fișierul: răspunde **Da**.
 
@@ -221,7 +221,7 @@ Configurarea face singură pașii 3–5 și 7.
 2. **Pornește pluginurile:** **Settings → Community plugins → Turn on community plugins**.
 3. **Pluginurile Texere:** în **Settings → Texere · The Researcher's Vault**, pornește Sources și Export și apasă **Instalează și pornește** la ce lipsește.
 4. **Bibliografia:** **Settings → Texere · Sources → Șablonul notei → Eticheta** trebuie să fie `literature_note`. Apoi rulează **Texere · Surse · Refă bibliografia din note**.
-5. **Folderul exportului:** **Settings → Texere · Export → Folderul exportului**.
+5. **Folderul exportului:** **Settings → Texere · Export → Fișierele → Folderul exportului**.
 6. **Fontul:** alege unul din **Textul → Font**, în fereastra exportului. Apar doar fonturile instalate.
 7. **Butonul Ajutor:** **Settings → Templater → Enable startup templates**, adaugă `Support/Admin/Scripts/Help.md` și `Support/Admin/Scripts/Guide folding.md`, apoi repornește Obsidian.
 
@@ -237,7 +237,7 @@ Configurarea face singură pașii 3–5 și 7.
 | mai puține surse decât note | note fără eticheta `literature_note` | pasul 4 |
 | nu apare fișierul exportat | folderul exportului nu există pe acest laptop | pasul 5 |
 | alt font în export | fontul nu e instalat | pasul 6 |
-| lipsește butonul **Ajutor** sau scriptul **New laptop setup** | un folder din **Support** a fost mutat sau scripturile de pornire sunt oprite | copiază-l înapoi, apoi pasul 7 |
+| lipsește butonul **Ajutor** sau scriptul **New laptop setup** | un folder din **Support** a fost mutat sau scripturile de pornire sunt oprite | deschide un tab nou și apasă **Pune-l la loc**; altfel, pasul 7 |
 | „Zotero e închis” | Zotero nu e pornit | deschide-l sau adaugă o cheie Zotero |
 | Zotero „nu-l lasă pe Texere să intre” | Zotero blochează alte aplicații | în Zotero: **Setări → Avansat** → permite altor aplicații |
 | butonul Zotero salvează doar în Zotero | butonul din browser e oprit | [[#3.3 Din browser, cu butonul Zotero]] |
@@ -261,7 +261,7 @@ Configurarea face singură pașii 3–5 și 7.
 
 ## 11. Istoric versiuni
 
-- **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; Texere creează structura de foldere propusă (**02. Thesis** în loc de 02. Disertation); un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l în Downloads sau trage-l în Inbox, iar Texere îl atașează; Zotero își găsește mereu portul liber
+- **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; Texere creează structura de foldere propusă (**02. Thesis** în loc de 02. Disertation) și le păzește pe cele de care are nevoie; șabloane de export proprii; un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l în Downloads sau trage-l în Inbox, iar Texere îl atașează; Zotero își găsește mereu portul liber
 - **3.0.0** · 1 noiembrie 2026 · sursele, citările și exportul vin din trei pluginuri Texere, fără BibLib, Pandoc sau LaTeX; importul din Zotero cu evidențieri; exportul cu previzualizare și șabloanele facultății; bibliografia s-a mutat în **Support/Admin/Bibliography**
 - **2.3.0** · 30 octombrie 2026 · foldere noi: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support și **Home**
 - **2.0.0 – 2.2.1** · 27 octombrie 2026 · un singur vault pentru ambele limbi: ghiduri în română și engleză, configurarea și Ajutorul în limba ta, note cu nume în engleză și aliasuri în română

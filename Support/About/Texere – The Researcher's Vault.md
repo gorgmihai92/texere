@@ -85,7 +85,7 @@ They use two community plugins that come with the vault: **PDF++** (highlights) 
 | **Fields** | maps of fields. **Philosophy** has [[Philosophy]] and notes for its branches, theories, concepts, movements, periods and authors |
 | **Support** | guides, templates, images, and **Admin** (scripts, bibliography, citation styles) |
 
-Don't rename **01. Sources**, its two folders or **Support**: Texere looks for them by name. The source folders can be changed in **Settings → Texere · Sources → Names & folders**. Don't change a literature note's `id`.
+Three folders stay where they are: **Support/Admin/Bibliography** (the bibliography and the citation styles), **Support/Admin/Scripts** (Help) and **Support/Templates**. Rename or move one and Texere tells you, with a button that puts it back. The sources and export folders are yours: rename them and Texere asks where to save next time. Don't change a literature note's `id`.
 
 The rest is a suggestion. Texere creates these folders the first time it starts; rename, move or delete them as you like. It won't put them back unless you ask: **Settings → Texere · The Researcher's Vault → Folders**.
 
@@ -200,7 +200,7 @@ The style is shown at the bottom right (**APA**). Click it to change the style o
 
 The bibliography makes itself, from the sources you cite. It goes under the **Bibliography** heading, or at the end.
 
-In the export window you set the template (general, or the faculty's), the citation style, the page (size, margins, page numbers), the text (font, spacing, alignment), the contents and a few options (each H2 on a new page, colors, tags). Your choices are kept. The default format and the export folder, inside or outside the vault, are in **Settings → Texere · Export**.
+In the export window you set the template (general, or the faculty's), the citation style, the page (size, margins, page numbers), the text (font, spacing, alignment), the contents and a few options (each H2 on a new page, colors, tags). Your choices are kept. Make your own templates in **Settings → Texere · Export → Templates**: start from one that exists, change it in **Page & text**, rename or delete it; a note uses it with `export: <its name>`. The default format and the export folder, inside or outside the vault, are in **Files**.
 
 **Contents.** **Texere · Export · Insert the contents here** adds a table of contents that updates as you write. In PDF and Word it gets page numbers. Word asks to update the fields when you open the file: say **Yes**.
 
@@ -222,7 +222,7 @@ The setup does steps 3 to 5 and 7 for you.
 2. **Turn on plugins:** **Settings → Community plugins → Turn on community plugins**.
 3. **Texere plugins:** in **Settings → Texere · The Researcher's Vault**, turn on Sources and Export, and click **Install and turn on** for anything missing.
 4. **Bibliography:** **Settings → Texere · Sources → Note template → Tag** must be `literature_note`. Then run **Texere · Sources · Rebuild the bibliography from notes**.
-5. **Export folder:** **Settings → Texere · Export → Export folder**.
+5. **Export folder:** **Settings → Texere · Export → Files → Export folder**.
 6. **Font:** pick one from **Text → Font** in the export window. Only installed fonts are listed.
 7. **Help button:** **Settings → Templater → Enable startup templates**, add `Support/Admin/Scripts/Help.md` and `Support/Admin/Scripts/Guide folding.md`, then restart Obsidian.
 
@@ -238,7 +238,7 @@ The setup does steps 3 to 5 and 7 for you.
 | fewer sources than notes | notes without the `literature_note` tag | step 4 |
 | no exported file | the export folder doesn't exist on this laptop | step 5 |
 | another font in the export | the font isn't installed | step 6 |
-| the **Help** button or the **New laptop setup** script is missing | a **Support** folder was moved, or startup templates are off | copy it back, then step 7 |
+| the **Help** button or the **New laptop setup** script is missing | a **Support** folder was moved, or startup templates are off | open a new tab and click **Put it back**; otherwise step 7 |
 | "Zotero is closed" | Zotero isn't running | open it, or add a Zotero key |
 | Zotero "doesn't let Texere in" | Zotero blocks other apps | Zotero **Settings → Advanced** → allow other applications |
 | the Zotero button saves only to Zotero | the browser button is off | [[#3.3 From the browser, with the Zotero button]] |
@@ -262,7 +262,7 @@ The setup does steps 3 to 5 and 7 for you.
 
 ## 11. Version history
 
-- **3.1.0** · 1 November 2026 · a shorter guide; Texere creates the suggested folders (**02. Thesis** replaces 02. Disertation); a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it to Downloads or drag it into Inbox, and Texere attaches it; Zotero always finds its port free
+- **3.1.0** · 1 November 2026 · a shorter guide; Texere creates the suggested folders (**02. Thesis** replaces 02. Disertation) and guards the ones it needs; your own export templates; a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it to Downloads or drag it into Inbox, and Texere attaches it; Zotero always finds its port free
 - **3.0.0** · 1 November 2026 · sources, citations and export come from three Texere plugins, without BibLib, Pandoc or LaTeX; Zotero import with highlights; export with preview and thesis templates; the bibliography moved to **Support/Admin/Bibliography**
 - **2.3.0** · 30 October 2026 · new folders: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support, and **Home**
 - **2.0.0 – 2.2.1** · 27 October 2026 · one vault for both languages: English and Romanian guides, setup and Help in your language, English note names with Romanian aliases

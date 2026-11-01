@@ -591,6 +591,7 @@ class Zotero {
   // ce a ieșit dintr-un import, într-o propoziție (pentru fila Zotero și mesaj)
   summary(res, pdfs) {
     const T = (a, b) => this.T(a, b);
+    if (res.cancelled) return T("N-am importat nimic: folderul surselor a dispărut și ai renunțat.", "Nothing was imported: the sources folder is gone and you cancelled.");
     if (res.notStarted) return T("Zotero e închis, așa că n-am importat nimic. Deschide Zotero și importă din nou: PDF-urile și evidențierile vin din el.", "Zotero is closed, so nothing was imported. Open Zotero and import again: the PDFs and highlights come from it.");
     const bits = [];
     bits.push(T(`Am adăugat ${res.added} ${res.added === 1 ? "sursă" : "surse"}`, `Added ${res.added} ${res.added === 1 ? "source" : "sources"}`) + (pdfs && res.added ? T(` (${res.zpdfs} cu PDF-ul din Zotero${res.free ? `, ${res.free} cu un PDF gratuit` : ""})`, ` (${res.zpdfs} with the PDF from Zotero${res.free ? `, ${res.free} with a free PDF` : ""})`) : ""));
@@ -637,6 +638,7 @@ class Zotero {
     const hlErr = (title, r) => { if (r?.unlocked) res.unlocked = (res.unlocked || 0) + 1; if (r?.locked) err(title, this.T("PDF-ul e protejat cu parolă, așa că nu se pot scrie evidențieri în el", "the PDF is password-protected, so highlights can't be written into it")); else if (r?.noWriter) err(title, this.T("PDF++ nu e pornit (el scrie evidențierile în PDF)", "PDF++ isn't enabled (it writes the highlights into the PDF)")); else if (r?.error) err(title, r.error); };
     const n = cat.sources.length + (pdfs ? cat.pdfs.length : 0); let i = 0;
     if (mode === "local") { const st = await this.refresh(); if (st.zotero !== "on") { res.closed = true; res.notStarted = true; return res; } }
+    if (S.checkFolders && !(await S.checkFolders())) { res.cancelled = true; return res; }   // un folder al surselor a dispărut și ai renunțat
     this._ann = null;   // evidențierile, citite din nou (le poți fi adăugat chiar acum în Zotero)   // Zotero s-a închis între timp: nu începe (sursele ar intra fără PDF și evidențieri)
     const old = this.conf().zoteroHighlights; if (!highlights) this.conf().zoteroHighlights = false;
     try {
@@ -878,7 +880,7 @@ class Zotero {
   // traducătoarele lui Zotero (~/Zotero/translators): antetul fiecăruia (JSON) și codul, citite o dată
   translators() {
     if (this._tr && Date.now() - this._tr.at < 10 * 60000) return this._tr.map;
-    const map = new Map(), fs = this.node("fs"), path = this.node("path"), os = this.node("os");
+    const map = new Map(), fs = this.node("fs"), path = this.node("path");
     const dirs = this.dataDirs().map(d => path.join(d, "translators"));
     for (const dir of dirs) {
       try {
@@ -1191,7 +1193,7 @@ class ZoteroPane {
     catch (e) { new Notice(T("Importul n-a mers: ", "The import failed: ") + e.message, 10000); }
     finally { this.busy = false; this.list.removeClass("is-busy"); }
     const msg = res ? Z.summary(res, this.pdfs) : "";
-    if (res && !res.notStarted && this.host.close) { this.host.close(); Z.doneNotice(res, msg); return; }   // gata: fereastra se închide, mesajul are butoanele
+    if (res && !res.notStarted && !res.cancelled && this.host.close) { this.host.close(); Z.doneNotice(res, msg); return; }   // gata: fereastra se închide, mesajul are butoanele
     if (msg) new Notice(msg, 12000);
     await this.pick(this.key, this.name, this.zn);   // „deja în vault” se reîmprospătează
     if (msg) { this.stat.setText(msg); this.stat.addClass("ts-zdone"); setTimeout(() => this.stat?.removeClass("ts-zdone"), 4000); }
