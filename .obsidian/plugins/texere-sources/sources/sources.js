@@ -1265,8 +1265,10 @@ class Sources {
   async setFolderRoot(key, to) {
     const f = this.filesConf(), old = this.rootOf(f[key]);
     f[key] = old && String(f[key]).startsWith(old) ? to + String(f[key]).slice(old.length) : to;
-    if (key === "notes" && this.rootOf(f.pdfs) === old && String(f.pdfs).startsWith(old)) f.pdfs = to + String(f.pdfs).slice(old.length);   // PDF-urile „lângă notă”
-    const m = this.conf().folderMoved; if (m) delete m[key];
+    // celelalte foldere care stau în cel schimbat (ex. Inbox în Documents, PDF-urile lângă note) îl urmează
+    const m = this.conf().folderMoved || {};
+    for (const k of ["notes", "pdfs", "inbox"]) { if (k === key || !old) continue; const v = String(f[k] || ""); if (v === old || v.startsWith(old + "/") || (v.startsWith(old) && v.slice(old.length).startsWith("/{{"))) { f[k] = to + v.slice(old.length); delete m[k]; } }
+    delete m[key];
     await this.save();
   }
   // redenumești în Obsidian un folder al surselor: îl ținem minte (și după repornire), ca să-ți propunem numele nou
@@ -1671,11 +1673,12 @@ class Sources {
 }
 
 // sub un folder al surselor care a dispărut: ce s-a întâmplat și ce poți face
-function sourceFolderAlert(el, S, T, cur, moved, use) {
+function sourceFolderAlert(el, S, T, cur, moved, use, key) {
   const to = moved && moved.from === cur && S.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
-  const box = el.createDiv("ts-falert");
-  box.createDiv({ cls: "ts-falert-t", text: to ? T(`Ai redenumit folderul: „${cur}” e acum „${to}”.`, `You renamed the folder: “${cur}” is now “${to}”.`) : T(`Folderul „${cur}” nu mai e în vault: l-ai redenumit, mutat sau șters.`, `The folder “${cur}” isn't in your vault anymore: you renamed, moved or deleted it.`) });
-  box.createDiv({ cls: "ts-falert-d", text: T("Alege ce faci, sau alege alt folder din lista de deasupra.", "Choose what to do, or pick another folder from the list above.") });
+  const box = el.createDiv("ts-falert"), what = key === "pdfs" ? T("folderul PDF-urilor", "the PDF folder") : key === "inbox" ? T("Inbox-ul", "the Inbox") : T("folderul notelor de literatură", "the literature notes folder");
+  box.createDiv({ cls: "ts-falert-t", text: key === "pdfs" ? T("PDF-urile surselor noi nu se pot salva", "New sources' PDFs can't be saved") : key === "inbox" ? T("PDF-urile fără sursă nu au unde să ajungă", "PDFs without a source have nowhere to go") : T("Sursele noi nu se pot salva", "New sources can't be saved") });
+  box.createDiv({ cls: "ts-falert-d", text: to ? T(`Ai redenumit ${what}: „${cur}” e acum „${to}”. Folosește numele nou, pune-i înapoi numele vechi sau alege alt folder din lista de deasupra.`, `You renamed ${what}: “${cur}” is now “${to}”. Use the new name, put the old name back, or pick another folder from the list above.`)
+    : T(`${what.charAt(0).toUpperCase() + what.slice(1)}, „${cur}”, nu mai e în vault (l-ai redenumit, mutat sau șters). Creează-l din nou sau alege alt folder din lista de deasupra.`, `${what.charAt(0).toUpperCase() + what.slice(1)}, “${cur}”, isn't in your vault anymore (renamed, moved or deleted). Create it again, or pick another folder from the list above.`) });
   const bt = box.createDiv("ts-falert-b");
   if (to) {
     bt.createEl("button", { cls: "mod-cta", text: T(`Folosește „${to}”`, `Use “${to}”`) }).addEventListener("click", () => use(to));
@@ -1695,7 +1698,7 @@ class SourceFoldersModal extends Modal {
     const names = { notes: T("Notele de literatură", "Literature notes"), pdfs: T("PDF-urile", "PDFs") }, pick = {};
     for (const [k, cur] of Object.entries(this.gone)) {
       new Setting(el).setName(names[k]).setHeading();
-      sourceFolderAlert(el, S, T, cur, moved[k], async to => { await S.setFolderRoot(k, to); delete this.gone[k]; if (!Object.keys(this.gone).length) { this.ok = true; this.close(); } else { this.contentEl.empty(); this.onOpen(); } });
+      sourceFolderAlert(el, S, T, cur, moved[k], async to => { await S.setFolderRoot(k, to); delete this.gone[k]; if (!Object.keys(this.gone).length) { this.ok = true; this.close(); } else { this.contentEl.empty(); this.onOpen(); } }, k);
       const ren = moved[k] && moved[k].from === cur && S.app.vault.getAbstractFileByPath(moved[k].to) ? moved[k].to : null;
       pick[k] = ren || folders.find(f => f.split("/").pop().toLowerCase() === cur.split("/").pop().toLowerCase()) || folders[0];
       new Setting(el).setName(T("Alt folder din vault", "Another folder in your vault")).addDropdown(d => { for (const f of folders) d.addOption(f, f); d.setValue(pick[k]).onChange(v => { pick[k] = v; }); d.selectEl.style.minWidth = "200px"; d.selectEl.style.maxWidth = "300px"; });
@@ -2624,7 +2627,7 @@ class SourcesSettingTab extends PluginSettingTab {
       bset.nameEl.createSpan({ cls: "ts-chip", text: T("fix", "fixed") });
       if (!S.app.vault.getAbstractFileByPath(bdir)) { const core = S.app.plugins.plugins.texere; const box = el.createDiv("ts-falert");
         box.createDiv({ cls: "ts-falert-t", text: T(`Folderul bibliografiei nu mai e la locul lui (${bdir}).`, `The bibliography folder isn't in its place anymore (${bdir}).`) });
-        box.createDiv({ cls: "ts-falert-d", text: T("Trebuie să rămână acolo. Pune-l la loc, cu numele lui.", "It has to stay there. Put it back, with its name.") });
+        box.createDiv({ cls: "ts-falert-d", text: T("Până nu-l pui la loc, citările și bibliografia nu merg. Trebuie să rămână acolo, cu numele lui.", "Until you put it back, citations and the bibliography don't work. It has to stay there, with its name.") });
         if (core?.putBack) { const b = box.createDiv("ts-falert-b").createEl("button", { cls: "mod-cta", text: T("Pune-l la loc", "Put it back") }); b.addEventListener("click", async () => { await core.putBack(bdir); this.display(); }); } } }
     new Setting(el).setName(T("Bibliografia", "Bibliography")).setDesc(T(`Se ține la zi singură din notele de literatură (${S.lib.all().length} surse). Dacă ai schimbat note în afara Obsidian, o poți reface.`, `It keeps itself up to date from your literature notes (${S.lib.all().length} sources). If you changed notes outside Obsidian, you can rebuild it.`))
       .addButton(b => b.setButtonText(T("Refă din note", "Rebuild from notes")).onClick(async () => { await S.rebuildFromNotes(); this.display(); }));
@@ -2657,7 +2660,7 @@ class SourcesSettingTab extends PluginSettingTab {
         dd.setValue(cur).onChange(v => { if (key === "pdfs") { const suf = String(d.pdfs || "").slice(root().length); d.pdfs = v + suf; } else d[key] = v; upd(); });
         dd.selectEl.style.minWidth = "220px"; dd.selectEl.style.maxWidth = "320px"; inputs[key] = dd.selectEl;
       });
-      if (gone && cur === S.rootOf((S.filesConf() || {})[key])) sourceFolderAlert(el, S, T, cur, moved[key], async to => { await S.setFolderRoot(key, to); this.filesDraft = null; this.display(); });
+      if (gone && cur === S.rootOf((S.filesConf() || {})[key])) sourceFolderAlert(el, S, T, cur, moved[key], async to => { await S.setFolderRoot(key, to); this.filesDraft = null; this.display(); }, key);
       return st;
     };
     row("notes", T("Notele de literatură", "Literature notes"), inVault);

@@ -56,6 +56,7 @@ module.exports = class Texere extends Plugin {
       try { this.home(); } catch (e) { console.error("Texere: panoul", e); }
       this.registerEvent(this.app.workspace.on("layout-change", () => this.home()));
       this.registerEvent(this.app.workspace.on("active-leaf-change", l => { if (l?.view?.getViewType?.() === "empty") this.home(l); }));
+      this.registerEvent(this.app.workspace.on("file-open", f => { try { if (!f?.path) return; const o = this.app.loadLocalStorage("texere-opened") || {}; o[f.path] = Date.now(); this.app.saveLocalStorage("texere-opened", Object.fromEntries(Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 40))); } catch (e) {} }));
     });
     this.register(() => (this.app.workspace.getLeavesOfType?.("empty") || []).forEach(l => { const c = l.view?.contentEl; c?.querySelector(".texere-home")?.remove(); c?.removeClass("texere-home-on"); }));
     // fereastra „ce lipsește”: doar dacă nu pornește configurarea (ea face același lucru la pasul „Pluginuri”)
@@ -185,19 +186,19 @@ module.exports = class Texere extends Plugin {
   fixedFolders() {
     const T = (a, b) => this.T(a, b), bib = String(this.app.plugins.plugins["texere-sources"]?.settings?.sources?.bibPath || "Support/Admin/Bibliography/bibliography.json");
     return [
-      { path: bib.slice(0, bib.lastIndexOf("/")) || "Support/Admin/Bibliography", mark: bib.split("/").pop(), why: T("Texere ține aici bibliografia și stilurile de citare.", "Texere keeps the bibliography and the citation styles here.") },
-      { path: "Support/Admin/Scripts", mark: "Help.md", why: T("Aici sunt butonul Ajutor și scripturile de pornire.", "The Help button and the startup scripts live here.") },
-      { path: "Support/Templates", mark: "New laptop setup.md", why: T("Aici sunt șabloanele și configurarea pe un laptop nou.", "The templates and the new-laptop setup live here.") },
+      { path: bib.slice(0, bib.lastIndexOf("/")) || "Support/Admin/Bibliography", mark: bib.split("/").pop(), why: T("Texere ține aici bibliografia și stilurile de citare.", "Texere keeps the bibliography and the citation styles here."), breaks: T("Citările și bibliografia nu merg", "Citations and the bibliography don't work") },
+      { path: "Support/Admin/Scripts", mark: "Help.md", why: T("Aici sunt butonul Ajutor și scripturile de pornire.", "The Help button and the startup scripts live here."), breaks: T("Butonul Ajutor nu merge", "The Help button doesn't work") },
+      { path: "Support/Templates", mark: "New laptop setup.md", why: T("Aici sunt șabloanele și configurarea pe un laptop nou.", "The templates and the new-laptop setup live here."), breaks: T("Șabloanele și configurarea pe un laptop nou nu merg", "Templates and the new-laptop setup don't work") },
     ];
   }
   // pot fi schimbate (din Setări): folderele surselor și al exportului
   movableFolders() {
     const T = (a, b) => this.T(a, b), P = this.app.plugins.plugins, out = [];
     const src = P["texere-sources"]?.sources, f = P["texere-sources"]?.settings?.sources?.files || {}, root = p => { p = String(p || "").replace(/\/+$/, ""); const i = p.indexOf("{{"); return i < 0 ? p : p.slice(0, i).replace(/\/[^/]*$/, "").replace(/\/+$/, ""); };
-    for (const [k, def, label] of [["notes", "01. Sources/Literature Notes", T("folderul notelor de literatură", "the literature notes folder")], ["pdfs", "01. Sources/Documents", T("folderul PDF-urilor", "the PDF folder")]])
-      out.push({ key: k, path: root(f[k]) || def, label, plugin: "texere-sources", use: to => src?.setFolderRoot?.(k, to), choose: () => src?.checkFolders?.() });
+    for (const [k, def, label, breaks] of [["notes", "01. Sources/Literature Notes", T("folderul notelor de literatură", "the literature notes folder"), T("Sursele noi nu se pot salva", "New sources can't be saved")], ["pdfs", "01. Sources/Documents", T("folderul PDF-urilor", "the PDF folder"), T("PDF-urile surselor noi nu se pot salva", "New sources' PDFs can't be saved")]])
+      out.push({ key: k, path: root(f[k]) || def, label, breaks, plugin: "texere-sources", use: to => src?.setFolderRoot?.(k, to), choose: () => src?.checkFolders?.() });
     const X = P["texere-export"]?.exporter, ex = String(P["texere-export"]?.settings?.export?.folder || "04. Export").replace(/\/+$/, "");
-    if (X && !/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push({ key: "export", path: ex, label: T("folderul exportului", "the export folder"), plugin: "texere-export",
+    if (X && !/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push({ key: "export", path: ex, label: T("folderul exportului", "the export folder"), breaks: T("Exporturile nu se pot salva", "Exports can't be saved"), plugin: "texere-export",
       use: async to => { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); }, choose: async () => { const to = await X.askFolder(ex); if (to) { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); } } });
     return out;
   }
@@ -209,7 +210,7 @@ module.exports = class Texere extends Plugin {
     if (fixed.length) {
       (this.settings.moved = (this.settings.moved || []).filter(m => m.to !== old)).push({ from: old, to: f.path }); this.save();
       const frag = document.createDocumentFragment();
-      frag.append(T(`„${fixed[0].path}” trebuie să-și păstreze numele și locul. ${fixed[0].why} `, `“${fixed[0].path}” must keep its name and place. ${fixed[0].why} `));
+      frag.append(T(`${fixed[0].breaks} până nu-l pui la loc: „${fixed[0].path}” trebuie să-și păstreze numele și locul. ${fixed[0].why} `, `${fixed[0].breaks} until you put it back: “${fixed[0].path}” must keep its name and place. ${fixed[0].why} `));
       const a = document.createElement("a"); a.href = "#"; a.textContent = T("Pune-l la loc", "Put it back"); frag.append(a);
       const n = new Notice(frag, 0); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await this.putBack(fixed[0].path); this.home(true); });
       this.home(true); return;
@@ -217,7 +218,7 @@ module.exports = class Texere extends Plugin {
     const mv = this.movableFolders().find(x => hit(x.path));
     if (mv) {
       const to = now(mv.path), frag = document.createDocumentFragment();
-      frag.append(T(`Ai redenumit ${mv.label}: „${mv.path}” e acum „${to}”. `, `You renamed ${mv.label}: “${mv.path}” is now “${to}”. `));
+      frag.append(T(`Ai redenumit ${mv.label}: „${mv.path}” e acum „${to}”. ${mv.breaks} până nu alegi ce folosește Texere. `, `You renamed ${mv.label}: “${mv.path}” is now “${to}”. ${mv.breaks} until you choose what Texere uses. `));
       const a = document.createElement("a"); a.href = "#"; a.textContent = T(`Folosește „${to}”`, `Use “${to}”`); frag.append(a);
       const n = new Notice(frag, 15000); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await mv.use(to); this.home(true); });
       setTimeout(() => this.home(true), 300);
@@ -295,11 +296,11 @@ module.exports = class Texere extends Plugin {
     for (const m of MAPS) { try { const s = await this.mapStatus(m); if (!s.have) out.push({ text: T(`Harta domeniilor (${m.ro}) nu e creată.`, `The map of fields (${m.en}) isn't created.`), why: T(`${s.total} note în ${s.folder}.`, `${s.total} notes in ${s.folder}.`), btn: T("Creează", "Create"), fn: () => this.createMap(m) }); } catch (e) {} }
     // folderele de care are nevoie Texere
     for (const x of this.fixedFolders()) if (!this.app.vault.getAbstractFileByPath(x.path))
-      out.push({ text: T(`„${x.path}” nu mai e la locul lui.`, `“${x.path}” isn't in its place anymore.`), why: T("Trebuie să rămână acolo, cu numele lui. ", "It must stay there, with its name. ") + x.why, btn: T("Pune-l la loc", "Put it back"), fn: () => this.putBack(x.path) });
+      out.push({ text: x.breaks, why: T(`„${x.path}” a fost redenumit sau mutat. Trebuie să rămână acolo, cu numele lui: `, `“${x.path}” was renamed or moved. It must stay there, with its name: `) + x.why.charAt(0).toLowerCase() + x.why.slice(1), btn: T("Pune-l la loc", "Put it back"), fn: () => this.putBack(x.path) });
     for (const x of this.movableFolders()) if (!this.app.vault.getAbstractFileByPath(x.path)) {
       const m = x.key === "export" ? P.plugins["texere-export"]?.settings?.export?.folderMoved : P.plugins["texere-sources"]?.settings?.sources?.folderMoved?.[x.key], to = m && m.from === x.path && this.app.vault.getAbstractFileByPath(m.to) ? m.to : null;
-      out.push(to ? { text: T(`Ai redenumit ${x.label}: „${x.path}” e acum „${to}”.`, `You renamed ${x.label}: “${x.path}” is now “${to}”.`), why: T("Texere salvează acolo doar după ce alegi.", "Texere saves there only after you choose."), btn: T(`Folosește „${to}”`, `Use “${to}”`), fn: () => x.use(to) }
-        : { text: T(`Nu mai există ${x.label}: „${x.path}”.`, `${x.label[0].toUpperCase() + x.label.slice(1)} is gone: “${x.path}”.`), why: T("Alege unde salvează Texere de acum încolo.", "Choose where Texere saves from now on."), btn: T("Alege…", "Choose…"), fn: () => x.choose() });
+      out.push(to ? { text: x.breaks, why: T(`Ai redenumit ${x.label}: „${x.path}” e acum „${to}”. Alege ce folosește Texere.`, `You renamed ${x.label}: “${x.path}” is now “${to}”. Choose what Texere uses.`), btn: T(`Folosește „${to}”`, `Use “${to}”`), fn: () => x.use(to) }
+        : { text: x.breaks, why: T(`${x.label.charAt(0).toUpperCase() + x.label.slice(1)}, „${x.path}”, nu mai e în vault. Alege unde salvează Texere de acum încolo.`, `${x.label.charAt(0).toUpperCase() + x.label.slice(1)}, “${x.path}”, isn't in the vault anymore. Choose where Texere saves from now on.`), btn: T("Alege…", "Choose…"), fn: () => x.choose() });
     }
     if (this.app.vault.getConfig?.("alwaysUpdateLinks") === false) out.push({ text: T("Linkurile nu se actualizează când redenumești o notă.", "Links don't update when you rename a note."), why: T("Texere redenumește note; fără asta, linkurile spre ele se rup.", "Texere renames notes; without this, links to them break."), btn: T("Repară", "Fix"), fn: () => this.app.vault.setConfig("alwaysUpdateLinks", true) });
     return out;
@@ -315,6 +316,15 @@ module.exports = class Texere extends Plugin {
       else if (f.extension === "pdf" && f.path.startsWith(inbox)) pdfs++;
     }
     return { sources, pdfs };
+  }
+  // „acum 5 min”, „ieri”, „31 oct.”
+  ago(t) {
+    const T = (a, b) => this.T(a, b), sec = (Date.now() - t) / 1000;
+    if (sec < 60) return T("acum", "just now");
+    if (sec < 3600) { const m = Math.floor(sec / 60); return T(`acum ${m} min`, `${m} min ago`); }
+    if (sec < 86400) { const h = Math.floor(sec / 3600); return T(`acum ${h} h`, `${h} h ago`); }
+    const d = Math.floor(sec / 86400); if (d === 1) return T("ieri", "yesterday"); if (d < 7) return T(`acum ${d} zile`, `${d} days ago`);
+    try { return new Date(t).toLocaleDateString(this.en ? "en-GB" : "ro-RO", { day: "numeric", month: "short" }); } catch (e) { return new Date(t).toISOString().slice(0, 10); }
   }
   cmd(id) { const c = this.app.commands; if (!c?.commands?.[id]) return false; c.executeCommandById(id); return true; }
   // pune panoul în tab-urile goale (doar în zona notelor, nu în barele laterale); redraw: true = toate din nou, sau un singur tab
@@ -334,7 +344,16 @@ module.exports = class Texere extends Plugin {
     el.addClass("texere-home-on"); el.querySelector(".texere-home")?.remove();
     const box = el.createDiv("texere-home"), inner = box.createDiv("txh-inner");
     const redraw = () => setTimeout(() => this.home(true), 600);
-    // 1. ce trebuie reparat (doar dacă e ceva)
+    // 1. bun venit: ce e Texere, într-o propoziție
+    inner.createDiv({ cls: "txh-hi", text: T("Bun venit în Texere", "Welcome to Texere") });
+    inner.createDiv({ cls: "txh-desc", text: T("Sursele, lectura și scrisul tău, într-un singur loc. Adaugi o sursă, o citești și evidențiezi, scrii cu citări, apoi exporți.", "Your sources, reading and writing, in one place. Add a source, read and highlight it, write with citations, then export.") });
+    // 2. acțiunile Texere
+    const acts = inner.createDiv("txh-actions");
+    const act = (icon, text, run, cta) => { const b = acts.createEl("button", { cls: cta ? "mod-cta" : "" }); const i = b.createSpan("txh-ic"); try { setIcon(i, icon); } catch (e) {} b.createSpan({ text }); b.addEventListener("click", run); return b; };
+    act("library", T("Adaugă o sursă", "Add a source"), () => { if (!this.cmd("texere-sources:sources-search")) new Notice(T("Pornește Texere · Sources.", "Turn on Texere · Sources."), 6000); }, true);
+    act("file-output", T("Exportă", "Export"), () => { if (!this.cmd("texere-export:export-pick")) new Notice(T("Pornește Texere · Export.", "Turn on Texere · Export."), 6000); });
+    act("life-buoy", T("Ajutor", "Help"), () => { if (typeof window.__ghidAsk === "function") window.__ghidAsk(); else if (!this.cmd("ghid-ajutor:help")) new Notice(T("Butonul Ajutor nu e pornit: Setări → Texere · The Researcher's Vault → Rulează din nou.", "Help isn't on: Settings → Texere · The Researcher's Vault → Run again."), 8000); });
+    // 3. ce trebuie reparat (doar dacă e ceva)
     if (probs.length) {
       const pb = inner.createDiv("txh-problems");
       for (const p of probs) {
@@ -343,13 +362,8 @@ module.exports = class Texere extends Plugin {
         if (p.btn) { const b = r.createEl("button", { text: p.btn }); b.addEventListener("click", async () => { b.disabled = true; b.setText("…"); try { await p.fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } redraw(); }); }
       }
     }
-    // 2. acțiunile Texere
-    const acts = inner.createDiv("txh-actions");
-    const act = (icon, text, run, cta) => { const b = acts.createEl("button", { cls: cta ? "mod-cta" : "" }); const i = b.createSpan("txh-ic"); try { setIcon(i, icon); } catch (e) {} b.createSpan({ text }); b.addEventListener("click", run); return b; };
-    act("library", T("Adaugă o sursă", "Add a source"), () => { if (!this.cmd("texere-sources:sources-search")) new Notice(T("Pornește Texere · Sources.", "Turn on Texere · Sources."), 6000); }, true);
-    act("file-output", T("Exportă", "Export"), () => { if (!this.cmd("texere-export:export-pick")) new Notice(T("Pornește Texere · Export.", "Turn on Texere · Export."), 6000); });
-    act("life-buoy", T("Ajutor", "Help"), () => { if (typeof window.__ghidAsk === "function") window.__ghidAsk(); else if (!this.cmd("ghid-ajutor:help")) new Notice(T("Butonul Ajutor nu e pornit: Setări → Texere · The Researcher's Vault → Rulează din nou.", "Help isn't on: Settings → Texere · The Researcher's Vault → Run again."), 8000); });
-    // 3. ultimele 5 fișiere deschise
+    // 4. ultimele 5 fișiere deschise, cu folderul și când le-ai deschis sau schimbat ultima dată
+    let opened = {}; try { opened = this.app.loadLocalStorage("texere-opened") || {}; } catch (e) {}
     const recent = this.app.workspace.getLastOpenFiles().map(p => this.app.vault.getAbstractFileByPath(p)).filter(f => f instanceof TFile).slice(0, 5);
     if (recent.length) {
       inner.createDiv({ cls: "txh-label", text: T("Recente", "Recent") });
@@ -357,12 +371,14 @@ module.exports = class Texere extends Plugin {
       for (const f of recent) {
         const a = ul.createEl("a", { cls: "txh-file", href: "#" });
         a.createSpan({ cls: "txh-fname", text: f.extension === "md" ? f.basename : f.name });
-        if (f.parent && f.parent.path !== "/") a.createSpan({ cls: "txh-fdir", text: f.parent.path });
+        const meta = a.createSpan("txh-fmeta"), op = opened[f.path] || 0, ed = f.stat?.mtime || 0, when = Math.max(op, ed);
+        if (f.parent && f.parent.path !== "/") meta.createSpan({ cls: "txh-fdir", text: f.parent.path });
+        if (when) { const w = meta.createSpan({ cls: "txh-ftime", text: this.ago(when) }); w.title = (op >= ed ? T("Deschis ", "Opened ") : T("Schimbat ", "Edited ")) + new Date(when).toLocaleString(this.en ? "en-GB" : "ro-RO"); }
         a.addEventListener("click", e => { e.preventDefault(); (e.metaKey || e.ctrlKey ? this.app.workspace.getLeaf("tab") : leaf).openFile(f); });
         a.addEventListener("auxclick", e => { if (e.button === 1) { e.preventDefault(); this.app.workspace.getLeaf("tab").openFile(f); } });
       }
     }
-    // 4. pe scurt: câte surse; PDF-urile din Inbox (un clic: „PDF-uri fără sursă”)
+    // 5. pe scurt: câte surse; PDF-urile din Inbox (un clic: „PDF-uri fără sursă”)
     const ft = inner.createDiv("txh-foot");
     ft.createSpan({ text: sources === 1 ? T("1 sursă", "1 source") : T(`${sources} surse`, `${sources} sources`) });
     if (pdfs) { ft.createSpan({ text: " · " }); const a = ft.createEl("a", { href: "#", text: pdfs === 1 ? T("1 PDF în Inbox", "1 PDF in Inbox") : T(`${pdfs} PDF-uri în Inbox`, `${pdfs} PDFs in Inbox`) }); a.addEventListener("click", e => { e.preventDefault(); this.cmd("texere-sources:sources-uncataloged"); }); }
@@ -415,59 +431,76 @@ class OnboardModal extends Modal {
 class TexereSettingTab extends PluginSettingTab {
   constructor(P) { super(P.app, P); this.P = P; this.id = P.manifest.id; this.name = "Texere · The Researcher's Vault"; }
   display() {
-    const P = this.P, T = (a, b) => P.T(a, b), el = this.containerEl; el.empty(); el.addClass("texere-core-settings");
-    el.createEl("h2", { text: "Texere · The Researcher's Vault" });
-    el.createEl("p", { cls: "tx-intro", text: T("Pluginul general al vault-ului: îl configurează, pornește celelalte pluginuri Texere și pe cele de care au nevoie, și creează harta domeniilor.", "The vault's general plugin: it sets the vault up, turns on the other Texere plugins and the ones they need, and creates the map of fields.") });
+    const P = this.P, T = (a, b) => P.T(a, b), el = this.containerEl, keep = el.scrollTop; el.empty(); el.addClass("texere-core-settings"); el.addClass("texere-settings");
+    try { this.app.plugins.plugins["texere-sources"]?.sources?.settingTab?.css?.(); } catch (e) {}   // același aspect ca Texere · Sources și Texere · Export
+    const head = el.createDiv("ts-head"); head.createSpan({ cls: "ts-head-t", text: "Texere · The Researcher's Vault" });
+    const body = el.createDiv("ts-body");
+    body.createEl("p", { cls: "ts-intro", text: T("Pluginul general al vault-ului: îl configurează, pornește celelalte pluginuri Texere și pe cele de care au nevoie, ține folderele la locul lor și pune panoul în fiecare tab nou.", "The vault's general plugin: it sets the vault up, turns on the other Texere plugins and the ones they need, keeps the folders in place and puts the panel in every new tab.") });
     const chip = (s, text, cls) => s.nameEl.createSpan({ cls: "tx-chip " + cls, text });
     const label = st => st === "on" ? [T("pornit", "on"), "ok"] : st === "off" ? [T("instalat, oprit", "installed, off"), "warn"] : [T("lipsește", "missing"), "bad"];
     const busy = async (b, fn) => { const old = b.buttonEl.getText(); b.setDisabled(true); b.setButtonText("…"); try { await fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } finally { b.setButtonText(old); b.setDisabled(false); this.display(); } };
 
-    new Setting(el).setName(T("Limba", "Language")).setDesc(T("Pentru toate pluginurile Texere (unele texte, după repornire).", "For all Texere plugins (some labels after a restart)."))
-      .addDropdown(d => d.addOption("ro", "Română").addOption("en", "English").setValue(P.en ? "en" : "ro").onChange(v => { this.app.saveLocalStorage(LANG, v); this.display(); }));
+    // 0. ce trebuie reparat (aceeași listă ca în tab-ul nou); când totul e bine, nu apare
+    const fixes = body.createDiv("tx-fixes");
+    P.problems().then(probs => {
+      if (!probs.length || !fixes.isConnected) return;
+      fixes.createDiv({ cls: "tx-fixes-t", text: probs.length === 1 ? T("Un lucru de reparat", "One thing to fix") : T(`${probs.length} lucruri de reparat`, `${probs.length} things to fix`) });
+      for (const p of probs) {
+        const r = fixes.createDiv("txh-problem"), t = r.createDiv("txh-pt"); t.createDiv({ cls: "txh-ptext", text: p.text }); if (p.why) t.createDiv({ cls: "txh-pwhy", text: p.why });
+        if (p.btn) { const b = r.createEl("button", { text: p.btn }); b.addEventListener("click", async () => { b.disabled = true; b.setText("…"); try { await p.fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } setTimeout(() => this.display(), 600); }); }
+      }
+    }).catch(() => {});
 
-    new Setting(el).setName(T("Pluginurile Texere", "Texere plugins")).setHeading();
+    // 1. Pluginurile: cele Texere, apoi cele de care au nevoie
+    new Setting(body).setName(T("Pluginurile", "Plugins")).setHeading();
     for (const p of TEXERE) {
-      const st = P.state(p.id), s = new Setting(el).setName(p.name).setDesc(P.en ? p.en : p.ro); chip(s, ...label(st));
+      const st = P.state(p.id), s = new Setting(body).setName(p.name).setDesc(P.en ? p.en : p.ro); chip(s, ...label(st));
       if (st === "missing") { s.setDesc((P.en ? p.en : p.ro) + " " + T("Vine cu vault-ul Texere (folderul .obsidian/plugins).", "It comes with the Texere vault (the .obsidian/plugins folder).")); continue; }
       s.addToggle(t => t.setValue(st === "on").onChange(async v => { try { if (v) await P.enable(p.id); else await P.disable(p.id); } catch (e) { new Notice(e?.message || String(e)); } this.display(); }));
       if (st === "on") s.addExtraButton(b => b.setIcon("settings").setTooltip(T("Setările lui", "Its settings")).onClick(() => { this.app.setting.openTabById(p.id); }));
     }
-
-    new Setting(el).setName(T("Pluginurile de care depinde Texere", "Plugins Texere needs")).setHeading();
     const missing = DEPS.filter(d => P.state(d.id) !== "on");
-    if (missing.length > 1) new Setting(el).setName(T("Toate deodată", "All at once")).setDesc(T(`${missing.length} nu sunt pornite.`, `${missing.length} aren't on.`))
-      .addButton(b => b.setButtonText(T("Instalează și pornește tot", "Install and turn on all")).setCta().onClick(() => busy(b, async () => { for (const d of missing) { if (P.state(d.id) === "missing") await P.install(d); else await P.enable(d.id); } })));
     for (const d of DEPS) {
-      const st = P.state(d.id), s = new Setting(el).setName(d.name).setDesc(P.en ? d.en : d.ro); chip(s, ...label(st));
+      const st = P.state(d.id), s = new Setting(body).setName(d.name).setDesc((P.en ? d.en : d.ro) + " " + T("Din lista oficială Obsidian.", "From Obsidian's official list.")); chip(s, ...label(st));
       if (st === "missing") s.addButton(b => b.setButtonText(T("Instalează și pornește", "Install and turn on")).setCta().onClick(() => busy(b, () => P.install(d))));
       else if (st === "off") s.addButton(b => b.setButtonText(T("Pornește", "Turn on")).onClick(() => busy(b, () => P.enable(d.id))));
     }
+    if (missing.length > 1) new Setting(body).setName(T("Toate deodată", "All at once")).setDesc(T(`${missing.length} nu sunt pornite.`, `${missing.length} aren't on.`))
+      .addButton(b => b.setButtonText(T("Instalează și pornește tot", "Install and turn on all")).setCta().onClick(() => busy(b, async () => { for (const d of missing) { if (P.state(d.id) === "missing") await P.install(d); else await P.enable(d.id); } })));
 
-    new Setting(el).setName(T("Harta domeniilor", "Map of fields")).setHeading();
-    el.createEl("p", { cls: "tx-intro", text: T("Notele din Fields/<domeniu>: ramuri, subdomenii, concepte, teorii, curente, perioade. Din ele vin valorile proprietăților notelor (branch, concepts, theories…). Crearea adaugă doar ce lipsește; ce ai deja rămâne neatins.", "The notes in Fields/<field>: branches, subdomains, concepts, theories, movements, periods. Your notes' property values (branch, concepts, theories…) come from them. Creating adds only what's missing; what you already have stays untouched.") });
+    // 2. Vault-ul: limba, folderele, harta domeniilor
+    new Setting(body).setName(T("Vault-ul", "The vault")).setHeading();
+    new Setting(body).setName(T("Limba", "Language")).setDesc(T("Pentru toate pluginurile Texere (unele texte, după repornire).", "For all Texere plugins (some labels after a restart)."))
+      .addDropdown(d => d.addOption("ro", "Română").addOption("en", "English").setValue(P.en ? "en" : "ro").onChange(v => { this.app.saveLocalStorage(LANG, v); this.display(); }));
+    {
+      const miss = P.missingFolders(), s = new Setting(body).setName(T("Structura de foldere propusă", "Suggested folders"))
+        .setDesc(T("01. Sources · 02. Notes (Essays, Personal, Poetry) · 03. Workspace (Courses, Thesis, Articles, Projects) · 04. Export. Texere le creează o dată; le schimbi cum vrei, nu le mai pune la loc decât dacă îi ceri.",
+          "01. Sources · 02. Notes (Essays, Personal, Poetry) · 03. Workspace (Courses, Thesis, Articles, Projects) · 04. Export. Texere creates them once; change them as you like, it won't put them back unless you ask."));
+      chip(s, miss.length ? T(`lipsesc ${miss.length}`, `${miss.length} missing`) : T("toate", "all there"), miss.length ? "warn" : "ok");
+      if (miss.length) s.addButton(b => b.setButtonText(T(`Creează ce lipsește (${miss.length})`, `Create what's missing (${miss.length})`)).onClick(() => busy(b, async () => { const n = await P.createFolders(); new Notice(T(`Am creat ${n} foldere.`, `Created ${n} folders.`), 5000); })));
+    }
+    {
+      const fx = P.fixedFolders(), gone = fx.filter(x => !this.app.vault.getAbstractFileByPath(x.path)), s = new Setting(body).setName(T("Folderele de care are nevoie Texere", "Folders Texere needs"))
+        .setDesc(fx.map(x => x.path).join(" · ") + ". " + T("Rămân unde sunt: dacă redenumești sau muți unul, Texere îți spune și îl pune la loc.", "They stay where they are: if you rename or move one, Texere tells you and puts it back."));
+      chip(s, gone.length ? T(`mutate: ${gone.length}`, `${gone.length} moved`) : T("la locul lor", "in place"), gone.length ? "bad" : "ok");
+      if (gone.length) s.addButton(b => b.setButtonText(T("Pune-le la loc", "Put them back")).setCta().onClick(() => busy(b, async () => { for (const x of gone) await P.putBack(x.path); })));
+    }
     for (const m of MAPS) {
-      const s = new Setting(el).setName(P.en ? m.en : m.ro).setDesc(T("Se verifică…", "Checking…"));
+      const s = new Setting(body).setName(T(`Harta domeniilor: ${m.ro}`, `Map of fields: ${m.en}`)).setDesc(T("Se verifică…", "Checking…"));
       P.mapStatus(m).then(st => {
-        s.setDesc(st.have ? T(`${st.have} din ${st.total} note în ${st.folder}.`, `${st.have} of ${st.total} notes in ${st.folder}.`) : T(`${st.total} note, în ${st.folder}.`, `${st.total} notes, in ${st.folder}.`));
+        s.setDesc(T(`Notele din ${st.folder}: ramuri, subdomenii, concepte, teorii, curente, perioade. Din ele vin valorile proprietăților (branch, concepts, theories…). ${st.have} din ${st.total}.`, `The notes in ${st.folder}: branches, subdomains, concepts, theories, movements, periods. Your properties (branch, concepts, theories…) link to them. ${st.have} of ${st.total}.`));
         chip(s, st.have >= st.total ? T("creată", "created") : st.have ? T("parțial", "partly") : T("necreată", "not created"), st.have >= st.total ? "ok" : st.have ? "warn" : "bad");
         if (st.have < st.total) s.addButton(b => b.setButtonText(st.have ? T(`Adaugă ce lipsește (${st.total - st.have})`, `Add what's missing (${st.total - st.have})`) : T("Creează harta", "Create the map")).setCta().onClick(() => busy(b, async () => { const n = await P.createMap(m); new Notice(T(`Am creat ${n} note în ${st.folder}.`, `Created ${n} notes in ${st.folder}.`), 6000); })));
       }).catch(e => s.setDesc(T("Nu pot citi harta: ", "Couldn't read the map: ") + e.message));
     }
 
-    new Setting(el).setName(T("Folderele", "Folders")).setHeading();
-    {
-      const miss = P.missingFolders(), s = new Setting(el).setName(T("Structura propusă", "Suggested structure"))
-        .setDesc(T("01. Sources (Documents, Literature Notes) · 02. Notes (Essays, Personal, Poetry) · 03. Workspace (Courses, Thesis, Articles, Projects) · 04. Export. Texere le creează o dată, la prima pornire. Redenumește, mută sau șterge ce vrei: Texere nu le mai pune la loc decât dacă apeși aici.",
-          "01. Sources (Documents, Literature Notes) · 02. Notes (Essays, Personal, Poetry) · 03. Workspace (Courses, Thesis, Articles, Projects) · 04. Export. Texere creates them once, the first time it starts. Rename, move or delete any of them: Texere doesn't put them back unless you click here."));
-      chip(s, miss.length ? T(`lipsesc ${miss.length}`, `${miss.length} missing`) : T("toate", "all there"), miss.length ? "warn" : "ok");
-      if (miss.length) s.addButton(b => b.setButtonText(T(`Creează ce lipsește (${miss.length})`, `Create what's missing (${miss.length})`)).onClick(() => busy(b, async () => { const n = await P.createFolders(); new Notice(T(`Am creat ${n} foldere.`, `Created ${n} folders.`), 5000); })));
-    }
-
-    new Setting(el).setName(T("Configurarea", "Setup")).setHeading();
-    new Setting(el).setName(T("Configurarea pe acest laptop", "Setup on this laptop")).setDesc(T("Scriptul care pregătește vault-ul pe un laptop nou (rulează singur prima dată).", "The script that prepares the vault on a new laptop (it runs by itself the first time)."))
+    // 3. Configurarea
+    new Setting(body).setName(T("Configurarea", "Setup")).setHeading();
+    new Setting(body).setName(T("Configurarea pe acest laptop", "Setup on this laptop")).setDesc(T("Scriptul care pregătește vault-ul pe un laptop nou (rulează singur prima dată): limba, folderul exportului, pluginurile.", "The script that prepares the vault on a new laptop (it runs by itself the first time): language, export folder, plugins."))
       .addButton(b => b.setButtonText(T("Rulează din nou", "Run again")).onClick(() => P.runConfig(false)));
-    new Setting(el).setName(T("Fereastra de la prima pornire", "First-start window")).setDesc(T("Ce lipsește, cu un buton care face tot.", "What's missing, with one button that does it all."))
+    new Setting(body).setName(T("Fereastra de la prima pornire", "First-start window")).setDesc(T("Ce lipsește, cu un buton care face tot.", "What's missing, with one button that does it all."))
       .addButton(b => b.setButtonText(T("Deschide", "Open")).onClick(() => P.onboard(true)));
+    el.scrollTop = keep;
   }
 }
 
@@ -488,7 +521,15 @@ const CSS = `.texere-core-settings .tx-intro{color:var(--text-muted);font-size:v
 .texere-home-on>.empty-state{display:none}
 .texere-home{box-sizing:border-box;min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
 .texere-home .txh-inner{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
+.texere-home .txh-hi{font-size:var(--font-ui-large);font-weight:600;text-align:center;margin-bottom:-8px}
+.texere-home .txh-desc{color:var(--text-muted);font-size:var(--font-ui-small);text-align:center;line-height:1.5;max-width:44ch;margin:0 auto}
 .texere-home .txh-problems{display:flex;flex-direction:column;gap:6px}
+.texere-core-settings .tx-fixes{display:flex;flex-direction:column;gap:6px;margin:4px 0 6px}.texere-core-settings .tx-fixes:empty{display:none}
+.texere-core-settings .tx-fixes-t{font-size:var(--font-ui-small);font-weight:600;margin-bottom:2px}
+.texere-core-settings .txh-problem{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;background:rgba(var(--color-orange-rgb),.1);border:1px solid rgba(var(--color-orange-rgb),.25)}
+.texere-core-settings .txh-pt{flex:1;min-width:0}.texere-core-settings .txh-ptext{font-size:var(--font-ui-small);font-weight:600}.texere-core-settings .txh-pwhy{font-size:var(--font-ui-smaller);color:var(--text-muted)}
+.texere-core-settings .ts-head{display:flex;align-items:flex-end;border-bottom:1px solid var(--background-modifier-border);margin:0 0 14px}.texere-core-settings .ts-head-t{font-size:var(--font-ui-large);font-weight:600;padding-bottom:10px}
+.texere-core-settings .ts-intro{color:var(--text-muted);font-size:var(--font-ui-small);margin:0 0 8px;line-height:1.5;max-width:62ch}
 .texere-home .txh-problem{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;background:rgba(var(--color-orange-rgb),.1);border:1px solid rgba(var(--color-orange-rgb),.25)}
 .texere-home .txh-pt{flex:1;min-width:0}
 .texere-home .txh-ptext{font-size:var(--font-ui-small);font-weight:600}
@@ -501,8 +542,10 @@ const CSS = `.texere-core-settings .tx-intro{color:var(--text-muted);font-size:v
 .texere-home .txh-recent{display:flex;flex-direction:column}
 .texere-home .txh-file{display:flex;align-items:baseline;gap:8px;padding:5px 6px;margin:0 -6px;border-radius:6px;color:var(--text-normal);text-decoration:none;min-width:0}
 .texere-home .txh-file:hover{background:var(--background-modifier-hover)}
-.texere-home .txh-fname{flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.texere-home .txh-fdir{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-faint);font-size:var(--font-ui-smaller);text-align:right}
+.texere-home .txh-fname{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.texere-home .txh-fmeta{flex:0 1 auto;min-width:0;max-width:55%;display:flex;gap:8px;justify-content:flex-end;color:var(--text-faint);font-size:var(--font-ui-smaller)}
+.texere-home .txh-fdir{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.texere-home .txh-ftime{flex:none;white-space:nowrap}
 .texere-home .txh-foot{font-size:var(--font-ui-smaller);color:var(--text-faint);text-align:center}
 .texere-home .txh-foot a{color:var(--text-muted)}`;
 if (typeof document !== "undefined") { const st = document.createElement("style"); st.id = "texere-core-css"; document.getElementById(st.id)?.remove(); st.textContent = CSS; document.head.appendChild(st); }

@@ -1281,8 +1281,9 @@ class ExportSettingTab extends PluginSettingTab {
 function folderAlert(el, X, T, cur, moved, use) {
   const to = moved && moved.from === cur && X.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
   const box = el.createDiv("tx-falert");
-  box.createDiv({ cls: "tx-falert-t", text: to ? T(`Ai redenumit folderul: „${cur}” e acum „${to}”.`, `You renamed the folder: “${cur}” is now “${to}”.`) : T(`Folderul „${cur}” nu mai e în vault: l-ai redenumit, mutat sau șters.`, `The folder “${cur}” isn't in your vault anymore: you renamed, moved or deleted it.`) });
-  box.createDiv({ cls: "tx-falert-d", text: T("Alege ce faci, sau alege alt folder din lista de deasupra.", "Choose what to do, or pick another folder from the list above.") });
+  box.createDiv({ cls: "tx-falert-t", text: T("Exporturile nu se pot salva", "Exports can't be saved") });
+  box.createDiv({ cls: "tx-falert-d", text: to ? T(`Ai redenumit folderul exportului: „${cur}” e acum „${to}”. Folosește numele nou, pune-i înapoi numele vechi sau alege alt folder din lista de deasupra.`, `You renamed the export folder: “${cur}” is now “${to}”. Use the new name, put the old name back, or pick another folder from the list above.`)
+    : T(`Folderul exportului, „${cur}”, nu mai e în vault (l-ai redenumit, mutat sau șters). Creează-l din nou sau alege alt folder din lista de deasupra.`, `The export folder, “${cur}”, isn't in your vault anymore (renamed, moved or deleted). Create it again, or pick another folder from the list above.`) });
   const bt = box.createDiv("tx-falert-b");
   if (to) {
     bt.createEl("button", { cls: "mod-cta", text: T(`Folosește „${to}”`, `Use “${to}”`) }).addEventListener("click", () => use(to));
