@@ -112,6 +112,8 @@ class Exporter {
     return e;
   }
   save() { return this.S.save(); }
+  // folderul exportului s-a schimbat: tab-ul nou și setările se redesenează
+  changed() { try { this.app.workspace.trigger?.("texere:changed"); } catch (e) {} }
   // folderele din vault (pentru selectorul folderului exportului), în ordine
   vaultFolders() {
     const v = this.app.vault, out = new Set(), walk = f => { for (const c of f.children || []) if (Array.isArray(c.children)) { out.add(c.path); walk(c); } };
@@ -863,7 +865,7 @@ ${mode === "html" ? `body { max-width: 42em; margin: 3em auto; padding: 0 1.2em;
     if (!outside && !opts.created && !this.app.vault.getAbstractFileByPath(dir)) {   // folderul exportului a dispărut: nu-l refac fără să te întreb
       const pick = await this.askFolder(dir);
       if (!pick) throw Object.assign(new Error("cancelled"), { cancelled: true });
-      c.folder = pick; c.folderMoved = null; await this.save();
+      c.folder = pick; c.folderMoved = null; await this.save(); this.changed();
       return this.export(file, format, { ...opts, built, created: true });
     }
     if (outside) fs.mkdirSync(dir, { recursive: true }); else await this.S.ensureFolder(dir);
@@ -1175,7 +1177,7 @@ class FolderModal extends Modal {
     const X = this.X, T = (a, b) => X.T(a, b), el = this.contentEl;
     this.modalEl.addClass("tx-folder-ask"); this.titleEl.setText(T("Unde salvez exportul?", "Where should I save the export?"));
     const moved = X.conf().folderMoved;
-    folderAlert(el, X, T, this.missing, moved, async to => { this.picked = to; this.close(); });
+    folderAlert(el, X, T, this.missing, moved, async to => { this.picked = to; this.close(); }, true);
     const folders = X.vaultFolders(), ren = moved && moved.from === this.missing && X.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
     this.val = ren || folders.find(f => /export/i.test(f.split("/").pop())) || folders[0] || this.missing;
     const s1 = new Setting(el).setName(T("Alt folder din vault", "Another folder in your vault"));
@@ -1265,25 +1267,27 @@ class ExportSettingTab extends PluginSettingTab {
       if (outside) d.addOption(cur, T(`Pe calculator: ${cur}`, `On this computer: ${cur}`));
       else if (gone) d.addOption(cur, T(`${cur} (nu mai e în vault)`, `${cur} (not in the vault anymore)`));
       for (const f of folders) d.addOption(f, f);
-      d.setValue(cur).onChange(async v => { s.folder = v; s.folderMoved = null; await X.save(); this.display(); });
+      d.setValue(cur).onChange(async v => { s.folder = v; s.folderMoved = null; await X.save(); this.display(); X.changed(); });
       d.selectEl.style.minWidth = "220px"; d.selectEl.style.maxWidth = "320px";
     });
     fset.addButton(b => b.setButtonText(T("Alege…", "Choose…")).setTooltip(T("Oricare folder de pe calculator, și în afara vault-ului", "Any folder on this computer, outside the vault too")).onClick(async () => {
       const picked = await X.chooseDir(s.folder); if (!picked) return;
-      s.folder = picked; s.folderMoved = null; await X.save(); this.display();
+      s.folder = picked; s.folderMoved = null; await X.save(); this.display(); X.changed();
     }));
     // folderul a fost redenumit sau șters: spune-o chiar sub el, cu ce poți face
-    if (gone) folderAlert(body, X, T, cur, s.folderMoved, async to => { s.folder = to; s.folderMoved = null; await X.save(); this.display(); });
+    if (gone) folderAlert(body, X, T, cur, s.folderMoved, async to => { s.folder = to; s.folderMoved = null; await X.save(); this.display(); X.changed(); });
   }
 }
 
 // sub un folder care a dispărut: ce s-a întâmplat și ce poți face (folosește numele nou · pune-l la loc · creează-l din nou · alege altul, din lista de deasupra)
-function folderAlert(el, X, T, cur, moved, use) {
+function folderAlert(el, X, T, cur, moved, use, ask) {
   const to = moved && moved.from === cur && X.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
   const box = el.createDiv("tx-falert");
-  box.createDiv({ cls: "tx-falert-t", text: T("Exporturile nu se pot salva", "Exports can't be saved") });
-  box.createDiv({ cls: "tx-falert-d", text: to ? T(`Ai redenumit folderul exportului: „${cur}” e acum „${to}”. Folosește numele nou, pune-i înapoi numele vechi sau alege alt folder din lista de deasupra.`, `You renamed the export folder: “${cur}” is now “${to}”. Use the new name, put the old name back, or pick another folder from the list above.`)
-    : T(`Folderul exportului, „${cur}”, nu mai e în vault (l-ai redenumit, mutat sau șters). Creează-l din nou sau alege alt folder din lista de deasupra.`, `The export folder, “${cur}”, isn't in your vault anymore (renamed, moved or deleted). Create it again, or pick another folder from the list above.`) });
+  // ce se întâmplă de acum: exportul nu ajunge în folderul tău; următorul export se oprește și te întreabă (în fereastra „Unde salvez exportul?”: de ce întreabă acum)
+  box.createDiv({ cls: "tx-falert-t", text: T("Exporturile nu ajung în folderul tău de export", "Exports don't go into your export folder") });
+  const then = ask ? T("așa că Texere nu știe unde să salveze exportul.", "so Texere doesn't know where to save the export.") : null, where = ask ? T("mai jos", "below") : T("din lista de deasupra", "from the list above");
+  box.createDiv({ cls: "tx-falert-d", text: to ? T(`Ai redenumit folderul exportului: „${cur}” e acum „${to}”, ${ask ? then : `dar Texere încă salvează în „${cur}”. Până alegi, următorul export se oprește și te întreabă unde să ajungă.`} Folosește numele nou, pune-i înapoi numele vechi sau alege alt folder ${where}.`, `You renamed the export folder: “${cur}” is now “${to}”, ${ask ? then : `but Texere still saves to “${cur}”. Until you choose, the next export will stop and ask where to go.`} Use the new name, put the old name back, or pick another folder ${where}.`)
+    : T(`Folderul exportului, „${cur}”, nu mai e în vault (l-ai redenumit, mutat sau șters), ${ask ? then : `iar Texere încă salvează acolo. Până alegi, următorul export se oprește și te întreabă unde să ajungă.`} Creează-l din nou sau alege alt folder ${where}.`, `The export folder, “${cur}”, isn't in your vault anymore (renamed, moved or deleted), ${ask ? then : `but Texere still saves there. Until you choose, the next export will stop and ask where to go.`} Create it again, or pick another folder ${where}.`) });
   const bt = box.createDiv("tx-falert-b");
   if (to) {
     bt.createEl("button", { cls: "mod-cta", text: T(`Folosește „${to}”`, `Use “${to}”`) }).addEventListener("click", () => use(to));
@@ -1442,7 +1446,7 @@ module.exports = {
   async install(S, dir) {
     const X = new Exporter(S, dir), h = S.host, T = (a, b) => S.T(a, b);
     // redenumești folderul exportului în Obsidian: la următorul export te întreb, cu numele nou deja ales
-    if (S.app.vault?.on) h.registerEvent(S.app.vault.on("rename", (f, old) => { try { const cur = String(X.conf().folder || "").replace(/\/+$/, ""); if (!Array.isArray(f.children) || isAbsDir(cur)) return; if (old === cur || cur.startsWith(old + "/")) { X.conf().folderMoved = { from: cur, to: f.path + cur.slice(old.length) }; X.save(); } } catch (e) {} }));
+    if (S.app.vault?.on) h.registerEvent(S.app.vault.on("rename", (f, old) => { try { const cur = String(X.conf().folder || "").replace(/\/+$/, ""); if (!Array.isArray(f.children) || isAbsDir(cur)) return; if (old === cur || cur.startsWith(old + "/")) { X.conf().folderMoved = { from: cur, to: f.path + cur.slice(old.length) }; X.save().then(() => X.changed()); } } catch (e) {} }));
     const st = document.createElement("style"); st.id = "texere-export-css"; document.getElementById(st.id)?.remove(); st.textContent = CSS; document.head.appendChild(st); h.register(() => st.remove());
     h.addCommand({ id: "export-note", name: "Export this note… / Exportă nota…", checkCallback: chk => { const f = S.app.workspace.getActiveFile?.(); if (!(f instanceof TFile) || f.extension !== "md") return false; if (!chk) X.open(f); return true; } });
     h.addCommand({ id: "export-pick", name: "Choose a note to export… / Alege nota pe care o exporți…", callback: () => X.pick() });

@@ -564,8 +564,10 @@ class Sources {
   }
   notesDir(csl, key) { return this.dirFor(this.filesConf().notes, csl, key); }
   pdfDir(csl, key) { return this.dirFor(this.filesConf().pdfs, csl, key); }
-  async ensureFolder(dir) {
+  async ensureFolder(dir, force) {
     if (!dir || this.app.vault.getAbstractFileByPath(dir)) return;
+    // folderul surselor (notele sau PDF-urile) a fost redenumit sau șters: nu-l refacem pe ascuns cu numele vechi, altfel sursa ar ajunge în alt folder decât al tău
+    if (!force) { const g = Object.values(this.goneSafe()).find(r => dir === r || dir.startsWith(r + "/")); if (g) throw new Error(this.T(`folderul „${g}” nu mai e în vault; alege în Texere · Sources unde se salvează sursele`, `the folder “${g}” isn't in your vault anymore; choose in Texere · Sources where sources are saved`)); }
     let cur = ""; for (const part of dir.split("/")) { cur = cur ? cur + "/" + part : part; if (!this.app.vault.getAbstractFileByPath(cur)) { try { await this.app.vault.createFolder(cur); } catch (e) {} } }
   }
   // datele unei note de literatură, cât trebuie pentru nume și foldere
@@ -1023,7 +1025,7 @@ class Sources {
       await ad.write(p, [...old, ...add].slice(-400).join("\n"));
     } catch (e) {}
     if (!found) return null;
-    const dir = dirArg || this.docDir(); await this.ensureFolder(dir);
+    const dir = await this.liveDir(dirArg || this.docDir()); if (!dir) return null; await this.ensureFolder(dir);
     // „păstrează numele”: numele fișierului de pe site (dacă e unul adevărat, nu „pdf” sau „download”)
     if (!key) { let n = ""; try { n = decodeURIComponent(new URL(foundUrl).pathname.split("/").filter(Boolean).pop() || ""); } catch (e) {}
       n = n.replace(/\.pdf$/i, "").replace(/[\\/:*?"<>|#^[\]]+/g, " ").trim();
@@ -1238,7 +1240,8 @@ class Sources {
   }
   // un PDF pe care îl ai deja (din Inbox sau de oriunde) ajunge în folderul sursei, cu numele după regulă, și se atașează notei
   async placePdf(note, csl, key, pdf, noteBase) {
-    const dir = this.pdfDir(csl, key), name = this.pdfBase(csl, key, noteBase) || pdf.basename;
+    const dir = await this.liveDir(this.pdfDir(csl, key)), name = this.pdfBase(csl, key, noteBase) || pdf.basename;
+    if (!dir) { new Notice(this.T(`PDF-ul a rămas în „${pdf.parent?.path || "/"}”: n-ai ales un folder pentru PDF-uri.`, `The PDF stayed in “${pdf.parent?.path || "/"}”: you didn't choose a folder for PDFs.`), 8000); return; }
     await this.ensureFolder(dir);
     const to = this.freePath(dir, name, pdf.extension, pdf.path);
     if (to !== pdf.path) await this.app.fileManager.renameFile(pdf, to);
@@ -1256,6 +1259,7 @@ class Sources {
     for (const k of ["notes", "pdfs"]) { const r = this.rootOf(f[k]); if (r && !this.app.vault.getAbstractFileByPath(r)) out[k] = r; }
     return out;
   }
+  goneSafe() { try { return this.goneFolders(); } catch (e) { return {}; } }
   vaultFolders() {
     const v = this.app.vault, out = new Set(), walk = f => { for (const c of f.children || []) if (Array.isArray(c.children)) { out.add(c.path); walk(c); } };
     try { if (v.getAllFolders) for (const f of v.getAllFolders()) out.add(f.path); else if (v.getRoot) walk(v.getRoot()); else for (const f of v.getAllLoadedFiles?.() || []) if (Array.isArray(f.children)) out.add(f.path); } catch (e) {}
@@ -1270,18 +1274,30 @@ class Sources {
     for (const k of ["notes", "pdfs", "inbox"]) { if (k === key || !old) continue; const v = String(f[k] || ""); if (v === old || v.startsWith(old + "/") || (v.startsWith(old) && v.slice(old.length).startsWith("/{{"))) { f[k] = to + v.slice(old.length); delete m[k]; } }
     delete m[key];
     await this.save();
+    try { this.app.workspace.trigger?.("texere:changed"); } catch (e) {}   // tab-ul nou și setările se redesenează
   }
   // redenumești în Obsidian un folder al surselor: îl ținem minte (și după repornire), ca să-ți propunem numele nou
   trackFolderRename(f, old) {
     if (!Array.isArray(f?.children)) return;
     const files = this.filesConf(), c = this.conf();
     for (const k of ["notes", "pdfs", "inbox"]) { const r = this.rootOf(files[k]); if (r && (old === r || r.startsWith(old + "/"))) { (c.folderMoved = c.folderMoved || {})[k] = { from: r, to: f.path + r.slice(old.length) }; } }
-    this.save();
+    this.save().then(() => { try { this.app.workspace.trigger?.("texere:changed"); } catch (e) {} });
   }
   // înainte să salvezi o sursă: dacă folderul notelor sau al PDF-urilor a dispărut, te întreabă unde le pune; false = renunți
   async checkFolders() {
     const gone = this.goneFolders(); if (!Object.keys(gone).length) return true;
-    return new Promise(res => new SourceFoldersModal(this, gone, res).open());
+    if (this._askFolders) return this._askFolders;   // o singură întrebare, oricâte salvări așteaptă (ex. sursa și PDF-ul ei)
+    this._askFolders = new Promise(res => new SourceFoldersModal(this, gone, res).open()).finally(() => { this._askFolders = null; });
+    return this._askFolders;
+  }
+  // calea în care se salvează ceva acum: dacă folderul ei a dispărut, întâi te întreabă, apoi dă calea din folderul ales; null = ai renunțat
+  async liveDir(dir) {
+    dir = String(dir || "").replace(/\/+$/, "");
+    const hit = Object.entries(this.goneSafe()).find(([, r]) => dir === r || dir.startsWith(r + "/"));
+    if (!hit) return dir;
+    if (!(await this.checkFolders())) return null;
+    const [k, old] = hit, now = this.rootOf(this.filesConf()[k]);
+    return now ? now + dir.slice(old.length) : dir;
   }
 
   // PDF-ul pe care îl salvezi din browser (după „Deschide PDF-ul”): când apare în Downloads (cel mult 10 minute), o copie intră lângă celelalte PDF-uri și se atașează
@@ -1315,7 +1331,7 @@ class Sources {
         const b = fs.readFileSync(hit); if (b.subarray(0, 5).toString("latin1") !== "%PDF-") { before.add(path.basename(hit)); return void later(tick, 1500); }
         const f = this.app.vault.getAbstractFileByPath(note.path) || note; if (this.attachedPdfs(f).length) return;
         const csl = this.cslOfFm(this.app.metadataCache.getFileCache(f)?.frontmatter || {}), e = this.lib.all().find(v => v.obsidianPath === f.path), key = e?.id || f.basename.replace(/^@/, "");
-        const to = this.pdfDir(csl, key); await this.ensureFolder(to);
+        const to = await this.liveDir(this.pdfDir(csl, key)); if (!to) return; await this.ensureFolder(to);
         const pdf = await this.app.vault.createBinary(this.freePath(to, this.pdfBase(csl, key, f.basename.replace(/^@/, "")) || key, "pdf"), b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
         await this.placeLater(f, pdf, csl);
         new Notice(T(`PDF-ul din Downloads e atașat la @${key}.`, `The PDF from Downloads is attached to @${key}.`), 6000);
@@ -1673,12 +1689,14 @@ class Sources {
 }
 
 // sub un folder al surselor care a dispărut: ce s-a întâmplat și ce poți face
-function sourceFolderAlert(el, S, T, cur, moved, use, key) {
+function sourceFolderAlert(el, S, T, cur, moved, use, key, ask) {
   const to = moved && moved.from === cur && S.app.vault.getAbstractFileByPath(moved.to) ? moved.to : null;
-  const box = el.createDiv("ts-falert"), what = key === "pdfs" ? T("folderul PDF-urilor", "the PDF folder") : key === "inbox" ? T("Inbox-ul", "the Inbox") : T("folderul notelor de literatură", "the literature notes folder");
-  box.createDiv({ cls: "ts-falert-t", text: key === "pdfs" ? T("PDF-urile surselor noi nu se pot salva", "New sources' PDFs can't be saved") : key === "inbox" ? T("PDF-urile fără sursă nu au unde să ajungă", "PDFs without a source have nowhere to go") : T("Sursele noi nu se pot salva", "New sources can't be saved") });
-  box.createDiv({ cls: "ts-falert-d", text: to ? T(`Ai redenumit ${what}: „${cur}” e acum „${to}”. Folosește numele nou, pune-i înapoi numele vechi sau alege alt folder din lista de deasupra.`, `You renamed ${what}: “${cur}” is now “${to}”. Use the new name, put the old name back, or pick another folder from the list above.`)
-    : T(`${what.charAt(0).toUpperCase() + what.slice(1)}, „${cur}”, nu mai e în vault (l-ai redenumit, mutat sau șters). Creează-l din nou sau alege alt folder din lista de deasupra.`, `${what.charAt(0).toUpperCase() + what.slice(1)}, “${cur}”, isn't in your vault anymore (renamed, moved or deleted). Create it again, or pick another folder from the list above.`) });
+  const box = el.createDiv("ts-falert"), w = folderWords(T, key), what = w.what;
+  box.createDiv({ cls: "ts-falert-t", text: w.breaks });
+  // în setări: ce se întâmplă de acum (următoarea salvare se oprește și întreabă); în fereastra „Unde salvez sursa?”: de ce întreabă acum
+  const then = ask ? T("așa că Texere nu știe unde să salveze.", "so Texere doesn't know where to save.") : null, where = ask ? T("mai jos", "below") : T("din lista de deasupra", "from the list above"), What = what.charAt(0).toUpperCase() + what.slice(1);
+  box.createDiv({ cls: "ts-falert-d", text: to ? T(`Ai redenumit ${what}: „${cur}” e acum „${to}”, ${ask ? then : `dar Texere încă îl caută pe „${cur}”. Până alegi, ${w.nextRo} se oprește și te întreabă unde să ajungă.`} Folosește numele nou, pune-i înapoi numele vechi sau alege alt folder ${where}.`, `You renamed ${what}: “${cur}” is now “${to}”, ${ask ? then : `but Texere still looks for “${cur}”. Until you choose, ${w.nextEn} will stop and ask where to go.`} Use the new name, put the old name back, or pick another folder ${where}.`)
+    : T(`${What}, „${cur}”, nu mai e în vault (l-ai redenumit, mutat sau șters), ${ask ? then : `iar Texere încă îl caută. Până alegi, ${w.nextRo} se oprește și te întreabă unde să ajungă.`} Creează-l din nou sau alege alt folder ${where}.`, `${What}, “${cur}”, isn't in your vault anymore (renamed, moved or deleted), ${ask ? then : `but Texere still looks for it. Until you choose, ${w.nextEn} will stop and ask where to go.`} Create it again, or pick another folder ${where}.`) });
   const bt = box.createDiv("ts-falert-b");
   if (to) {
     bt.createEl("button", { cls: "mod-cta", text: T(`Folosește „${to}”`, `Use “${to}”`) }).addEventListener("click", () => use(to));
@@ -1686,8 +1704,15 @@ function sourceFolderAlert(el, S, T, cur, moved, use, key) {
       try { const f = S.app.vault.getAbstractFileByPath(to), parent = cur.includes("/") ? cur.slice(0, cur.lastIndexOf("/")) : ""; if (parent) await S.ensureFolder(parent); await S.app.fileManager.renameFile(f, cur); await use(cur); }
       catch (e) { new Notice(T("N-am putut redenumi folderul: ", "Couldn't rename the folder: ") + e.message, 8000); }
     });
-  } else bt.createEl("button", { cls: "mod-cta", text: T(`Creează din nou „${cur}”`, `Create “${cur}” again`) }).addEventListener("click", async () => { await S.ensureFolder(cur); await use(cur); });
+  } else bt.createEl("button", { cls: "mod-cta", text: T(`Creează din nou „${cur}”`, `Create “${cur}” again`) }).addEventListener("click", async () => { await S.ensureFolder(cur, true); await use(cur); });
   return box;
+}
+// ce nu mai merge când un folder al surselor e redenumit sau șters (aceleași cuvinte în setări, în tab-ul nou și în mesaje)
+function folderWords(T, key) {
+  if (key === "pdfs") return { what: T("folderul PDF-urilor", "the PDF folder"), breaks: T("PDF-urile noi nu ajung în folderul tău de PDF-uri", "New PDFs don't go into your PDF folder"),
+    nextRo: "următorul PDF (al unei surse noi, din Zotero sau din Downloads)", nextEn: "the next PDF (from a new source, Zotero or Downloads)" };
+  if (key === "inbox") return { what: T("Inbox-ul", "the Inbox"), breaks: T("PDF-urile fără sursă nu ajung în Inbox-ul tău", "PDFs without a source don't go into your Inbox"), nextRo: "următorul PDF fără sursă", nextEn: "the next PDF without a source" };
+  return { what: T("folderul notelor de literatură", "the literature notes folder"), breaks: T("Sursele noi nu ajung în folderul tău de note", "New sources don't go into your notes folder"), nextRo: "următoarea sursă pe care o salvezi", nextEn: "the next source you save" };
 }
 // „Unde salvez sursa?”: folderul notelor sau al PDF-urilor a dispărut; pentru fiecare: folosește numele nou, pune-l la loc, creează-l din nou sau alege altul
 class SourceFoldersModal extends Modal {
@@ -1698,7 +1723,7 @@ class SourceFoldersModal extends Modal {
     const names = { notes: T("Notele de literatură", "Literature notes"), pdfs: T("PDF-urile", "PDFs") }, pick = {};
     for (const [k, cur] of Object.entries(this.gone)) {
       new Setting(el).setName(names[k]).setHeading();
-      sourceFolderAlert(el, S, T, cur, moved[k], async to => { await S.setFolderRoot(k, to); delete this.gone[k]; if (!Object.keys(this.gone).length) { this.ok = true; this.close(); } else { this.contentEl.empty(); this.onOpen(); } }, k);
+      sourceFolderAlert(el, S, T, cur, moved[k], async to => { await S.setFolderRoot(k, to); delete this.gone[k]; if (!Object.keys(this.gone).length) { this.ok = true; this.close(); } else { this.contentEl.empty(); this.onOpen(); } }, k, true);
       const ren = moved[k] && moved[k].from === cur && S.app.vault.getAbstractFileByPath(moved[k].to) ? moved[k].to : null;
       pick[k] = ren || folders.find(f => f.split("/").pop().toLowerCase() === cur.split("/").pop().toLowerCase()) || folders[0];
       new Setting(el).setName(T("Alt folder din vault", "Another folder in your vault")).addDropdown(d => { for (const f of folders) d.addOption(f, f); d.setValue(pick[k]).onChange(v => { pick[k] = v; }); d.selectEl.style.minWidth = "200px"; d.selectEl.style.maxWidth = "300px"; });
@@ -2635,7 +2660,12 @@ class SourcesSettingTab extends PluginSettingTab {
 
   // folderele: întâi le schimbi aici (ciornă), apoi „Previzualizează” arată exact ce s-ar întâmpla; abia acolo le aplici
   foldersSection(el, S, T) {
-    const cur = S.filesConf(), d = this.filesDraft || (this.filesDraft = { ...cur });
+    const cur = S.filesConf(), K = ["notes", "pdfs", "inbox"];
+    let d = this.filesDraft;
+    if (!d) d = this.filesDraft = { ...cur };
+    // dacă folderele s-au schimbat în altă parte (din tab-ul nou, o redenumire), ciorna le preia — în afară de ce ai schimbat tu aici
+    else if (this.filesBase) for (const k of K) if ((d[k] || "") === (this.filesBase[k] || "") && (cur[k] || "") !== (this.filesBase[k] || "")) d[k] = cur[k];
+    this.filesBase = { ...cur };
     const changed = () => ["notes", "pdfs", "inbox"].some(k => (d[k] || "") !== (cur[k] || ""));
     new Setting(el).setName(T("Foldere", "Folders")).setDesc(T("Unde ajung notele, PDF-urile și PDF-urile fără sursă. Poți folosi variabile, ex. {{authorsShort}} sau {{typeName}}.", "Where notes, PDFs and PDFs without a source go. You can use variables, e.g. {{authorsShort}} or {{typeName}}.")).setHeading();
     const root = () => S.rootOf(d.pdfs) || "01. Sources/Documents";

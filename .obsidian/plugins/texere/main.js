@@ -49,6 +49,11 @@ module.exports = class Texere extends Plugin {
     this.app.workspace.onLayoutReady(() => { this.start().catch(e => console.error("Texere:", e)); });
     // folderele de care are nevoie Texere: când redenumești sau muți unul, îți spune pe loc ce înseamnă
     this.app.workspace.onLayoutReady(() => { if (this.app.vault.on) this.registerEvent(this.app.vault.on("rename", (f, old) => { try { this.onRename(f, old); } catch (e) { console.error("Texere: folderele", e); } })); });
+    // ce repari într-un loc se vede și în celălalt: tab-ul nou și setările se redesenează când se schimbă un folder sau o setare a lor
+    this.app.workspace.onLayoutReady(() => {
+      if (this.app.workspace.on) this.registerEvent(this.app.workspace.on("texere:changed", () => this.changed()));
+      if (this.app.vault.on) for (const ev of ["create", "delete", "rename"]) this.registerEvent(this.app.vault.on(ev, f => { if (Array.isArray(f?.children)) this.changed(); }));
+    });
     // structura de foldere: o singură dată, după ce pornesc și celelalte pluginuri Texere (folderele lor pot avea alte nume)
     this.app.workspace.onLayoutReady(() => setTimeout(() => this.foldersOnce().catch(e => console.error("Texere: folderele", e)), 3000));
     // panoul din tab-ul nou
@@ -181,6 +186,21 @@ module.exports = class Texere extends Plugin {
     if (it.kind === "texere") { await this.enable(it.p.id); return; }
     if (it.kind === "map") { await this.createMap(it.m); return; }
   }
+  // anunță că s-a schimbat ceva (un folder pus la loc, o setare): tab-urile noi și setările deschise se redesenează
+  notify() { try { this.app.workspace.trigger?.("texere:changed"); } catch (e) {} this.changed(); }
+  changed() {
+    clearTimeout(this._chT);
+    this._chT = setTimeout(() => {
+      try { this.home(true); } catch (e) {}
+      try {
+        const t = this.app.setting?.activeTab, c = t?.containerEl; if (!t || !/^texere/.test(String(t.id || "")) || !c?.isConnected) return;
+        // cât timp scrii într-un câmp din setări, nu le redesenăm: așteptăm să ieși din câmp
+        const a = document.activeElement; if (a && c.contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName) && a.type !== "checkbox") { if (!c._txWait) { c._txWait = true; c.addEventListener("focusout", () => { c._txWait = false; this.changed(); }, { once: true }); } return; }
+        t.display();
+      } catch (e) {}
+    }, 250);
+  }
+
   // ——— folderele de care are nevoie Texere ———
   // fixe: nu se redenumesc și nu se mută (bibliografia și stilurile de citare, scripturile de pornire, șabloanele și configurarea)
   fixedFolders() {
@@ -195,11 +215,13 @@ module.exports = class Texere extends Plugin {
   movableFolders() {
     const T = (a, b) => this.T(a, b), P = this.app.plugins.plugins, out = [];
     const src = P["texere-sources"]?.sources, f = P["texere-sources"]?.settings?.sources?.files || {}, root = p => { p = String(p || "").replace(/\/+$/, ""); const i = p.indexOf("{{"); return i < 0 ? p : p.slice(0, i).replace(/\/[^/]*$/, "").replace(/\/+$/, ""); };
-    for (const [k, def, label, breaks] of [["notes", "01. Sources/Literature Notes", T("folderul notelor de literatură", "the literature notes folder"), T("Sursele noi nu se pot salva", "New sources can't be saved")], ["pdfs", "01. Sources/Documents", T("folderul PDF-urilor", "the PDF folder"), T("PDF-urile surselor noi nu se pot salva", "New sources' PDFs can't be saved")]])
-      out.push({ key: k, path: root(f[k]) || def, label, breaks, plugin: "texere-sources", use: to => src?.setFolderRoot?.(k, to), choose: () => src?.checkFolders?.() });
+    // breaks = ce nu mai merge (titlul alertei); next = ce se întâmplă la următoarea salvare
+    for (const [k, def, label, breaks, next] of [["notes", "01. Sources/Literature Notes", T("folderul notelor de literatură", "the literature notes folder"), T("Sursele noi nu ajung în folderul tău de note", "New sources don't go into your notes folder"), T("următoarea sursă pe care o salvezi", "the next source you save")],
+      ["pdfs", "01. Sources/Documents", T("folderul PDF-urilor", "the PDF folder"), T("PDF-urile noi nu ajung în folderul tău de PDF-uri", "New PDFs don't go into your PDF folder"), T("următorul PDF (al unei surse noi, din Zotero sau din Downloads)", "the next PDF (from a new source, Zotero or Downloads)")]])
+      out.push({ key: k, path: root(f[k]) || def, label, breaks, next, plugin: "texere-sources", use: to => src?.setFolderRoot?.(k, to), choose: () => src?.checkFolders?.() });
     const X = P["texere-export"]?.exporter, ex = String(P["texere-export"]?.settings?.export?.folder || "04. Export").replace(/\/+$/, "");
-    if (X && !/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push({ key: "export", path: ex, label: T("folderul exportului", "the export folder"), breaks: T("Exporturile nu se pot salva", "Exports can't be saved"), plugin: "texere-export",
-      use: async to => { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); }, choose: async () => { const to = await X.askFolder(ex); if (to) { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); } } });
+    if (X && !/^([\/~]|[A-Za-z]:[\\/])/.test(ex)) out.push({ key: "export", path: ex, label: T("folderul exportului", "the export folder"), breaks: T("Exporturile nu ajung în folderul tău de export", "Exports don't go into your export folder"), next: T("următorul export", "the next export"), plugin: "texere-export",
+      use: async to => { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); this.notify(); }, choose: async () => { const to = await X.askFolder(ex); if (to) { const c = X.conf(); c.folder = to; c.folderMoved = null; await X.save(); this.notify(); } } });
     return out;
   }
   // un folder redenumit sau mutat: unul fix → „trebuie să rămână acolo” + Pune-l la loc; unul al surselor sau al exportului → Folosește numele nou
@@ -212,16 +234,16 @@ module.exports = class Texere extends Plugin {
       const frag = document.createDocumentFragment();
       frag.append(T(`${fixed[0].breaks} până nu-l pui la loc: „${fixed[0].path}” trebuie să-și păstreze numele și locul. ${fixed[0].why} `, `${fixed[0].breaks} until you put it back: “${fixed[0].path}” must keep its name and place. ${fixed[0].why} `));
       const a = document.createElement("a"); a.href = "#"; a.textContent = T("Pune-l la loc", "Put it back"); frag.append(a);
-      const n = new Notice(frag, 0); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await this.putBack(fixed[0].path); this.home(true); });
-      this.home(true); return;
+      const n = new Notice(frag, 0); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await this.putBack(fixed[0].path); this.notify(); });
+      this.notify(); return;
     }
     const mv = this.movableFolders().find(x => hit(x.path));
     if (mv) {
       const to = now(mv.path), frag = document.createDocumentFragment();
-      frag.append(T(`Ai redenumit ${mv.label}: „${mv.path}” e acum „${to}”. ${mv.breaks} până nu alegi ce folosește Texere. `, `You renamed ${mv.label}: “${mv.path}” is now “${to}”. ${mv.breaks} until you choose what Texere uses. `));
+      frag.append(T(`Ai redenumit ${mv.label}: „${mv.path}” e acum „${to}”. ${mv.breaks}: Texere încă îl caută pe „${mv.path}”, așa că ${mv.next} se va opri și te va întreba unde să ajungă. `, `You renamed ${mv.label}: “${mv.path}” is now “${to}”. ${mv.breaks}: Texere still looks for “${mv.path}”, so ${mv.next} will stop and ask where to go. `));
       const a = document.createElement("a"); a.href = "#"; a.textContent = T(`Folosește „${to}”`, `Use “${to}”`); frag.append(a);
-      const n = new Notice(frag, 15000); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await mv.use(to); this.home(true); });
-      setTimeout(() => this.home(true), 300);
+      const n = new Notice(frag, 15000); a.addEventListener("click", async e => { e.preventDefault(); n.hide(); await mv.use(to); this.notify(); });
+      setTimeout(() => this.notify(), 300);
     }
   }
   // pune la loc un folder fix: după redenumirea ținută minte, altfel după fișierul lui (ex. bibliography.json)
@@ -299,8 +321,9 @@ module.exports = class Texere extends Plugin {
       out.push({ text: x.breaks, why: T(`„${x.path}” a fost redenumit sau mutat. Trebuie să rămână acolo, cu numele lui: `, `“${x.path}” was renamed or moved. It must stay there, with its name: `) + x.why.charAt(0).toLowerCase() + x.why.slice(1), btn: T("Pune-l la loc", "Put it back"), fn: () => this.putBack(x.path) });
     for (const x of this.movableFolders()) if (!this.app.vault.getAbstractFileByPath(x.path)) {
       const m = x.key === "export" ? P.plugins["texere-export"]?.settings?.export?.folderMoved : P.plugins["texere-sources"]?.settings?.sources?.folderMoved?.[x.key], to = m && m.from === x.path && this.app.vault.getAbstractFileByPath(m.to) ? m.to : null;
-      out.push(to ? { text: x.breaks, why: T(`Ai redenumit ${x.label}: „${x.path}” e acum „${to}”. Alege ce folosește Texere.`, `You renamed ${x.label}: “${x.path}” is now “${to}”. Choose what Texere uses.`), btn: T(`Folosește „${to}”`, `Use “${to}”`), fn: () => x.use(to) }
-        : { text: x.breaks, why: T(`${x.label.charAt(0).toUpperCase() + x.label.slice(1)}, „${x.path}”, nu mai e în vault. Alege unde salvează Texere de acum încolo.`, `${x.label.charAt(0).toUpperCase() + x.label.slice(1)}, “${x.path}”, isn't in the vault anymore. Choose where Texere saves from now on.`), btn: T("Alege…", "Choose…"), fn: () => x.choose() });
+      const L = x.label.charAt(0).toUpperCase() + x.label.slice(1), wait = T(`Până alegi, ${x.next} se oprește și te întreabă unde să ajungă.`, `Until you choose, ${x.next} will stop and ask where to go.`);
+      out.push(to ? { text: x.breaks, why: T(`Ai redenumit ${x.label}: „${x.path}” e acum „${to}”, dar Texere încă îl caută pe „${x.path}”. `, `You renamed ${x.label}: “${x.path}” is now “${to}”, but Texere still looks for “${x.path}”. `) + wait, btn: T(`Folosește „${to}”`, `Use “${to}”`), fn: () => x.use(to) }
+        : { text: x.breaks, why: T(`${L}, „${x.path}”, nu mai e în vault, iar Texere încă îl caută. `, `${L}, “${x.path}”, isn't in the vault anymore, but Texere still looks for it. `) + wait, btn: T("Alege…", "Choose…"), fn: () => x.choose() });
     }
     if (this.app.vault.getConfig?.("alwaysUpdateLinks") === false) out.push({ text: T("Linkurile nu se actualizează când redenumești o notă.", "Links don't update when you rename a note."), why: T("Texere redenumește note; fără asta, linkurile spre ele se rup.", "Texere renames notes; without this, links to them break."), btn: T("Repară", "Fix"), fn: () => this.app.vault.setConfig("alwaysUpdateLinks", true) });
     return out;
@@ -343,7 +366,7 @@ module.exports = class Texere extends Plugin {
     const { sources, pdfs } = this.counts();
     el.addClass("texere-home-on"); el.querySelector(".texere-home")?.remove();
     const box = el.createDiv("texere-home"), inner = box.createDiv("txh-inner");
-    const redraw = () => setTimeout(() => this.home(true), 600);
+    const redraw = () => setTimeout(() => this.notify(), 400);
     // 1. bun venit: ce e Texere, într-o propoziție
     inner.createDiv({ cls: "txh-hi", text: T("Bun venit în Texere", "Welcome to Texere") });
     inner.createDiv({ cls: "txh-desc", text: T("Sursele, lectura și scrisul tău, într-un singur loc. Adaugi o sursă, o citești și evidențiezi, scrii cu citări, apoi exporți.", "Your sources, reading and writing, in one place. Add a source, read and highlight it, write with citations, then export.") });
@@ -438,7 +461,7 @@ class TexereSettingTab extends PluginSettingTab {
     body.createEl("p", { cls: "ts-intro", text: T("Pluginul general al vault-ului: îl configurează, pornește celelalte pluginuri Texere și pe cele de care au nevoie, ține folderele la locul lor și pune panoul în fiecare tab nou.", "The vault's general plugin: it sets the vault up, turns on the other Texere plugins and the ones they need, keeps the folders in place and puts the panel in every new tab.") });
     const chip = (s, text, cls) => s.nameEl.createSpan({ cls: "tx-chip " + cls, text });
     const label = st => st === "on" ? [T("pornit", "on"), "ok"] : st === "off" ? [T("instalat, oprit", "installed, off"), "warn"] : [T("lipsește", "missing"), "bad"];
-    const busy = async (b, fn) => { const old = b.buttonEl.getText(); b.setDisabled(true); b.setButtonText("…"); try { await fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } finally { b.setButtonText(old); b.setDisabled(false); this.display(); } };
+    const busy = async (b, fn) => { const old = b.buttonEl.getText(); b.setDisabled(true); b.setButtonText("…"); try { await fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } finally { b.setButtonText(old); b.setDisabled(false); this.display(); P.notify(); } };
 
     // 0. ce trebuie reparat (aceeași listă ca în tab-ul nou); când totul e bine, nu apare
     const fixes = body.createDiv("tx-fixes");
@@ -447,7 +470,7 @@ class TexereSettingTab extends PluginSettingTab {
       fixes.createDiv({ cls: "tx-fixes-t", text: probs.length === 1 ? T("Un lucru de reparat", "One thing to fix") : T(`${probs.length} lucruri de reparat`, `${probs.length} things to fix`) });
       for (const p of probs) {
         const r = fixes.createDiv("txh-problem"), t = r.createDiv("txh-pt"); t.createDiv({ cls: "txh-ptext", text: p.text }); if (p.why) t.createDiv({ cls: "txh-pwhy", text: p.why });
-        if (p.btn) { const b = r.createEl("button", { text: p.btn }); b.addEventListener("click", async () => { b.disabled = true; b.setText("…"); try { await p.fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } setTimeout(() => this.display(), 600); }); }
+        if (p.btn) { const b = r.createEl("button", { text: p.btn }); b.addEventListener("click", async () => { b.disabled = true; b.setText("…"); try { await p.fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } setTimeout(() => P.notify(), 400); }); }
       }
     }).catch(() => {});
 

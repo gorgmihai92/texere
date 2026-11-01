@@ -548,7 +548,7 @@ class Zotero {
   // PDF-ul intră în vault (în folderul PDF-urilor; Texere îl redenumește și îl atașează notei)
   async pdfToVault(x, opts = {}) {
     const p = await this.pdf(x.zotero); if (!p) return null;
-    const dir = this.S.docDir(); await this.S.ensureFolder(dir);
+    const dir = await this.S.liveDir(this.S.docDir()); if (!dir) return null; await this.S.ensureFolder(dir);
     const base = String(p.name).replace(/\.pdf$/i, "").replace(/[\\/:*?"<>|#^[\]]+/g, " ").trim() || "Zotero";
     const path = this.S.freePath(dir, base, "pdf");
     const buf = p.data instanceof ArrayBuffer ? p.data : p.data.buffer.slice(p.data.byteOffset, p.data.byteOffset + p.data.byteLength);
@@ -671,7 +671,7 @@ class Zotero {
           let file = await this.findCopy(f);   // deja în vault (de la un import anterior): nu-l mai copiază, doar îi pune evidențierile
           if (file) { res.had++; if (file.path.startsWith(S.inboxDir() + "/")) res.loose.push(file); }
           else {
-            const dir = S.inboxDir(); await S.ensureFolder(dir);
+            const dir = await S.liveDir(S.inboxDir()); if (!dir) { res.failed++; err(title, this.T("n-ai ales un folder pentru PDF-uri", "you didn't choose a folder for PDFs")); continue; } await S.ensureFolder(dir);
             const path = S.freePath(dir, String(f.name).replace(/\.pdf$/i, "").replace(/[\\/:*?"<>|#^[\]]+/g, " ").trim() || "Zotero", "pdf");
             this.quietInbox.add(path);
             const buf = f.data instanceof ArrayBuffer ? f.data : f.data.buffer.slice(f.data.byteOffset, f.data.byteOffset + f.data.byteLength);
@@ -911,7 +911,7 @@ class Zotero {
     if (s.hasPdf || s.lateBusy) return; s.lateBusy = true;
     try {
       for (let i = 0; i < 60 && !s.note; i++) await sleep(500);   // nota se scrie chiar acum: o așteptăm
-      const fs = this.node("fs"), dir = this.S.inboxDir(); await this.S.ensureFolder(dir);
+      const fs = this.node("fs"), dir = await this.S.liveDir(this.S.inboxDir()); if (!dir) return; await this.S.ensureFolder(dir);
       const cur = s.note && (this.app.vault.getAbstractFileByPath?.(s.note.path) || s.note), had = cur ? this.S.attachedPdfs?.(cur) || [] : [];
       if (had.length) {   // nota are deja un PDF: unul ajunge
         const b = fs.readFileSync(tmpPath);
@@ -942,6 +942,8 @@ class Zotero {
     const declared = (s.item.attachments || []).filter(a => a?.url && /pdf/i.test(a.mimeType || "")).map(a => { try { return new URL(a.url, s.uri || s.item.url).href; } catch (e) { return null; } }).filter(Boolean);
     const x = { title: csl.title, authors: csl.author || [], year: csl.issued?.["date-parts"]?.[0]?.[0] || null, doi: csl.DOI || null, isbn: csl.ISBN || null, type: csl.type, url: csl.URL || fix.url || s.uri || null, pdf: [...new Set([...declared, ...(fix.pdf ? [fix.pdf] : [])])], sources: [] };
     setTimeout(() => this.sessions.delete(id), 30 * 60000);
+    // un folder al surselor a fost redenumit sau șters: întâi te întreabă unde să le salveze (nimic nu ajunge pe ascuns în alt folder)
+    if (this.S.checkFolders && !(await this.S.checkFolders())) { new Notice(T(`Butonul Zotero: „${x.title}” nu e salvat — n-ai ales unde merg sursele.`, `Zotero button: “${x.title}” isn't saved — you didn't choose where sources go.`), 8000); return; }
     let pdf = null; const f = Object.values(s.files)[0];
     if (f) {
       try {   // PDF-ul intră întâi în Inbox (fără mesajul obișnuit „PDF nou în Inbox”): dacă ceva nu merge, rămâne acolo și îl poți adăuga oricând
