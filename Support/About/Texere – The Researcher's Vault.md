@@ -260,7 +260,7 @@ The setup does steps 3 to 5 and 7 for you.
 
 ## 11. Version history
 
-- **3.1.0** · 1 November 2026 · a shorter guide; a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it, and Texere attaches it from Downloads
+- **3.1.0** · 1 November 2026 · a shorter guide; a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it to Downloads or drag it into Inbox, and Texere attaches it; Zotero always finds its port free
 - **3.0.0** · 1 November 2026 · sources, citations and export come from three Texere plugins, without BibLib, Pandoc or LaTeX; Zotero import with highlights; export with preview and thesis templates; the bibliography moved to **Support/Admin/Bibliography**
 - **2.3.0** · 30 October 2026 · new folders: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support, and **Home**
 - **2.0.0 – 2.2.1** · 27 October 2026 · one vault for both languages: English and Romanian guides, setup and Help in your language, English note names with Romanian aliases

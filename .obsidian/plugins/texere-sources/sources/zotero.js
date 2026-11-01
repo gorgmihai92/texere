@@ -822,6 +822,7 @@ class Zotero {
         const d = await json(); if (!d?.items?.length) return this.send(res, 400, { error: "No items provided" });
         const id = d.sessionID || this.node("crypto").randomUUID(), it = d.items[0];
         this.sessions.set(id, { item: it, uri: d.uri, files: {}, at: Date.now(), t0: Date.now(), done: false });
+        this.S.logLine?.(`button: received “${String(it.title || "").slice(0, 80)}” · PDFs declared: ${(it.attachments || []).filter(a => /pdf/i.test(a?.mimeType || "")).length}`);
         this.send(res, 201, { sessionID: id });   // Zotero răspunde 201
         new Notice(this.T(`Butonul Zotero: primesc „${String(it.title || "sursa").slice(0, 80)}”…`, `Zotero button: receiving “${String(it.title || "the source").slice(0, 80)}”…`), 4000);
         return this.wait(id, 15000);   // dacă nu mai vine nimic (nici PDF, nici semnalul „fără PDF”), sursa intră după 15 s; un PDF venit mai târziu se atașează oricum
@@ -835,10 +836,11 @@ class Zotero {
         const sid = u.searchParams.get("sessionID"), s = this.sessions.get(sid); if (!s) { await this.body(req); return this.send(res, 404, { error: "Session not found" }); }
         let meta = {}; try { meta = JSON.parse(req.headers["x-metadata"] || "{}"); } catch (e) {}
         const type = String(req.headers["content-type"] || ""), aid = meta.id || this.node("crypto").randomUUID();
-        if (!/pdf/i.test(type)) { await this.body(req); this.send(res, 201, { status: "success", canRecognize: false }); return this.wait(sid, 8000); }
+        if (!/pdf/i.test(type)) { await this.body(req); this.S.logLine?.(`button: attachment that isn't a PDF (${type})`); this.send(res, 201, { status: "success", canRecognize: false }); return this.wait(sid, 8000); }
         const fs = this.node("fs"), path = this.node("path"), file = path.join(this.tmp, `${Date.now()}-${aid}.pdf`.replace(/[^\w.-]+/g, "_"));
         const chunks = []; for await (const c of req) chunks.push(c); fs.writeFileSync(file, Buffer.concat(chunks));
         s.files[aid] = { path: file, title: meta.title || "PDF" }; s.at = Date.now();
+        this.S.logLine?.(`button: PDF received (${Math.round(fs.statSync(file).size / 1024)} KB)${s.done ? ", after the note" : ""}`);
         this.send(res, 201, { status: "success", filename: path.basename(file), canRecognize: false });
         if (s.done) return this.late(s, file);   // a ajuns după ce sursa a intrat: se atașează notei
         return this.wait(sid, 1500);
@@ -906,6 +908,7 @@ class Zotero {
   async late(s, tmpPath) {
     if (s.hasPdf || s.lateBusy) return; s.lateBusy = true;
     try {
+      for (let i = 0; i < 60 && !s.note; i++) await sleep(500);   // nota se scrie chiar acum: o așteptăm
       const fs = this.node("fs"), dir = this.S.inboxDir(); await this.S.ensureFolder(dir);
       const cur = s.note && (this.app.vault.getAbstractFileByPath?.(s.note.path) || s.note), had = cur ? this.S.attachedPdfs?.(cur) || [] : [];
       if (had.length) {   // nota are deja un PDF: unul ajunge

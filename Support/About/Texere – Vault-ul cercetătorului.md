@@ -259,7 +259,7 @@ Configurarea face singură pașii 3–5 și 7.
 
 ## 11. Istoric versiuni
 
-- **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l, iar Texere îl atașează din Downloads
+- **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l în Downloads sau trage-l în Inbox, iar Texere îl atașează; Zotero își găsește mereu portul liber
 - **3.0.0** · 1 noiembrie 2026 · sursele, citările și exportul vin din trei pluginuri Texere, fără BibLib, Pandoc sau LaTeX; importul din Zotero cu evidențieri; exportul cu previzualizare și șabloanele facultății; bibliografia s-a mutat în **Support/Admin/Bibliography**
 - **2.3.0** · 30 octombrie 2026 · foldere noi: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support și **Home**
 - **2.0.0 – 2.2.1** · 27 octombrie 2026 · un singur vault pentru ambele limbi: ghiduri în română și engleză, configurarea și Ajutorul în limba ta, note cu nume în engleză și aliasuri în română

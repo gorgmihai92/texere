@@ -1,4 +1,4 @@
-/* Texere · Sources — versiune 1.2.0 (2026-11-01)
+/* Texere · Sources — versiune 1.2.1 (2026-11-01)
  * Plugin separat (înainte, parte din „Texere – The Researcher's Vault”):
  *  • căutarea surselor în cataloage și adăugarea lor cu PDF-ul gratuit; Zotero (fila lui, importul, butonul din browser);
  *  • biblioteca comună, citările în stilul ales (sugestiile @), statisticile surselor;

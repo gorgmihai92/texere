@@ -1146,6 +1146,8 @@ class Sources {
   // ——— catalogare: un PDF fără sursă → nota lui ———
   inboxNotice(f) {
     if (this.zotero?.quietInbox?.has(f.path)) { this.zotero.quietInbox.delete(f.path); return; }
+    if (this._dlWatch && Date.now() < this._dlWatch.until) return;   // Texere așteaptă PDF-ul unei surse: îl atașează singur
+  
     const T = (a, b) => this.T(a, b), frag = document.createDocumentFragment();
     frag.append(T("PDF nou în Inbox: ", "New PDF in Inbox: ") + f.basename + " · ");
     const a = document.createElement("a"); a.textContent = T("Adaugă ca sursă", "Add as source"); a.href = "#"; frag.append(a);
@@ -1248,16 +1250,25 @@ class Sources {
   }
   // PDF-ul pe care îl salvezi din browser (după „Deschide PDF-ul”): când apare în Downloads (cel mult 10 minute), o copie intră lângă celelalte PDF-uri și se atașează
   watchDownload(note, x) {
-    let fs, path, os; try { fs = require("fs"); path = require("path"); os = require("os"); } catch (e) { return; }
-    const dir = path.join(os.homedir(), "Downloads"); if (!fs.existsSync(dir)) return;
-    const T = (a, b) => this.T(a, b), before = new Set(fs.readdirSync(dir)), t0 = Date.now(), sizes = {};
+    let fs = null, path = null, os = null; try { fs = require("fs"); path = require("path"); os = require("os"); } catch (e) {}
+    let dir = null, before = new Set();
+    try { dir = path.join(os.homedir(), "Downloads"); before = new Set(fs.readdirSync(dir)); } catch (e) { dir = null; }   // fără acces la Downloads: rămâne Inbox
+    const T = (a, b) => this.T(a, b), t0 = Date.now(), sizes = {}, inbox = (() => { try { return this.inboxDir() + "/"; } catch (e) { return null; } })();
+    const watch = (this._dlWatch = { note: note.path, until: t0 + 10 * 60000 });
     const id = normTitle(decodeURIComponent(String(x._pdfUrl || "").split(/[?#]/)[0].split("/").filter(Boolean).pop() || "").replace(/\.pdf$/i, ""));
     const words = normTitle(x.title || "").split(" ").filter(w => w.length > 3).slice(0, 8), doi = x.doi ? normTitle(String(x.doi).split("/").pop()) : "";
     const fits = n => { const b = normTitle(n.replace(/\.pdf$/i, "")); return (id.length >= 4 && b.includes(id)) || (doi.length >= 4 && b.includes(doi)) || (words.length >= 2 && words.filter(w => b.includes(w)).length >= 2); };
     const tick = async () => {
-      if (Date.now() - t0 > 10 * 60000) return;
+      if (Date.now() - t0 > 10 * 60000 || this._dlWatch !== watch) return;
+      // un PDF tras în Inbox între timp: merge direct la notă
+      const dropped = inbox && this.app.vault.getFiles().find(f => f.extension === "pdf" && f.path.startsWith(inbox) && (f.stat?.ctime || 0) >= t0);
+      if (dropped) {
+        try { const f = this.app.vault.getAbstractFileByPath(note.path) || note; if (!this.attachedPdfs(f).length) { await this.placeLater(f, dropped); new Notice(T(`PDF-ul din Inbox e atașat la @${f.basename}.`, `The PDF from Inbox is attached to @${f.basename}.`), 6000); } }
+        catch (err) { console.warn("Texere Sources: PDF-ul din Inbox", err); }
+        this._dlWatch = null; return;
+      }
       let hit = null;
-      try {
+      if (dir) try {
         for (const n of fs.readdirSync(dir)) {
           if (before.has(n) || !/\.pdf$/i.test(n) || !fits(n)) continue;
           const st = fs.statSync(path.join(dir, n)); if (st.size > 1000 && sizes[n] === st.size) { hit = path.join(dir, n); break; } sizes[n] = st.size;   // descărcarea s-a terminat: mărimea nu se mai schimbă
@@ -1273,8 +1284,12 @@ class Sources {
         await this.placeLater(f, pdf, csl);
         new Notice(T(`PDF-ul din Downloads e atașat la @${key}.`, `The PDF from Downloads is attached to @${key}.`), 6000);
       } catch (err) { console.warn("Texere Sources: PDF-ul din Downloads", err); }
+      this._dlWatch = null;
     };
     later(tick, 1500);
+  }
+  async logLine(line) {
+    try { const p = this.dir + "/pdf-log.txt", ad = this.app.vault.adapter; const old = (await ad.exists(p)) ? (await ad.read(p)).split("\n") : []; await ad.write(p, [...old, `--- ${new Date().toISOString()} ${line}`].slice(-400).join("\n")); } catch (e) {}
   }
   // PDF-urile deja atașate notei (în notă sau în bibliografie)
   attachedPdfs(note) {
@@ -1338,9 +1353,10 @@ class Sources {
     if (pdfUrl && ctx.note) {   // PDF-ul există, dar situl nu lasă descărcarea automată (ex. PhilPapers): îl iei tu din browser, Texere îl atașează
       frag.append(T("Situl nu lasă Texere să descarce PDF-ul. ", "The site doesn't let Texere download the PDF. "));
       const a = document.createElement("a"); a.textContent = T("Deschide PDF-ul ↗", "Open the PDF ↗"); a.href = pdfUrl; frag.append(a);
-      frag.append(T(" și salvează-l: când ajunge în Downloads, Texere îl atașează la sursă.", " and save it: once it's in Downloads, Texere attaches it to the source."));
-      const n = new Notice(frag, 20000);
-      a.addEventListener("click", e => { e.preventDefault(); n.hide(); this.watchDownload(ctx.note, ctx.x); window.open(pdfUrl); });
+      const save = process.platform === "darwin" ? "⌘S" : "Ctrl+S";
+      frag.append(T(`, apoi salvează-l (${save}) în Downloads sau trage-l în Inbox: Texere îl atașează la sursă.`, `, then save it (${save}) to Downloads, or drag it into Inbox: Texere attaches it to the source.`));
+      const n = new Notice(frag, 25000);
+      a.addEventListener("click", e => { e.preventDefault(); n.hide(); window.open(pdfUrl); try { this.watchDownload(ctx.note, ctx.x); } catch (err) { console.warn("Texere Sources: Downloads", err); } });
       return;
     }
     frag.append(T("Nu am putut descărca un PDF gratuit: editura nu permite descărcarea automată sau nu există o copie liberă. ", "I couldn't download a free PDF: the publisher blocks automatic downloads or there's no free copy. "));
