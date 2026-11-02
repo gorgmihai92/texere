@@ -134,6 +134,32 @@ function citeFm(text) {
   }
   return o;
 }
+// panourile Texere din notă (bibliografia, statisticile sursei) au lățimea textului notei, oricare ar fi tema (Minimal, implicită…):
+// o măsurăm pe un rând de text al notei și o copiem; se refac când se schimbă lățimea (bara laterală, fereastra, „lățime de citire”)
+const TEXT_REF = [":scope > .cm-contentContainer .cm-line:not(.HyperMD-table-row)", ":scope > .inline-title", ":scope > .metadata-container",
+  ":scope > div:not(.mod-header):not(.mod-footer):not(.texere-biblio):not(.markdown-preview-pusher) > :is(p, h1, h2, h3, h4, h5, h6, ul, ol, blockquote)",
+  ":scope > .mod-header .inline-title", ":scope > .mod-header .metadata-container"];
+function textColumn(sizer) {
+  for (const q of TEXT_REF) { let els = []; try { els = sizer.querySelectorAll(q); } catch (e) {}
+    for (const el of els) { if (!el.offsetParent) continue; const r = el.getBoundingClientRect(); if (r.width > 120) return r; } }
+  return null;
+}
+function fitToText(box) {
+  const sizer = box?.isConnected && box.closest(".cm-sizer, .markdown-preview-sizer"); if (!sizer) return;
+  const r = textColumn(sizer); if (!r) return;
+  box.style.boxSizing = "border-box"; box.style.maxWidth = "100%";
+  if (box.style.width !== r.width + "px") box.style.width = r.width + "px";
+  const b = box.getBoundingClientRect(); if (!b.width) return;
+  const cur = parseFloat(box.style.marginLeft) || 0, ml = Math.round((cur + r.left - b.left) * 10) / 10;
+  if (Math.abs(ml - cur) > 0.5) box.style.marginLeft = ml + "px";
+}
+function keepFit(box) {
+  fitToText(box); requestAnimationFrame(() => fitToText(box));
+  const sizer = box?.isConnected && box.closest(".cm-sizer, .markdown-preview-sizer"); if (!sizer || sizer._txFit || typeof ResizeObserver === "undefined") return;
+  let w = 0;
+  sizer._txFit = new ResizeObserver(en => { const nw = Math.round(en[0]?.contentRect?.width || 0); if (nw === w) return; w = nw; sizer.querySelectorAll(".texere-biblio, .texere-stats").forEach(fitToText); });
+  sizer._txFit.observe(sizer);
+}
 const stripTags = h => String(h || "").replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#38;/g, "&").replace(/&quot;/g, '"');
 
 class CiteEngine {
@@ -434,9 +460,10 @@ const CiteStyleMixin = {
 .texere-biblio .csl-entry{margin:0 0 8px;line-height:1.5}
 .texere-biblio.hang .csl-entry{padding-left:2em;text-indent:-2em}
 .texere-biblio .tb-miss{margin-top:10px;font-size:var(--font-ui-small);color:var(--text-error)}
-.texere-biblio .tb-note{margin-top:6px;font-size:var(--font-ui-smaller);color:var(--text-faint)}`;
+.texere-biblio .tb-note{margin-top:6px;font-size:var(--font-ui-smaller);color:var(--text-faint)}
+.is-readable-line-width .texere-biblio{max-width:var(--file-line-width);margin-left:auto;margin-right:auto}`;
     document.getElementById("texere-biblio-css")?.remove(); document.head.appendChild(css);
-    this.register(() => { css.remove(); document.querySelectorAll(".texere-biblio").forEach(e => e.remove()); });
+    this.register(() => { css.remove(); document.querySelectorAll(".texere-biblio").forEach(e => e.remove()); document.querySelectorAll(".cm-sizer, .markdown-preview-sizer").forEach(s => { s._txFit?.disconnect(); delete s._txFit; }); });
     const tick = this.bibTick = () => this.app.workspace.iterateAllLeaves(l => { if (l.view?.getViewType?.() === "markdown") { try { this.renderBiblio(l.view); } catch (e) { console.error("Texere: bibliografia notei", e); } } });
     let t = null; const soon = (ms = 80) => { clearTimeout(t); t = setTimeout(tick, ms); };
     for (const ev of ["file-open", "layout-change", "active-leaf-change"]) this.registerEvent(this.app.workspace.on(ev, () => soon()));
@@ -456,7 +483,7 @@ const CiteStyleMixin = {
     const sig = JSON.stringify([b.style, b.html, b.missing, hasHead, en]);
     for (const tg of targets) {
       let p = tg.querySelector(":scope > .texere-biblio");
-      if (p && p.dataset.sig === sig) continue;
+      if (p && p.dataset.sig === sig) { fitToText(p); continue; }
       const box = document.createElement("div"); box.className = "texere-biblio" + (b.hanging ? " hang" : ""); box.dataset.sig = sig;
       box.addEventListener("mousedown", e => e.stopPropagation());
       if (!hasHead) { const h = document.createElement("div"); h.className = "tb-h"; h.textContent = en ? "Bibliography" : "Bibliografie"; box.appendChild(h); }
@@ -469,6 +496,7 @@ const CiteStyleMixin = {
       if (p) p.replaceWith(box);
       else if (tg.classList.contains("cm-sizer")) { const cc = tg.querySelector(":scope > .cm-contentContainer"); tg.insertBefore(box, cc ? cc.nextSibling : null); }
       else { const ft = tg.querySelector(":scope > .mod-footer"); tg.insertBefore(box, ft || null); }
+      keepFit(box);
     }
   },
 
@@ -768,5 +796,5 @@ module.exports = {
     await host.citations();                                // [@citekey, p. 61] → (Autor, an, p. 61) în stilul ales
     host.bibliographyPanel();                              // bibliografia la finalul fiecărei note cu citări
   },
-  CITE_KEY, scanCites, citeFm,
+  CITE_KEY, scanCites, citeFm, fitToText, keepFit,
 };

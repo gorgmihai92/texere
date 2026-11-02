@@ -1,7 +1,7 @@
 // Texere · Sources · panoul de statistici din notele surselor (scite, OpenAlex, Semantic Scholar, evidențierile tale).
 // Mutat din main.js fără schimbări de comportament.
 const LANG = "texere-lang";
-const { CITE_KEY } = require("./cite");
+const { CITE_KEY, fitToText, keepFit } = require("./cite");
 
 
 // ---------- Statistici pentru surse: un panou mic în fiecare notă din Literature Notes ----------
@@ -44,7 +44,8 @@ const StatsMixin = {
 .texere-stats .ts-yy{font-size:.75em;color:var(--text-faint);margin-top:2px}
 .texere-stats svg.ts-spark rect{fill:var(--text-faint)}
 .texere-stats svg.ts-spark rect.last{fill:var(--text-accent)}
-@media (max-width:520px){.texere-stats .ts-body{grid-template-columns:1fr;gap:3px}.texere-stats .ts-label{margin-top:6px}}`;
+@media (max-width:520px){.texere-stats .ts-body{grid-template-columns:1fr;gap:3px}.texere-stats .ts-label{margin-top:6px}}
+.is-readable-line-width .texere-stats{max-width:var(--file-line-width);margin-left:auto;margin-right:auto}`;
     document.getElementById("texere-stats-css")?.remove(); document.head.appendChild(css);
     this.register(() => { css.remove(); document.querySelectorAll(".texere-stats").forEach(e => e.remove()); });
 
@@ -176,12 +177,13 @@ const StatsMixin = {
     const sig = JSON.stringify([key, remote?.t, busy, this.settings.statsOpen, text.length, text.split("#").length, cited.map(f => f.path), fm["reading-status"], this.app.loadLocalStorage(LANG)]);
     for (const tg of targets) {
       let p = tg.querySelector(":scope > .texere-stats");
-      if (p && p.dataset.sig === sig) continue;
+      if (p && p.dataset.sig === sig) { fitToText?.(p); continue; }
       const fresh = this.buildStats(key, fm, remote, busy, text, cited, view);
       fresh.dataset.sig = sig;
       if (p) p.replaceWith(fresh);
       else if (tg.classList.contains("cm-sizer")) tg.insertBefore(fresh, tg.querySelector(":scope > .cm-contentContainer"));
       else tg.appendChild(fresh);
+      keepFit?.(fresh);   // lățimea textului notei, în orice temă
     }
   },
 
