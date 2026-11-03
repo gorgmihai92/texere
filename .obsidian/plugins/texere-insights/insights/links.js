@@ -220,42 +220,42 @@ const LinksMixin = {
 
   // ——— aliasuri sugerate ———
   aliasesOf(file) { const fm = this.app.metadataCache.getFileCache(file)?.frontmatter || {}; let al = fm.aliases ?? fm.alias ?? []; if (!Array.isArray(al)) al = String(al).split(","); return al.map(a => String(a || "").trim()).filter(Boolean); },
+  // un alias e sugerat doar dacă îl confirmă cel puțin 2 surse (setări: 2 sau 3): note diferite în care apare, plus Wikidata
   computeAliases() {
-    const idx = this.termIndex(), out = {}, ignored = this.settings.ignoredAliases || {};
+    const idx = this.termIndex(), out = {}, ignored = this.settings.ignoredAliases || {}, min = Math.max(2, +this.settings.aliasMinSources || 2);
     const known = new Map(); for (const e of idx.entries) known.set(e.path, new Set(e.terms.map(t => X.fold(X.cleanTitle(t)))));
     const covered = (path, alias) => { const k = X.fold(alias); if (known.get(path)?.has(k)) return true; return X.matchAll(idx, alias).some(m => m.from === 0 && m.to === alias.length && m.g.paths.includes(path)); };
-    const add = (path, alias, why, n) => {
+    const add = (path, alias, why, src, n) => {
       alias = String(alias || "").trim(); if (!alias || alias.length < 2 || covered(path, alias) || (ignored[path] || []).map(X.fold).includes(X.fold(alias))) return;
-      const key = path + "\u0000" + X.fold(alias), o = out[key] = out[key] || { target: path, alias, why: new Set(), count: 0 }; o.why.add(why); o.count += n || 1;
+      const key = path + "\u0000" + X.fold(alias), o = out[key] = out[key] || { target: path, alias, why: new Set(), count: 0, src: new Set() };
+      o.why.add(why); o.count += n || 1; for (const x of [].concat(src)) if (x) o.src.add(x);
     };
-    // 1. textul linkurilor tale: [[Consciousness|conștiința]]
+    // 1. textul linkurilor tale: [[Consciousness|conștiința]] — fiecare notă în care îl folosești e o sursă
     for (const f of this.app.vault.getMarkdownFiles()) {
       if (this.scanExcluded(f.path)) continue;
       for (const l of this.app.metadataCache.getFileCache(f)?.links || []) {
         if (!l.displayText || !/\|/.test(l.original || "")) continue;
         const t = this.app.metadataCache.getFirstLinkpathDest(l.link.split("#")[0], f.path); if (!t || !this.isTarget(t.path)) continue;
-        const d = l.displayText.trim(); if (d.split(/\s+/).length > 5) continue; add(t.path, d, "link", 1);
+        const d = l.displayText.trim(); if (d.split(/\s+/).length > 5) continue; add(t.path, d, "link", f.path, 1);
       }
     }
-    // 2. variante de scriere din textul tău (filozofie / filosofie), de cel puțin 3 ori
-    const words = {}; for (const e of Object.values(this.scanCache.notes)) for (const [w, n] of Object.entries(e.lw || {})) words[w] = (words[w] || 0) + n;
-    const byFold = {}; for (const [w, n] of Object.entries(words)) { const k = X.fold(w); const o = byFold[k] = byFold[k] || { w, n: 0 }; o.n += n; if (n > (words[o.w] || 0)) o.w = w; }
-    const dels = new Map(); const keyDel = (s, fn) => { fn(s); for (let i = 0; i < s.length; i++) fn(s.slice(0, i) + s.slice(i + 1)); };
+    // 2. variante de scriere din textul tău (filozofie / filosofie): notele în care apar
+    const byFold = {};
+    for (const [p, e] of Object.entries(this.scanCache.notes)) for (const [w, n] of Object.entries(e.lw || {})) { const k = X.fold(w), o = byFold[k] = byFold[k] || { w, n: 0, best: 0, notes: new Set() }; o.n += n; o.notes.add(p); if (n > o.best) { o.best = n; o.w = w; } }
+    const dels = new Map(); const keyDel = (str, fn) => { fn(str); for (let i = 0; i < str.length; i++) fn(str.slice(0, i) + str.slice(i + 1)); };
     for (const [k, o] of Object.entries(byFold)) if (o.n >= 3 && k.length >= 6) keyDel(k, d => { const a = dels.get(d) || []; a.push(k); dels.set(d, a); });
     for (const e of idx.entries) for (const term of e.terms) {
       const tk = X.fold(X.cleanTitle(term)); if (tk.includes(" ") || tk.length < 6) continue;
       const cands = new Set(); keyDel(tk, d => (dels.get(d) || []).forEach(c => cands.add(c)));
-      for (const c of cands) if (c !== tk && lev1(c, tk) && !X.matchAll(idx, byFold[c].w).length) add(e.path, byFold[c].w, "spelling", byFold[c].n);
+      for (const c of cands) if (c !== tk && lev1(c, tk) && !X.matchAll(idx, byFold[c].w).length) add(e.path, byFold[c].w, "spelling", [...byFold[c].notes], byFold[c].n);
     }
-    // 3. prescurtări pe care le folosești (AI pentru Artificial Intelligence), de cel puțin 2 ori
-    const acr = {}; for (const e of Object.values(this.scanCache.notes)) for (const [a, n] of Object.entries(e.acr || {})) acr[a] = (acr[a] || 0) + n;
-    for (const e of idx.entries) { const words = X.cleanTitle(e.terms[0]).split(/\s+/).filter(w => /^\p{Lu}/u.test(w) && !/^(Of|And|The|De|Și|Si|A)$/i.test(w)); if (words.length < 2) continue; const a = words.map(w => w[0].toUpperCase()).join(""); if ((acr[a] || 0) >= 2) add(e.path, a, "short", acr[a]); }
-    // 4. titlul fără paranteză („Renaissance (15th - 16th Century)” → „Renaissance”)
-    const shortCount = {}; for (const e of idx.entries) { const c = X.fold(X.cleanTitle(e.terms[0])); shortCount[c] = (shortCount[c] || 0) + 1; }
-    for (const e of idx.entries) { const t = e.terms[0], c = X.cleanTitle(t); if (c !== t && shortCount[X.fold(c)] === 1 && !this.aliasesOf(this.app.vault.getAbstractFileByPath(e.path) || {}).map(X.fold).includes(X.fold(c))) { const k = e.path + "\u0000" + X.fold(c); if (!(ignored[e.path] || []).map(X.fold).includes(X.fold(c))) out[k] = out[k] || { target: e.path, alias: c, why: new Set(["short"]), count: 1 }; } }
-    // 5. traducerile de pe Wikidata (după ce le cauți)
-    for (const [path, list] of Object.entries(this.settings.wikidata || {})) for (const a of list) add(path, a, "wikidata", 1);
-    this.aliasSugg = Object.values(out).map(o => ({ ...o, why: [...o.why] })).sort((a, b) => (b.why.includes("link") - a.why.includes("link")) || b.count - a.count);
+    // 3. prescurtări pe care le folosești (AI pentru Artificial Intelligence): notele în care apar
+    const acr = {}; for (const [p, e] of Object.entries(this.scanCache.notes)) for (const [a, n] of Object.entries(e.acr || {})) { const o = acr[a] = acr[a] || { n: 0, notes: new Set() }; o.n += n; o.notes.add(p); }
+    for (const e of idx.entries) { const ws = X.cleanTitle(e.terms[0]).split(/\s+/).filter(w => /^\p{Lu}/u.test(w) && !/^(Of|And|The|De|Și|Si|A)$/i.test(w)); if (ws.length < 2) continue; const a = ws.map(w => w[0].toUpperCase()).join(""); if (acr[a]) add(e.path, a, "short", [...acr[a].notes], acr[a].n); }
+    // 4. traducerile de pe Wikidata (după ce le cauți): Wikidata e o sursă, iar notele în care apare traducerea sunt celelalte
+    for (const [path, list] of Object.entries(this.settings.wikidata || {})) for (const it of list) { const a = typeof it === "string" ? it : it.a, notes = typeof it === "string" ? [] : it.notes || []; add(path, a, "wikidata", ["wikidata", ...notes], 1); }
+    this.aliasSugg = Object.values(out).filter(o => o.src.size >= min).map(o => ({ ...o, why: [...o.why], sources: o.src.size, notes: [...o.src].filter(x => x !== "wikidata").length, src: undefined }))
+      .sort((a, b) => b.sources - a.sources || b.count - a.count);
   },
   async addAlias(target, alias) {
     const f = this.app.vault.getAbstractFileByPath(target); if (!(f instanceof TFile)) return false;
@@ -266,7 +266,13 @@ const LinksMixin = {
   // traducerea titlului pe Wikidata (doar când apeși butonul): pentru notele fără alias în cealaltă limbă
   async wikidata(onProgress) {
     const idx = this.termIndex(), todo = idx.entries.filter(e => e.terms.length < 2).slice(0, 80), found = this.settings.wikidata = this.settings.wikidata || {};
-    let done = 0, got = 0;
+    let done = 0, got = 0, texts = null;
+    // în ce note apare deja traducerea (cu formele ei): textele se citesc o singură dată
+    const seen = async a => {
+      if (!texts) { texts = []; for (const f of this.app.vault.getMarkdownFiles()) if (!this.scanExcluded(f.path) && !this.isTarget(f.path)) { try { texts.push([f.path, X.fold(await this.app.vault.cachedRead(f))]); } catch (err) {} } }
+      const p = X.termPattern(a); if (!p) return []; const re = new RegExp(`(?<![\\p{L}\\p{N}])${p}(?![\\p{L}\\p{N}])`, "u");
+      return texts.filter(([, t]) => re.test(t)).map(([path]) => path);
+    };
     const one = async e => {
       const title = X.cleanTitle(e.terms[0]);
       try {
@@ -276,7 +282,7 @@ const LinksMixin = {
           const g = await requestUrl({ url: `https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=labels|aliases&languages=ro|en&ids=${id}`, throw: false });
           const ent = g.json?.entities?.[id], ro = ent?.labels?.ro?.value;
           const list = [ro, ...(ent?.aliases?.ro || []).slice(0, 2).map(a => a.value)].filter(Boolean);
-          if (list.length) { found[e.path] = [...new Set([...(found[e.path] || []), ...list])]; got++; }
+          if (list.length) { const have = (found[e.path] || []).map(x => typeof x === "string" ? { a: x, notes: [] } : x); for (const a of list) if (!have.some(h => X.fold(h.a) === X.fold(a))) have.push({ a, notes: await seen(a) }); found[e.path] = have; got++; }
         }
       } catch (err) {}
       done++; onProgress?.(done, todo.length);

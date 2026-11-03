@@ -94,14 +94,15 @@ const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // un termen → modelul lui (fără diacritice, cu terminațiile din română și engleză la ultimul cuvânt)
 function termPattern(term) {
   const toks = fold(term).trim().split(/\s+/).filter(Boolean); if (!toks.length) return null;
-  const last = toks[toks.length - 1], head = toks.slice(0, -1).map(esc);
-  let tail = esc(last);
-  if (/^\p{L}+$/u.test(last) && last.length >= 4) {
-    const stem = last.length >= 5 && /[aeiou]$/.test(last) ? esc(last.slice(0, -1)) : null;
-    tail = `(?:${stem ? `${tail}|${stem}` : tail})${SUF}`;
-    if (/[^aeiou]y$/.test(last)) tail = `(?:${tail}|${esc(last.slice(0, -1))}ies)`;   // duty → duties
-  }
-  return [...head, tail].join("[\\s\\u00a0]+");
+  // fiecare cuvânt își poate lua terminația (gândire critică → gândirea critică; filosofia minții → filosofiei minții)
+  const inflect = w => {
+    if (!/^\p{L}+$/u.test(w) || w.length < 4) return esc(w);
+    const stem = w.length >= 5 && /[aeiou]$/.test(w) ? esc(w.slice(0, -1)) : null;
+    let t = `(?:${stem ? `${esc(w)}|${stem}` : esc(w)})${SUF}`;
+    if (/[^aeiou]y$/.test(w)) t = `(?:${t}|${esc(w.slice(0, -1))}ies)`;   // duty → duties
+    return t;
+  };
+  return toks.map(inflect).join("[\\s\\u00a0]+");
 }
 // „Renaissance (15th - 16th Century)” → „Renaissance”; „The Republic” rămâne
 const cleanTitle = s => String(s || "").replace(/\s*\([^)]*\)\s*$/, "").trim();

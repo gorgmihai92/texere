@@ -475,11 +475,13 @@ class ReviewModal extends Modal {
     const why = { link: T("textul linkurilor tale", "your link text"), spelling: T("cum scrii", "how you spell it"), short: T("formă scurtă", "short form"), wikidata: "Wikidata" };
     const wd = foot.createEl("button", { text: T("Caută traduceri (Wikidata)", "Look up translations (Wikidata)") }); wd.title = T("Pentru conceptele fără alias: numele în română de pe Wikidata. Singura parte care folosește internetul.", "For concepts without an alias: the Romanian name from Wikidata. The only part that uses the internet.");
     wd.addEventListener("click", async () => { wd.disabled = true; const r = await P.wikidata((d, t) => wd.setText(`${d}/${t}`)); new Notice(T(`Wikidata: traduceri pentru ${r.got} din ${r.asked} concepte.`, `Wikidata: translations for ${r.got} of ${r.asked} concepts.`), 6000); this.draw(); });
-    foot.createDiv({ cls: "txi-muted", text: T("Aliasurile noi ajută la găsirea menționărilor și la căutare.", "New aliases help find mentions and search.") });
+    const min = Math.max(2, +P.settings.aliasMinSources || 2);
+    foot.createDiv({ cls: "txi-muted", text: T(`Doar ce confirmă cel puțin ${min} surse: note diferite în care apare, plus Wikidata.`, `Only what at least ${min} sources confirm: different notes where it appears, plus Wikidata.`) });
     if (!list.length) { body.createDiv({ cls: "txi-empty", text: T("Nicio sugestie acum.", "No suggestions right now.") }); return; }
     for (const s of list) {
       const r = body.createDiv("txi-row"); const nm = r.createSpan({ cls: "txi-name" }); nm.createEl("b", { text: s.alias }); nm.appendText(T(" → ", " → ") + P.nameOf(s.target)); for (const w of s.why) nm.createSpan({ cls: "txi-why", text: why[w] || w });
-      if (s.count > 1) r.createSpan({ cls: "txi-meta", text: `${s.count}×` });
+      const srcTxt = [s.notes ? T(`${s.notes} ${s.notes === 1 ? "notă" : "note"}`, `${s.notes} ${s.notes === 1 ? "note" : "notes"}`) : null, s.why.includes("wikidata") ? "Wikidata" : null].filter(Boolean).join(" · ");
+      const meta = r.createSpan({ cls: "txi-meta", text: srcTxt }); meta.title = T(`${s.count} apariții`, `${s.count} occurrences`);
       r.createEl("button", { cls: "mod-cta", text: T("Adaugă", "Add") }).addEventListener("click", async () => { await P.addAlias(s.target, s.alias); this.draw(); });
       r.createEl("button", { text: T("Ignoră", "Ignore") }).addEventListener("click", async () => { await P.ignoreAlias(s.target, s.alias); this.draw(); });
     }
