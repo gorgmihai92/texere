@@ -1,28 +1,34 @@
-/* Texere · Insights — versiune 1.0.0 (2026-11-03)
+/* Texere · Insights — versiune 1.1.0 (2026-11-03)
  * Plugin separat: câte cuvinte scrii, lipești, inserezi și ștergi; menționările fără link și aliasurile sugerate;
- * tiparele din lectura și scrisul tău (subiecte, perechi nelegate, note uitate, ritmul tezei, echilibrul surselor).
+ * tiparele din lectura și scrisul tău; ritmul proiectelor (teza, un articol, un curs).
+ * Merge singur, în orice vault: recunoaște notele de literatură, evidențierile și notele-concept după convenții.
+ * Cu Texere · Sources e mai precis (datele surselor), cu PDF++ știe culorile evidențierilor; niciunul nu e obligatoriu.
  * Codul e în insights/*.js; aici doar îl pornim. Datele stau pe laptop: stats/ (scrisul) și cache/ (trecerea prin vault).
  */
 const { Plugin, PluginSettingTab, Setting, Notice } = require("obsidian");
 const LANG = "texere-lang";
 
-const DEFAULTS = {
-  streakMin: 20, targetKey: "word-target", countExclude: [],
-  targetFolders: ["Fields"], scanExclude: ["Support"], scanQuotes: false, scanTargets: false, autoScan: 30, minTerm: 4,
-  thesisFolder: "03. Workspace/02. Thesis", thesisTarget: 0, thesisDeadline: "", claimFolders: ["03. Workspace"], claimsInEditor: true,
-  pairFolder: "02. Notes", weekly: true, weeklyFolder: "02. Notes/Weekly reviews",
-};
+const DEFAULTS = { claimsInEditor: true, weekly: true };
+// setări care nu mai există (acum sunt fixe sau recunoscute singure)
+const GONE = ["streakMin", "targetKey", "countExclude", "scanQuotes", "scanTargets", "autoScan", "minTerm", "claimFolders", "pairFolder"];
+const SCAN_MIN = 30;
 
 module.exports = class TexereInsights extends Plugin {
-  get en() { return this.app.loadLocalStorage(LANG) === "en"; }
+  // limba: cea aleasă în Texere; fără Texere, limba lui Obsidian
+  get en() { const l = this.app.loadLocalStorage(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); }
   T(ro, en) { return this.en ? en : ro; }
   async onload() {
     this.settings = Object.assign({}, DEFAULTS, (await this.loadData()) || {});
+    for (const k of GONE) delete this.settings[k];
+    // valorile vechi implicite (folderele vault-ului Texere) devin „recunoscute singure”: același rezultat, și în alte vault-uri
+    if (JSON.stringify(this.settings.targetFolders) === '["Fields"]') delete this.settings.targetFolders;
+    if (JSON.stringify(this.settings.scanExclude) === '["Support"]') delete this.settings.scanExclude;
     // modulele din insights/: require("./text") între ele merge la fel
     const dir = this.manifest.dir, ad = this.app.vault.adapter, mods = {};
     const load = async name => { if (mods[name]) return mods[name].exports; const m = { exports: {} }; mods[name] = m; const src = await ad.read(`${dir}/insights/${name}.js`); new Function("module", "exports", "require", src)(m, m.exports, r => r.startsWith("./") ? (mods[r.slice(2)]?.exports || (() => { throw new Error("modul neîncărcat: " + r); })()) : require(r)); return m.exports; };
-    for (const n of ["text", "writing", "links", "patterns", "ui"]) await load(n);
-    Object.assign(this, mods.writing.exports.WritingMixin, mods.links.exports.LinksMixin, mods.patterns.exports.PatternsMixin, mods.ui.exports.UiMixin);
+    for (const n of ["text", "scope", "writing", "links", "patterns", "ui"]) await load(n);
+    Object.assign(this, mods.writing.exports.WritingMixin, mods.links.exports.LinksMixin, mods.patterns.exports.PatternsMixin, mods.ui.exports.UiMixin, mods.scope.exports.ScopeMixin);
+    this.settingsCss();
     await this.writingInit();
     this.targetInit();
     this.uiInit();
@@ -43,7 +49,25 @@ module.exports = class TexereInsights extends Plugin {
   }
   onunload() { clearInterval(this._scanI); }
   async saveSettings() { await this.saveData(this.settings); }
-  scheduleScan() { clearInterval(this._scanI); const m = +this.settings.autoScan || 0; if (m > 0) this._scanI = window.setInterval(() => this.scan(false, true).catch(() => {}), m * 60000); }
+  scheduleScan() { clearInterval(this._scanI); this._scanI = window.setInterval(() => this.scan(false, true).catch(() => {}), SCAN_MIN * 60000); }   // doar notele schimbate: sub o secundă
+  // aspectul paginii de setări (al lui, ca să arate la fel și fără celelalte pluginuri Texere)
+  settingsCss() {
+    const st = document.createElement("style"); st.id = "texere-insights-settings-css";
+    st.textContent = `.txi-settings .ts-head{display:flex;align-items:flex-end;gap:8px 28px;flex-wrap:wrap;border-bottom:1px solid var(--background-modifier-border);margin:0 0 14px}
+.txi-settings .ts-head-t{font-size:var(--font-ui-large);font-weight:600;padding-bottom:10px;line-height:1.3}
+.txi-settings .ts-nav{display:flex;gap:20px;font-size:var(--font-ui-small);font-weight:500}
+.txi-settings .ts-navbtn{padding:2px 1px 10px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--text-muted);cursor:pointer;user-select:none;white-space:nowrap}
+.txi-settings .ts-navbtn:hover{color:var(--text-normal)}.txi-settings .ts-navbtn.on{color:var(--text-normal);border-bottom-color:var(--interactive-accent)}
+.txi-settings .ts-intro{color:var(--text-muted);font-size:var(--font-ui-small);margin:0 0 8px;line-height:1.5;max-width:62ch}
+.txi-settings .ts-body .setting-item{border-top:0;padding-top:9px;padding-bottom:9px;gap:16px}
+.txi-settings .ts-body .setting-item-name{font-size:var(--font-ui-small);font-weight:500}
+.txi-settings .ts-body .setting-item-description{font-size:var(--font-ui-smaller);color:var(--text-muted);padding-top:2px;line-height:1.45}
+.txi-settings .ts-body .setting-item-heading{border-top:1px solid var(--background-modifier-border);margin-top:14px;padding-top:14px}
+.txi-settings .ts-chip{display:inline-block;margin:0 6px 4px 0;font-size:var(--font-ui-smaller);line-height:1.5;padding:0 8px;border-radius:999px;border:1px solid var(--background-modifier-border);color:var(--text-muted);cursor:pointer;user-select:none}
+.txi-settings .ts-chip:hover{color:var(--text-normal);border-color:var(--text-faint)}.txi-settings .ts-auto{color:var(--text-faint)}
+.txi-settings .txi-proj .setting-item-control input[type=number]{width:96px}.txi-settings .txi-proj .setting-item-control select{max-width:260px}`;
+    document.getElementById(st.id)?.remove(); document.head.appendChild(st); this.register(() => st.remove());
+  }
   // ceva s-a schimbat: tab-ul nou (Texere · The Researcher's Vault) și pagina Insights se redesenează
   changed() {
     clearTimeout(this._chT);
@@ -66,58 +90,49 @@ module.exports = class TexereInsights extends Plugin {
   }
 };
 
-// ——— setările: Scrisul · Linkuri · Insights ———
+// ——— setările: doar ce nu se poate recunoaște singur. Linkuri · Proiecte ———
 class InsightsSettingTab extends PluginSettingTab {
-  constructor(P) { super(P.app, P); this.P = P; this.id = "texere-insights"; this.name = "Texere · Insights"; this.tab = "writing"; }
+  constructor(P) { super(P.app, P); this.P = P; this.id = "texere-insights"; this.name = "Texere · Insights"; this.tab = "links"; }
   display() {
-    const P = this.P, T = (a, b) => P.T(a, b), c = this.containerEl, keep = c.scrollTop; c.empty(); c.addClass("texere-settings");
-    try { P.app.plugins.plugins["texere-sources"]?.sources?.settingTab?.css?.(); } catch (e) {}
+    const P = this.P, T = (a, b) => P.T(a, b), c = this.containerEl, keep = c.scrollTop; c.empty(); c.addClass("texere-settings"); c.addClass("txi-settings");
+    if (this.tab !== "projects") this.tab = "links";
     const head = c.createDiv("ts-head"); head.createSpan({ cls: "ts-head-t", text: "Texere · Insights" });
     const nav = head.createDiv("ts-nav");
-    for (const [id, l] of [["writing", T("Scrisul", "Writing")], ["links", T("Linkuri", "Links")], ["insights", T("Tipare", "Patterns")]]) { const b = nav.createSpan({ cls: "ts-navbtn" + (this.tab === id ? " on" : ""), text: l }); b.addEventListener("click", () => { this.tab = id; this.display(); c.scrollTop = 0; }); }
+    for (const [id, l] of [["links", T("Linkuri", "Links")], ["projects", T("Proiecte", "Projects")]]) { const b = nav.createSpan({ cls: "ts-navbtn" + (this.tab === id ? " on" : ""), text: l }); b.addEventListener("click", () => { this.tab = id; this.display(); c.scrollTop = 0; }); }
     const body = c.createDiv("ts-body"), save = async () => { await P.saveSettings(); };
-    const folderList = (name, desc, key) => {
-      const s = new Setting(body).setName(name).setDesc(desc), cur = P.settings[key] || [];
-      const chips = s.descEl.createDiv(); chips.style.marginTop = "6px";
-      for (const f of cur) { const ch = chips.createSpan({ cls: "ts-chip btn", text: f + "  ✕" }); ch.style.marginLeft = "0"; ch.style.marginRight = "6px"; ch.addEventListener("click", async () => { P.settings[key] = cur.filter(x => x !== f); await save(); this.display(); }); }
-      s.addDropdown(d => { d.addOption("", T("Adaugă un folder…", "Add a folder…")); for (const f of P.vaultFolders()) if (!cur.includes(f)) d.addOption(f, f); d.onChange(async v => { if (!v) return; P.settings[key] = [...cur, v]; await save(); this.display(); }); });
+    // o listă de foldere: goală = recunoscută singură (și scrie ce a găsit)
+    const folderList = (name, desc, key, auto) => {
+      const s = new Setting(body).setName(name).setDesc(desc), cur = (P.settings[key] || []).filter(Boolean), box = s.descEl.createDiv(); box.style.marginTop = "6px";
+      if (!cur.length) box.createSpan({ cls: "ts-auto", text: T("Recunoscute singure: ", "Found automatically: ") + (auto.length ? auto.join(", ") : T("niciunul", "none")) });
+      for (const f of cur) box.createSpan({ cls: "ts-chip", text: f + "  ✕" }).addEventListener("click", async () => { P.settings[key] = cur.filter(x => x !== f); if (!P.settings[key].length) delete P.settings[key]; await save(); P._cf = null; this.display(); });
+      s.addDropdown(d => { d.addOption("", T("Alege un folder…", "Choose a folder…")); for (const f of P.vaultFolders()) if (!cur.includes(f)) d.addOption(f, f); d.onChange(async v => { if (!v) return; P.settings[key] = [...cur, v]; await save(); P._cf = null; this.display(); }); });
     };
-    const folderOne = (name, desc, key) => new Setting(body).setName(name).setDesc(desc).addDropdown(d => { const fs = P.vaultFolders(), cur = String(P.settings[key] || ""); if (cur && !fs.includes(cur)) d.addOption(cur, T(`${cur} (nu există)`, `${cur} (doesn't exist)`)); for (const f of fs) d.addOption(f, f); d.setValue(cur).onChange(async v => { P.settings[key] = v; await save(); P.changed(); }); });
-    if (this.tab === "writing") {
-      body.createDiv({ cls: "ts-intro", text: T("Cuvintele se numără din editor, pe măsură ce scrii: scrise de tine, lipite, inserate de alte unelte (de exemplu un plugin AI) și șterse. Ce scrie Texere singur în note nu intră la socoteală. Fiecare laptop își ține numărătoarea lui; totalurile le adună.", "Words are counted from the editor as you write: typed by you, pasted, inserted by other tools (for example an AI plugin) and deleted. What Texere writes into notes by itself doesn't count. Each laptop keeps its own count; the totals add them up.") });
-      new Setting(body).setName(T("Zi de scris", "A writing day")).setDesc(T("Câte cuvinte trebuie să scrii într-o zi ca să conteze la „zile la rând”.", "How many words you need to write in a day for it to count towards your streak.")).addText(t => { t.setValue(String(P.settings.streakMin)).onChange(async v => { P.settings.streakMin = Math.max(1, parseInt(v, 10) || 20); await save(); }); t.inputEl.type = "number"; t.inputEl.style.width = "80px"; });
-      new Setting(body).setName(T("Proprietatea țintei de cuvinte", "Word target property")).setDesc(T("În notă: „word-target: 3000” afișează o bară cu progresul deasupra textului. Comanda „Pune o țintă de cuvinte” o scrie pentru tine.", "In a note: “word-target: 3000” shows a progress bar above the text. The command “Set a word target” writes it for you.")).addText(t => t.setValue(P.settings.targetKey).onChange(async v => { P.settings.targetKey = v.trim() || "word-target"; await save(); }));
-      folderList(T("Foldere care nu se numără", "Folders not counted"), T("De exemplu un folder de notițe rapide sau de jurnal.", "For example a quick-notes or journal folder."), "countExclude");
-      new Setting(body).setName(T("Laptopurile tale", "Your laptops")).setHeading();
-      const logs = P._logs || [P.mine]; for (const L of logs) { const days = Object.keys(L.days || {}).sort(), last = days[days.length - 1]; new Setting(body).setName((L.name || L.device) + (L.device === P.dev ? T(" (acesta)", " (this one)") : "")).setDesc(last ? T(`${days.length} zile numărate · ultima: ${last}`, `${days.length} days counted · last: ${last}`) : T("încă nimic numărat", "nothing counted yet")); }
-    } else if (this.tab === "links") {
-      body.createDiv({ cls: "ts-intro", text: T("Texere caută în notele tale titlurile și aliasurile notelor-concept (și formele lor: acțiune → acțiunii, filosofie → filosofiei) care nu sunt încă linkuri, și le leagă cu un clic. Doar prima menționare din fiecare notă; textul rămâne cum l-ai scris.", "Texere looks in your notes for the titles and aliases of your concept notes (and their forms: acțiune → acțiunii, filosofie → filosofiei) that aren't links yet, and links them in one click. Only the first mention in each note; your text stays as you wrote it.") });
-      folderList(T("Notele-concept (ținta linkurilor)", "Concept notes (link targets)"), T("Titlurile și aliasurile notelor din aceste foldere se caută în text.", "The titles and aliases of the notes in these folders are looked for in your text."), "targetFolders");
-      folderList(T("Foldere în care nu se caută", "Folders not scanned"), T("Ghidurile, șabloanele și altele care nu sunt textul tău.", "Guides, templates and anything else that isn't your writing."), "scanExclude");
-      new Setting(body).setName(T("Și în citatele din cărți", "In quotes from books too")).setDesc(T("Evidențierile din notele de literatură sunt cuvintele autorului: de obicei nu le schimbăm. Pornește dacă vrei linkuri și acolo.", "Highlights in literature notes are the author's words: usually they stay as they are. Turn on if you want links there too.")).addToggle(t => t.setValue(!!P.settings.scanQuotes).onChange(async v => { P.settings.scanQuotes = v; await save(); }));
-      new Setting(body).setName(T("Și între notele-concept", "Between concept notes too")).setDesc(T("Sugerează linkuri și în descrierile notelor-concept (de ex. „Dasein” menționat în „Being”). Oprit: doar în scrisul tău și în notele de lectură.", "Suggest links inside the concept notes' own descriptions too (e.g. “Dasein” mentioned in “Being”). Off: only in your writing and reading notes.")).addToggle(t => t.setValue(!!P.settings.scanTargets).onChange(async v => { P.settings.scanTargets = v; await save(); P.computeLinks(); P.changed(); }));
-      new Setting(body).setName(T("Caută singur", "Scan automatically")).setDesc(T("Doar notele schimbate de la ultima trecere; durează de obicei sub o secundă.", "Only notes changed since the last scan; usually takes under a second.")).addDropdown(d => { for (const [v, l] of [["0", T("niciodată (doar când apeși)", "never (only when you ask)")], ["15", T("la 15 minute", "every 15 minutes")], ["30", T("la 30 de minute", "every 30 minutes")], ["60", T("în fiecare oră", "every hour")], ["240", T("la 4 ore", "every 4 hours")]]) d.addOption(v, l); d.setValue(String(P.settings.autoScan || 0)).onChange(async v => { P.settings.autoScan = +v; await save(); P.scheduleScan(); }); });
-      new Setting(body).setName(T("Lungimea minimă a unui termen", "Minimum term length")).setDesc(T("Termenii mai scurți (de ex. „Art”) dau prea multe potriviri.", "Shorter terms (e.g. “Art”) give too many matches.")).addDropdown(d => { for (const v of ["3", "4", "5", "6"]) d.addOption(v, v); d.setValue(String(P.settings.minTerm || 4)).onChange(async v => { P.settings.minTerm = +v; await save(); }); });
-      const ign = P.settings.ignoredTargets || [];
-      if (ign.length) { const s = new Setting(body).setName(T("Termeni ignorați", "Ignored terms")).setDesc(T("Clic pe unul ca să-l sugerez iar.", "Click one to have it suggested again.")); const ch = s.descEl.createDiv(); ch.style.marginTop = "6px"; for (const t of ign) { const x = ch.createSpan({ cls: "ts-chip btn", text: P.nameOf(t) + "  ✕" }); x.style.margin = "0 6px 4px 0"; x.addEventListener("click", async () => { P.settings.ignoredTargets = ign.filter(y => y !== t); await save(); P.computeLinks(); this.display(); }); } }
-      const nh = Object.values(P.settings.notHere || {}).reduce((a, l) => a + l.length, 0);
-      if (nh) new Setting(body).setName(T("„Nu aici”", "“Not here”")).setDesc(T(`${nh} menționări pe care ai cerut să nu le mai sugerez.`, `${nh} mentions you asked me not to suggest again.`)).addButton(b => b.setButtonText(T("Sugerează-le iar", "Suggest them again")).onClick(async () => { P.settings.notHere = {}; await save(); P.computeLinks(); this.display(); }));
+    if (this.tab === "links") {
+      body.createDiv({ cls: "ts-intro", text: T("Texere caută în notele tale titlurile și aliasurile notelor-concept (și formele lor: acțiune → acțiunii) care nu sunt încă linkuri. Doar prima menționare din fiecare notă; citatele din cărți rămân neatinse. Caută singur, la 30 de minute.", "Texere looks in your notes for the titles and aliases of your concept notes (and their forms: acțiune → acțiunii) that aren't links yet. Only the first mention in each note; quotes from books stay untouched. It looks by itself every 30 minutes.") });
+      folderList(T("Notele-concept", "Concept notes"), T("Ținta linkurilor. Gol: folderele în care cele mai multe note au aliasuri (sau, dacă nu sunt, orice notă cu aliasuri).", "Where links point. Empty: the folders where most notes have aliases (or, if there are none, any note with aliases)."), "targetFolders", P.autoConceptFolders());
+      folderList(T("Foldere în care nu se caută", "Folders not scanned"), T("Ce nu e scrisul tău. Gol: șabloanele, fișierele excluse în Obsidian și folderele de tip Support sau Attachments.", "What isn't your writing. Empty: templates, Obsidian's excluded files and folders like Support or Attachments."), "scanExclude", P.autoExcluded());
       new Setting(body).setName(T("Acum", "Now")).setDesc(P.scanCache?.at ? T(`Ultima trecere: ${P.ago(P.scanCache.at)} · ${P.visibleUnlinked().length} menționări fără link.`, `Last scan: ${P.ago(P.scanCache.at)} · ${P.visibleUnlinked().length} unlinked mentions.`) : "")
         .addButton(b => b.setButtonText(T("Caută acum", "Scan now")).onClick(async () => { b.setDisabled(true); b.setButtonText("…"); await P.scan(true); this.display(); }))
         .addButton(b => b.setButtonText(T("Revizuiește", "Review")).setCta().onClick(() => P.review("links")));
+      const ign = P.settings.ignoredTargets || [];
+      if (ign.length) { const s = new Setting(body).setName(T("Termeni ignorați", "Ignored terms")).setDesc(T("Clic pe unul ca să fie sugerat iar.", "Click one to have it suggested again.")); const ch = s.descEl.createDiv(); ch.style.marginTop = "6px"; for (const t of ign) ch.createSpan({ cls: "ts-chip", text: P.nameOf(t) + "  ✕" }).addEventListener("click", async () => { P.settings.ignoredTargets = ign.filter(y => y !== t); await save(); P.computeLinks(); this.display(); }); }
+      const nh = Object.values(P.settings.notHere || {}).reduce((a, l) => a + l.length, 0);
+      if (nh) new Setting(body).setName(T("„Nu aici”", "“Not here”")).setDesc(T(`${nh} menționări pe care ai cerut să nu le mai sugerez.`, `${nh} mentions you asked not to be suggested again.`)).addButton(b => b.setButtonText(T("Sugerează-le iar", "Suggest them again")).onClick(async () => { P.settings.notHere = {}; await save(); P.computeLinks(); this.display(); }));
     } else {
-      body.createDiv({ cls: "ts-intro", text: T("Tiparele se calculează pe laptop, din notele tale și din numărătoarea scrisului. Nimic nu pleacă din vault.", "Patterns are worked out on your laptop, from your notes and your writing count. Nothing leaves your vault.") });
-      new Setting(body).setName(T("Teza", "Thesis")).setHeading();
-      folderOne(T("Folderul tezei", "Thesis folder"), T("Ritmul se calculează din notele de aici.", "The pace is worked out from the notes here."), "thesisFolder");
-      new Setting(body).setName(T("Ținta (cuvinte)", "Target (words)")).addText(t => { t.setValue(P.settings.thesisTarget ? String(P.settings.thesisTarget) : "").setPlaceholder("80000").onChange(async v => { P.settings.thesisTarget = parseInt(v, 10) || 0; await save(); P.changed(); }); t.inputEl.type = "number"; t.inputEl.style.width = "110px"; });
-      new Setting(body).setName(T("Termenul", "Deadline")).addText(t => { t.setValue(P.settings.thesisDeadline || "").onChange(async v => { P.settings.thesisDeadline = v; await save(); P.changed(); }); t.inputEl.type = "date"; });
-      new Setting(body).setName(T("Afirmații fără citare", "Uncited claims")).setHeading();
-      folderList(T("Unde le caut", "Where to look"), T("Paragrafele de aici care afirmă ceva (de ex. „prin urmare”, „studiile arată”, un autor numit) și n-au citare.", "Paragraphs here that make a claim (e.g. “therefore”, “studies show”, a named author) and have no citation."), "claimFolders");
-      new Setting(body).setName(T("Arată-le în notă, cât scrii", "Show them in the note while you write")).setDesc(T("O linie portocalie la stânga paragrafului și, la final, sursa pe care ai putea-o cita (un clic o adaugă).", "An orange line on the left of the paragraph and, at the end, a source you could cite (one click adds it).")).addToggle(t => t.setValue(P.settings.claimsInEditor !== false).onChange(async v => { P.settings.claimsInEditor = v; await save(); P.refreshEditors(); }));
-      new Setting(body).setName(T("Note noi", "New notes")).setHeading();
-      folderOne(T("Notele care leagă două concepte", "Notes connecting two concepts"), T("Unde se creează nota de la „Scrie o notă care le leagă”.", "Where “Write a note that connects them” creates the note."), "pairFolder");
-      new Setting(body).setName(T("Recenzia săptămânii", "Weekly review")).setDesc(T("În fiecare luni, o notă scurtă cu săptămâna trecută: cuvinte, ce ai citit, subiecte în creștere, o legătură nefăcută, o notă de recitit.", "Every Monday, a short note about last week: words, reading, rising topics, an unmade connection, a note worth rereading.")).addToggle(t => t.setValue(P.settings.weekly !== false).onChange(async v => { P.settings.weekly = v; await save(); }));
-      folderOne(T("Folderul recenziilor", "Reviews folder"), "", "weeklyFolder");
+      body.createDiv({ cls: "ts-intro", text: T("Un proiect e un folder sau o etichetă: teza, un articol, un curs. Vezi cât ai scris, ritmul pe săptămână, când ajungi la țintă și paragrafele care afirmă ceva fără citare.", "A project is a folder or a tag: your thesis, an article, a course. You see how much you've written, your weekly pace, when you'll reach the target and the paragraphs that make a claim without a citation.") });
+      const list = P.projects(), folders = P.vaultFolders(), tags = P.vaultTags();
+      list.forEach((p, i) => {
+        const th = P.project(p), s = new Setting(body).setName(th.name || T("Proiect nou", "New project")).setDesc(th.exists ? T(`${th.words.toLocaleString("ro-RO")} cuvinte în ${th.docs} note`, `${th.words.toLocaleString("en-GB")} words in ${th.docs} notes`) : T("Alege un folder sau o etichetă.", "Choose a folder or a tag."));
+        s.settingEl.addClass("txi-proj");
+        s.addDropdown(d => { d.addOption("", T("Folder sau etichetă…", "Folder or tag…")); for (const f of folders) d.addOption(f, "📁 " + f); for (const t of tags) d.addOption(t, t); if (p.value && !folders.includes(p.value) && !tags.includes(p.value)) d.addOption(p.value, p.value); d.setValue(p.value || "").onChange(async v => { p.value = v; await save(); this.display(); P.changed(); }); });
+        s.addText(t => { t.setPlaceholder(T("ținta (cuvinte)", "target (words)")).setValue(p.target ? String(p.target) : "").onChange(async v => { p.target = parseInt(v, 10) || 0; await save(); P.changed(); }); t.inputEl.type = "number"; });
+        s.addText(t => { t.setValue(p.deadline || "").onChange(async v => { p.deadline = v; await save(); P.changed(); }); t.inputEl.type = "date"; t.inputEl.title = T("Termenul", "Deadline"); });
+        s.addExtraButton(b => b.setIcon("x").setTooltip(T("Scoate proiectul (notele rămân)", "Remove the project (notes stay)")).onClick(async () => { list.splice(i, 1); await save(); this.display(); P.changed(); }));
+      });
+      new Setting(body).addButton(b => b.setButtonText(T("Adaugă un proiect", "Add a project")).onClick(async () => { list.push({ value: "", target: 0, deadline: "" }); await save(); this.display(); }));
+      new Setting(body).setName(T("Afirmații fără citare, cât scrii", "Uncited claims while you write")).setDesc(T("În notele proiectelor: o linie portocalie la stânga paragrafului și sursa pe care ai putea-o cita (un clic o adaugă).", "In your projects' notes: an orange line on the left of the paragraph and a source you could cite (one click adds it).")).addToggle(t => t.setValue(P.settings.claimsInEditor !== false).onChange(async v => { P.settings.claimsInEditor = v; await save(); P.refreshEditors(); }));
+      const wk = new Setting(body).setName(T("Recenzia săptămânii", "Weekly review")).setDesc(T("În fiecare luni, o notă scurtă cu săptămâna trecută.", "Every Monday, a short note about last week.")).addToggle(t => t.setValue(P.settings.weekly !== false).onChange(async v => { P.settings.weekly = v; await save(); this.display(); }));
+      if (P.settings.weekly !== false) wk.addDropdown(d => { const cur = P.settings.weeklyFolder || P.weeklyDefault(); if (!folders.includes(cur)) d.addOption(cur, cur); for (const f of folders) d.addOption(f, f); d.setValue(cur).onChange(async v => { P.settings.weeklyFolder = v; await save(); }); });
     }
     c.scrollTop = keep;
   }

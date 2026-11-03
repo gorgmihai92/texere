@@ -995,12 +995,238 @@ function pageForm(X, el, onChange, T, opts = {}) {
 }
 
 // ——— fereastra exportului: formatul (file sus), previzualizarea, șablonul și setările paginii, butonul în subsol ———
+
+// ——— aspectul ferestrelor și al setărilor: același ca la Texere · Sources, dar al lui (merge și fără Sources) ———
+// dacă Sources e pornit, stilurile lui sunt deja în pagină; altfel le punem pe acestea (o copie identică)
+const SHARED_MODAL_CSS = `.modal-container:has(.texere-src){align-items:flex-start}
+.texere-src{width:min(860px,94vw);max-width:94vw;margin-top:8vh;height:min(760px,84vh);max-height:84vh}
+.texere-src .modal-title{display:flex;align-items:flex-end;gap:8px 28px;flex-wrap:wrap;border-bottom:1px solid var(--background-modifier-border);padding-bottom:0;margin-bottom:12px}
+.texere-src .ts-head-t{padding-bottom:10px}
+.texere-src .ts-modes{display:flex;gap:20px;font-size:var(--font-ui-small);font-weight:500}
+.texere-src .ts-mode{padding:2px 1px 10px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--text-muted);cursor:pointer;user-select:none;white-space:nowrap;transition:color .12s}
+.texere-src .ts-mode:hover{color:var(--text-normal)}
+.texere-src .ts-mode.on{color:var(--text-normal);border-bottom-color:var(--interactive-accent)}
+.texere-src .modal-content{overflow:hidden}
+.texere-src .ts-pane{display:flex;flex-direction:column;gap:10px;flex:1;min-height:0;overflow-y:auto;padding:4px 4px 2px;margin:-4px -4px 0}
+.texere-src .ts-pane textarea{width:100%;min-height:90px}
+.texere-src .ts-review-top{display:flex;align-items:center;gap:14px;font-size:var(--font-ui-small)}
+.texere-src .ts-back{cursor:pointer;color:var(--text-muted)}.texere-src .ts-back:hover{color:var(--text-accent)}
+.texere-src .ts-review-src{color:var(--text-faint);margin-left:auto}
+.texere-src .ts-hint{color:var(--text-muted);font-size:var(--font-ui-small)}
+.texere-src .ts-form{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;align-items:center}
+.texere-src .ts-form .ts-row{display:contents}
+.texere-src .ts-form label{font-size:var(--font-ui-small);color:var(--text-muted);text-align:right}
+.texere-src .ts-form input,.texere-src .ts-form select{width:100%;height:30px;font-size:var(--font-ui-small)}
+.texere-src .ts-form select{justify-self:start;width:auto;min-width:200px}
+.texere-src .ts-form .ts-more-row a{font-size:var(--font-ui-smaller);color:var(--text-muted);cursor:pointer;padding:2px 0}
+.texere-src .ts-form .ts-more-row a:hover{color:var(--text-accent)}
+.texere-src .ts-form .ts-sec-t{display:flex;align-items:baseline;gap:12px;margin-top:12px;padding-top:10px;border-top:1px solid var(--background-modifier-border);font-size:var(--font-ui-small);font-weight:600;color:var(--text-normal)}
+.texere-src .ts-form .ts-sec label{margin-top:12px}
+.texere-src .ts-form .ts-sec-t a{font-weight:400;font-size:var(--font-ui-smaller);color:var(--text-muted);cursor:pointer}.texere-src .ts-form .ts-sec-t a:hover{color:var(--text-accent)}
+.texere-src .ts-form input.ts-auto::placeholder{color:var(--text-muted)}
+.texere-src .ts-chips{position:relative;display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:30px;padding:2px 6px;border:var(--input-border-width,1px) solid var(--background-modifier-border);border-radius:var(--input-radius,5px);background:var(--background-modifier-form-field);cursor:text}
+.texere-src .ts-chips:focus-within{border-color:var(--interactive-accent)}
+.texere-src .ts-chips input{flex:1;min-width:120px;height:24px !important;border:0 !important;box-shadow:none !important;background:transparent !important;padding:0 2px}
+.texere-src .ts-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 4px 1px 8px;border-radius:10px;background:var(--background-modifier-hover);font-size:var(--font-ui-small)}
+.texere-src .ts-chip-x{cursor:pointer;color:var(--text-faint);padding:0 3px}.texere-src .ts-chip-x:hover{color:var(--text-normal)}
+.modal.texere-tidy{display:flex;flex-direction:column;max-height:86vh}
+.texere-tidy .modal-content{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+.texere-tidy .ts-tidy-list{flex:none;border:1px solid var(--background-modifier-border);border-radius:8px;padding:4px;margin:10px 0}
+.texere-tidy .ts-tidy-list.ts-tidy-scroll{flex:1 1 auto;min-height:80px;overflow-y:auto;overscroll-behavior:contain}
+.texere-tidy .ts-tidy-row{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:var(--font-ui-small)}
+.texere-tidy .ts-tidy-row:hover{background:var(--background-modifier-hover)}.texere-tidy .ts-tidy-row.pdf{padding-left:28px}
+.texere-tidy .ts-tidy-row input{margin-top:3px}.texere-tidy .ts-tidy-old{color:var(--text-muted);word-break:break-word}.texere-tidy .ts-tidy-new{font-weight:500;word-break:break-word}
+.texere-tidy .ts-tidy-bar{flex:none;display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--background-modifier-border)}
+.texere-src .ts-catalog{font-size:var(--font-ui-small);color:var(--text-muted);padding:6px 10px;margin-bottom:6px;border-radius:6px;background:var(--background-secondary)}
+.texere-src .ts-catalog-f{font-weight:600;color:var(--text-normal)}
+.status-bar-item.texere-catalog-status{gap:4px;cursor:pointer}.texere-catalog-status svg{width:13px;height:13px}
+.texere-src .ts-paste-list{flex:1;min-height:0;overflow-y:auto;border:1px solid var(--background-modifier-border);border-radius:8px;padding:4px}
+.texere-src .ts-paste-row{display:flex;gap:10px;align-items:flex-start;padding:8px;border-radius:6px;cursor:pointer}.texere-src .ts-paste-row:hover{background:var(--background-modifier-hover)}
+.texere-src .ts-paste-row input{margin-top:3px}.texere-src .ts-paste-t{font-weight:500;font-size:var(--font-ui-small)}.texere-src .ts-paste-st{font-size:var(--font-ui-smaller);color:var(--text-muted);margin-top:2px}
+.texere-src .ts-paste-st a{cursor:pointer;color:var(--text-accent)}.texere-src .ts-paste-how.doi,.texere-src .ts-paste-how.id,.texere-src .ts-paste-how.bibtex{color:var(--color-green)}
+.texere-src .ts-paste-how.matched{color:var(--color-orange)}.texere-src .ts-paste-how.guess{color:var(--color-red)}
+.texere-ask-source ul{margin:6px 0 10px;padding-left:1.3em}.texere-ask-source li{margin:3px 0}
+.texere-ask-source .texere-ask-note{font-size:var(--font-ui-small);color:var(--text-muted)}
+.texere-ask-bar{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--background-modifier-border)}
+.texere-ask-later{flex:1;font-size:var(--font-ui-smaller);color:var(--text-faint)}
+.texere-chip-menu{position:fixed;z-index:var(--layer-menu,65);background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:6px;box-shadow:var(--shadow-l);padding:3px;overflow-y:auto}
+.texere-chip-menu .ts-chip-opt{display:flex;justify-content:space-between;gap:10px;padding:4px 8px;border-radius:4px;font-size:var(--font-ui-small);cursor:pointer}
+.texere-chip-menu .ts-chip-note{color:var(--text-faint);font-size:var(--font-ui-smaller)}.texere-chip-menu .ts-chip-opt.on,.texere-chip-menu .ts-chip-opt:hover{background:var(--background-modifier-hover)}
+.texere-src .ts-actions{position:sticky;bottom:0;margin-top:auto;display:flex;justify-content:flex-end;padding:10px 0 2px;background:var(--modal-background,var(--background-primary));border-top:1px solid var(--background-modifier-border)}
+@media (max-width:560px){.texere-src .ts-form{grid-template-columns:1fr}.texere-src .ts-form label{text-align:left}}
+.texere-src .ts-pane textarea.ts-bib-ta{min-height:260px;font-family:var(--font-monospace);font-size:12px}
+.texere-src .ts-start-alt{font-size:var(--font-ui-small);color:var(--text-faint)}
+.texere-src .ts-start-alt a{color:var(--text-muted);cursor:pointer}.texere-src .ts-start-alt a:hover{color:var(--text-accent)}
+.texere-src .modal-content{display:flex;flex-direction:column;gap:10px;padding-top:4px;flex:1;min-height:0}
+.texere-src .ts-q{display:flex;align-items:center;gap:8px;border:1px solid var(--background-modifier-border);border-radius:8px;padding:6px 10px;background:var(--background-primary)}
+.texere-src .ts-q{flex-direction:row}
+.texere-src .ts-clear{order:3;background:none;box-shadow:none;border:0;padding:2px;height:auto;color:var(--text-faint);cursor:pointer;display:flex}
+.texere-src .ts-clear:hover{color:var(--text-normal)}.texere-src .ts-clear svg{width:16px;height:16px}
+.texere-src .ts-q input{order:2;flex:1;border:0!important;box-shadow:none!important;background:transparent;font-size:var(--font-ui-medium);padding:2px 0}
+.texere-src .ts-q svg{width:16px;height:16px;color:var(--text-faint)}
+.texere-src .ts-filters{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:var(--font-ui-small);color:var(--text-muted)}
+.texere-src .ts-tabs{display:flex;gap:4px}
+.texere-src-menu{position:fixed;z-index:var(--layer-menu,65);min-width:240px;max-width:min(560px,90vw);padding:4px;background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:8px;box-shadow:var(--shadow-l)}
+.texere-src-menu .ts-sm-item{display:flex;align-items:baseline;gap:6px;padding:5px 10px 5px 6px;border-radius:5px;cursor:pointer;font-size:var(--font-ui-small);user-select:none}
+.texere-src-menu .ts-sm-item:hover{background:var(--background-modifier-hover)}
+.texere-src-menu .ts-sm-ck{flex:0 0 14px;text-align:center;color:var(--text-normal)}
+.texere-src-menu .ts-sm-item:not(.on) .ts-sm-name{color:var(--text-muted)}
+.texere-src-menu .ts-sm-note{color:var(--text-faint);white-space:nowrap}
+.texere-src-menu .ts-sm-sep{height:1px;margin:4px 6px;background:var(--background-modifier-border)}
+.texere-src-menu .ts-sm-more{padding-left:26px;color:var(--text-muted)}
+.texere-src .ts-zpane{gap:10px}
+.texere-src .ts-zhead{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:var(--font-ui-small);color:var(--text-muted)}
+.texere-src .ts-zhead-t{font-weight:600;color:var(--text-normal)}
+.texere-src .ts-zhead .ts-zdot{width:8px;height:8px;border-radius:50%;display:inline-block;background:#E8A33B}.texere-src .ts-zhead .ts-zdot.ok{background:#2E9E6B}.texere-src .ts-zhead .ts-zdot.bad{background:#E03131}
+.texere-src .ts-zhead-d{flex-basis:100%;color:var(--text-faint)}
+.texere-src .ts-zacts{display:flex;gap:8px}
+.texere-src .ts-zbody{display:grid;grid-template-columns:minmax(170px,230px) 1fr;gap:14px;flex:1;min-height:0}
+.texere-src .ts-zside{display:flex;flex-direction:column;gap:1px;overflow-y:auto;min-height:0;border-right:1px solid var(--background-modifier-border);padding-right:8px}
+.texere-src .ts-zmain{display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0}
+.texere-src .ts-ztop{display:flex;align-items:center;gap:10px}.texere-src .ts-ztop .ts-q{flex:1;min-width:0}
+.texere-src .ts-zonly{flex-shrink:0;font-size:var(--font-ui-small)}
+.texere-src .ts-zretry{cursor:pointer;margin-left:6px}
+.notice .ts-notice-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.notice .ts-notice-acts button{font-size:var(--font-ui-small)}
+.texere-src .ts-zrow{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:var(--font-ui-small)}
+.texere-src .ts-zrow:hover{background:var(--background-modifier-hover)}
+.texere-src .ts-zrow.on{background:var(--background-modifier-hover);color:var(--text-normal);font-weight:600}
+.texere-src .ts-zname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.texere-src .ts-zn{color:var(--text-faint);font-size:var(--font-ui-smaller)}
+.texere-src .ts-zpdf{display:flex;align-items:center;gap:4px;color:var(--text-muted);cursor:pointer}
+.texere-src .ts-zitem{display:flex;gap:10px;align-items:flex-start}
+.texere-src .ts-zitem .ts-zchk{margin-top:3px;flex:0 0 auto}
+.texere-src .ts-zitem-b{flex:1;min-width:0}
+.texere-src .ts-list.is-busy{opacity:.55;pointer-events:none}
+.texere-src .ts-status.ts-zdone{color:var(--text-normal)}
+.texere-src .ts-b.hl{color:#C98A00;font-weight:600}
+.texere-zimport .ts-zmode{font-size:var(--font-ui-small);font-weight:400;color:var(--text-muted);padding-bottom:10px}
+.texere-zimport .ts-zlist{display:flex;flex-direction:column;gap:1px;overflow-y:auto;flex:1;min-height:0;border:1px solid var(--background-modifier-border);border-radius:8px;padding:4px}
+.texere-zimport .ts-zlist.is-busy{opacity:.55;pointer-events:none}
+.texere-zimport .ts-zrow{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;cursor:pointer;font-size:var(--font-ui-small)}
+.texere-zimport .ts-zrow:hover{background:var(--background-modifier-hover)}
+.texere-zimport .ts-zrow.on{background:var(--background-modifier-hover);color:var(--text-normal);font-weight:600}
+.texere-zimport .ts-zall{font-weight:500}
+.texere-zimport .ts-zname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.texere-zimport .ts-zn{color:var(--text-faint);font-size:var(--font-ui-smaller)}
+.texere-zimport .ts-zpdf{display:flex;align-items:center;gap:4px;color:var(--text-muted);cursor:pointer}
+.texere-src .ts-tab{padding:3px 10px;border-radius:999px;border:1px solid var(--background-modifier-border);cursor:pointer;color:var(--text-muted);user-select:none}
+.texere-src .ts-tab:hover{color:var(--text-normal)}
+.texere-src .ts-tab.on{background:var(--background-modifier-hover);border-color:transparent;color:var(--text-normal)}
+.texere-src .ts-spacer{flex:1}
+.texere-src .ts-filters .ts-years{width:170px;height:28px;font-size:var(--font-ui-small)}
+.texere-src .ts-filters .ts-years.bad{border-color:var(--text-error)}
+.texere-src .ts-filters .ts-sel{height:28px;font-size:var(--font-ui-small);padding:0 24px 0 8px}
+.texere-src .ts-srcbtn{height:28px;font-size:var(--font-ui-small);padding:0 10px;background:transparent;box-shadow:none;border:1px solid var(--background-modifier-border);color:var(--text-muted)}
+@media (max-width:640px){.texere-src .ts-spacer{display:none}}
+.texere-src .ts-q{position:relative;overflow:hidden}
+.texere-src{position:relative;overflow:hidden}
+.texere-src.is-loading::before{content:"";position:absolute;left:0;top:0;height:3px;width:35%;background:var(--interactive-accent);animation:ts-run 1.1s ease-in-out infinite;z-index:5}
+@keyframes ts-run{0%{left:-35%}100%{left:100%}}
+.texere-src .ts-skel{cursor:default}.texere-src .ts-skel:hover{background:none}
+.texere-src .sk{border-radius:4px;background:linear-gradient(90deg,var(--background-modifier-hover) 25%,var(--background-modifier-border) 50%,var(--background-modifier-hover) 75%);background-size:200% 100%;animation:ts-shine 1.2s linear infinite;height:12px;margin:6px 0}
+.texere-src .sk-t{width:70%;height:15px}.texere-src .sk-m{width:45%}.texere-src .sk-b{width:30%;height:10px}
+@keyframes ts-shine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.texere-src .ts-status{font-size:var(--font-ui-smaller);color:var(--text-faint);min-height:1.2em}
+.texere-src .ts-list{flex:1;min-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.texere-src .ts-item{padding:8px 10px;border-radius:6px;cursor:pointer;position:relative}
+.texere-src .ts-item.sel,.texere-src .ts-item:hover{background:var(--background-modifier-hover)}
+.texere-src .ts-title{font-weight:600;color:var(--text-normal);line-height:1.35}
+.texere-src .ts-meta{font-size:var(--font-ui-small);color:var(--text-muted);margin-top:2px}
+.texere-src .ts-badges{display:flex;flex-wrap:wrap;gap:5px 10px;margin-top:4px;font-size:var(--font-ui-smaller);color:var(--text-faint);align-items:center}
+.texere-src .ts-b{display:inline-flex;align-items:center;gap:4px}
+.texere-src .ts-b.oa{color:#C98A00}.texere-src .ts-b.have{color:var(--color-green,#2E9E6B);font-weight:600}
+.texere-src .ts-hl{font-weight:700;color:var(--text-normal)}
+.texere-src .ts-title .ts-hl{text-decoration:underline;text-decoration-color:var(--text-accent);text-underline-offset:3px;text-decoration-thickness:2px}
+.texere-src .ts-open{color:var(--text-faint);text-decoration:none;font-weight:400;cursor:pointer}.texere-src .ts-open:hover{color:var(--text-accent)}
+.texere-src .ts-abs{font-size:var(--font-ui-smaller);color:var(--text-muted);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}
+.texere-src .ts-item.sel .ts-abs{-webkit-line-clamp:5}
+.texere-src .ts-card{border:1px solid var(--background-modifier-border);border-radius:8px;padding:8px 10px;margin-bottom:6px;background:var(--background-secondary)}
+.texere-src .ts-card-name{font-weight:600}.texere-src .ts-card-inst{font-weight:400;color:var(--text-muted)}
+.texere-src .ts-link{cursor:pointer;text-decoration:none;color:var(--text-muted)}.texere-src .ts-link:hover{color:var(--text-accent)}
+.texere-src .ts-b.lang{border:1px solid var(--background-modifier-border);border-radius:4px;padding:0 4px}
+.texere-src .ts-b.retracted{background:#F45B5B;color:#fff;font-weight:600;border-radius:8px;padding:0 6px}
+.texere-src .ts-b.top{color:var(--text-muted);font-weight:600}
+.texere-src .ts-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.texere-src .ts-b.kind{border:1px solid var(--background-modifier-border);border-radius:4px;padding:0 5px}
+.texere-src .ts-start{padding:4px 2px 6px}
+.texere-src .ts-start-tip{color:var(--text-muted);font-size:var(--font-ui-small);margin-bottom:6px}
+.texere-src .ts-foot-q{color:var(--text-faint)}.texere-src .ts-keys{margin-left:auto}
+.texere-src .ts-foot{flex:none;min-height:44px;margin-top:2px;align-items:center !important}
+.texere-src .ts-foot-l{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;min-width:0}
+.texere-src .ts-foot-r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.texere-src .ts-foot-r button{margin:0}
+.texere-src .ts-foot{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:var(--font-ui-small);color:var(--text-faint);border-top:1px solid var(--background-modifier-border);padding-top:8px}
+.texere-src .ts-foot a{color:var(--text-muted);cursor:pointer;text-decoration:none}.texere-src .ts-foot a:hover{color:var(--text-accent)}
+.texere-src .ts-empty{color:var(--text-faint);padding:18px 4px;font-size:var(--font-ui-small)}
+.texere-bib textarea{width:100%;min-height:220px;font-family:var(--font-monospace);font-size:12px}`;
+const SHARED_SETTINGS_CSS = `.texere-settings .ts-head{display:flex;align-items:flex-end;gap:8px 28px;flex-wrap:wrap;border-bottom:1px solid var(--background-modifier-border);margin:0 0 14px}
+.texere-settings .ts-head-t{font-size:var(--font-ui-large);font-weight:600;padding-bottom:10px;line-height:1.3}
+.texere-settings .ts-nav{display:flex;gap:20px;font-size:var(--font-ui-small);font-weight:500}
+.ts-falert{margin:6px 0 14px;padding:10px 12px;border-radius:8px;background:rgba(var(--color-orange-rgb),.1);border:1px solid rgba(var(--color-orange-rgb),.3)}
+.ts-falert-t{font-weight:600;font-size:var(--font-ui-small)}.ts-falert-d{color:var(--text-muted);font-size:var(--font-ui-smaller);margin-top:2px}
+.ts-falert-b{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.modal.ts-folder-ask{width:min(560px,94vw)}
+.texere-settings .ts-navbtn{padding:2px 1px 10px;margin-bottom:-1px;border-bottom:2px solid transparent;color:var(--text-muted);cursor:pointer;user-select:none;white-space:nowrap;transition:color .12s}
+.texere-settings .ts-navbtn:hover{color:var(--text-normal)}
+.texere-settings .ts-navbtn.on{color:var(--text-normal);border-bottom-color:var(--interactive-accent)}
+.texere-settings .ts-intro{color:var(--text-muted);font-size:var(--font-ui-small);margin:0 0 8px;line-height:1.5;max-width:62ch}
+.texere-settings .ts-body > .ts-intro:not(:first-child){margin-top:14px}
+.texere-settings .ts-body .setting-item{border-top:0;padding-top:9px;padding-bottom:9px;gap:16px}
+.texere-settings .ts-body .setting-item-name{font-size:var(--font-ui-small);font-weight:500}
+.texere-settings .ts-body .setting-item-description{font-size:var(--font-ui-smaller);color:var(--text-muted);padding-top:2px;line-height:1.45}
+.texere-settings .ts-body .setting-item-description:empty{display:none}
+.texere-settings .ts-body .setting-item-heading{border-top:1px solid var(--background-modifier-border);margin-top:14px;padding-top:14px;padding-bottom:4px;background:none;border-radius:0;box-shadow:none}
+.texere-settings .ts-body .setting-item-heading .setting-item-name{font-size:var(--font-ui-small);font-weight:600;color:var(--text-normal)}
+.texere-settings .ts-body .setting-item-control input[type=text],.texere-settings .ts-body .setting-item-control input[type=password],.texere-settings .ts-body .setting-item-control select{height:30px;font-size:var(--font-ui-small)}
+.texere-settings .ts-body .setting-item-control button{font-size:var(--font-ui-small)}
+.texere-settings .ts-chip,.texere-settings .ts-tag{display:inline-block;margin-left:8px;font-size:var(--font-ui-smaller);line-height:1.5;padding:0 8px;border-radius:999px;border:1px solid var(--background-modifier-border);color:var(--text-muted);font-weight:500;font-family:var(--font-interface);vertical-align:1px;white-space:nowrap}
+.texere-settings .ts-chip.btn{cursor:pointer;user-select:none}.texere-settings .ts-chip.btn:hover{color:var(--text-normal);border-color:var(--text-faint)}
+.texere-settings .ts-chip.ok,.texere-settings .ts-tag.ok{border-color:transparent;background:rgba(0,168,150,.14);color:#00897b}
+.texere-settings .ts-chip.warn{border-color:transparent;background:rgba(245,168,0,.16);color:#a86300}
+.texere-settings .ts-chip.bad{border-color:transparent;background:rgba(224,49,49,.13);color:#c92a2a}
+.texere-settings .ts-chip.act{color:var(--text-accent);border-color:var(--text-accent)}.texere-settings .ts-chip.act:hover{background:var(--background-modifier-hover)}
+.texere-settings .ts-zcolors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 12px;width:100%}
+.texere-settings .ts-zc{display:flex;align-items:center;gap:6px;min-width:0}.texere-settings .ts-zc select{flex:1;min-width:0;height:28px;font-size:var(--font-ui-smaller)}
+.texere-settings .ts-zsw{flex:0 0 14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+.texere-settings .ts-zstat{border-left:3px solid var(--background-modifier-border);padding-left:12px !important}
+.texere-settings .ts-zstat.is-ok{border-left-color:#00a896}.texere-settings .ts-zstat.is-warn{border-left-color:#f5a800}.texere-settings .ts-zstat.is-bad{border-left-color:#e03131}
+.texere-settings .ts-zstat .setting-item-name{font-weight:600}
+.texere-settings .ts-zdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px;background:var(--text-faint)}
+.texere-settings .ts-zdot.ok{background:#00a896}.texere-settings .ts-zdot.warn{background:#f5a800}.texere-settings .ts-zdot.bad{background:#e03131}
+.texere-settings .ts-keybox{margin:-2px 0 8px;padding:2px 14px 12px;border-radius:8px;background:var(--background-secondary)}
+.texere-settings .ts-keybox .setting-item{padding:10px 0 6px}
+.texere-keyhelp{margin:-2px 0 12px;padding:10px 14px 10px 6px;border-radius:8px;background:var(--background-secondary);font-size:var(--font-ui-small);color:var(--text-muted)}
+.texere-settings .ts-keybox .texere-keyhelp{margin:0;padding:0 0 0 2px;background:none;font-size:var(--font-ui-smaller)}
+.texere-keyhelp ol{margin:0;padding-left:22px}.texere-keyhelp li{margin:3px 0}
+.texere-settings .ts-field-row{padding-top:7px !important;padding-bottom:7px !important}
+.texere-settings .ts-grid-row{align-items:center}
+.texere-settings .ts-grid-row .setting-item-info{flex:0 0 clamp(200px,38%,300px);width:auto;min-width:0;margin-right:0}
+.texere-settings .ts-grid-row .setting-item-control{flex:1 1 auto;min-width:0;justify-content:flex-end;flex-wrap:nowrap}
+.texere-settings .ts-grid-row .setting-item-control input[type=text],.texere-settings .ts-grid-row .setting-item-control input[type=password],.texere-settings .ts-grid-row .setting-item-control input[type=email]{flex:1 1 auto;width:auto;min-width:0}
+.texere-settings .ts-grid-row:not(.ts-field-row):not(.ts-new-field) .setting-item-control select{flex:1 1 auto;width:auto}
+.texere-settings .ts-grid-row .setting-item-control select{flex:0 0 128px;width:128px;min-width:0}
+.texere-settings .ts-new-field .setting-item-control select{flex:0 0 auto;width:auto}
+.texere-settings .ts-grid-row .setting-item-control .checkbox-container,.texere-settings .ts-grid-row .setting-item-control .clickable-icon,.texere-settings .ts-grid-row .setting-item-control button{flex:none}
+.texere-settings .ts-field-row .setting-item-description{cursor:default}
+.texere-settings .ts-field-row .setting-item-name{font-family:var(--font-monospace);font-size:12.5px;font-weight:400}
+.texere-settings .ts-field-row.is-off .setting-item-info,.texere-settings .ts-field-row.is-off input,.texere-settings .ts-field-row.is-off select{opacity:.5}
+.texere-settings .ts-field-row .extra-setting-button{opacity:.45}.texere-settings .ts-field-row:hover .extra-setting-button{opacity:1}
+.texere-settings input.ts-mono{font-family:var(--font-monospace);font-size:12px;min-width:240px}
+.texere-settings .ts-grid-row input.ts-mono{min-width:0}
+.texere-settings .ts-vars{margin:6px 0 14px;font-size:var(--font-ui-small);color:var(--text-muted)}
+.texere-settings .ts-vars summary{cursor:pointer;color:var(--text-accent)}
+.texere-settings .ts-vars code{font-size:11.5px}
+.texere-settings textarea.ts-header-ta{width:100%;font-family:var(--font-monospace);font-size:12px;margin-bottom:12px}`;
+function sharedCss() {
+  const put = (id, other, css) => { if (document.getElementById(other) || document.getElementById(id)) return; const st = document.createElement("style"); st.id = id; st.textContent = css; document.head.appendChild(st); };
+  put("texere-export-modal-css", "texere-sources-css", SHARED_MODAL_CSS);
+  put("texere-export-settings-css", "texere-settings-css", SHARED_SETTINGS_CSS);
+}
 class ExportModal extends Modal {
   constructor(X, file) { super(X.app); this.X = X; this.file = file; this.format = X.conf().format || "pdf"; this.style = null; this.built = null; }
   T(a, b) { return this.X.T(a, b); }
   onOpen() {
     const X = this.X, T = (a, b) => this.T(a, b), E = X.host.cite;
-    this.modalEl.addClass("texere-src"); this.modalEl.addClass("texere-export"); this.titleEl.empty();
+    sharedCss(); this.modalEl.addClass("texere-src"); this.modalEl.addClass("texere-export"); this.titleEl.empty();
     this.titleEl.createSpan({ cls: "ts-head-t", text: T("Exportă", "Export") });
     const sw = this.titleEl.createDiv("ts-modes"); this.tabs = {};
     for (const [id, label] of FORMATS) { const b = sw.createSpan({ cls: "ts-mode", text: label }); b.title = { docx: "Word (.docx)", latex: T("LaTeX (.tex), pentru XeLaTeX / Overleaf", "LaTeX (.tex), for XeLaTeX / Overleaf"), md: "Markdown (.md)" }[id] || "." + id; this.tabs[id] = b; b.addEventListener("click", () => this.setFormat(id)); }
@@ -1123,7 +1349,7 @@ class ExportPicker extends Modal {
   T(a, b) { return this.X.T(a, b); }
   onOpen() {
     const T = (a, b) => this.T(a, b);
-    this.modalEl.addClass("texere-src"); this.modalEl.addClass("texere-xpick"); this.titleEl.empty();
+    sharedCss(); this.modalEl.addClass("texere-src"); this.modalEl.addClass("texere-xpick"); this.titleEl.empty();
     this.titleEl.createSpan({ cls: "ts-head-t", text: T("Exportă", "Export") });
     const pane = this.contentEl.createDiv("ts-pane");
     const qb = pane.createDiv("ts-q"); try { obsidian.setIcon(qb.createSpan(), "search"); } catch (e) {}
@@ -1204,7 +1430,7 @@ class ExportSettingTab extends PluginSettingTab {
     const X = this.X, T = (a, b) => X.T(a, b), c = this.containerEl, s = X.conf();
     if (this.sel === null || !X.exists(this.sel)) this.sel = X.exists(s.defaultPreset) ? s.defaultPreset : "";
     const keep = this._top ? 0 : c.scrollTop; this._top = false; c.empty(); c.addClass("texere-settings"); c.addClass("texere-xsettings");
-    try { X.S.settingTab?.css?.(); } catch (e) {}   // același aspect ca Texere · Sources (stilurile lui), chiar dacă pagina lui n-a fost deschisă
+    try { X.S.settingTab?.css?.(); } catch (e) {} sharedCss();   // același aspect ca Texere · Sources (stilurile lui), chiar dacă pagina lui n-a fost deschisă
     // antetul: titlul și filele, ca la Texere · Sources
     const head = c.createDiv("ts-head"); head.createSpan({ cls: "ts-head-t", text: "Texere · Export" });
     const nav = head.createDiv("ts-nav");
@@ -1452,6 +1678,7 @@ module.exports = {
   Exporter, imageSize, toBib, PRESETS,
   async install(S, dir) {
     const X = new Exporter(S, dir), h = S.host, T = (a, b) => S.T(a, b);
+    h.register?.(() => { for (const id of ["texere-export-modal-css", "texere-export-settings-css"]) document.getElementById(id)?.remove(); });
     // redenumești folderul exportului în Obsidian: la următorul export te întreb, cu numele nou deja ales
     if (S.app.vault?.on) h.registerEvent(S.app.vault.on("rename", (f, old) => { try { const cur = String(X.conf().folder || "").replace(/\/+$/, ""); if (!Array.isArray(f.children) || isAbsDir(cur)) return; if (old === cur || cur.startsWith(old + "/")) { X.conf().folderMoved = { from: cur, to: f.path + cur.slice(old.length) }; X.save().then(() => X.changed()); } } catch (e) {} }));
     const st = document.createElement("style"); st.id = "texere-export-css"; document.getElementById(st.id)?.remove(); st.textContent = CSS; document.head.appendChild(st); h.register(() => st.remove());

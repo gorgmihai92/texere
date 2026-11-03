@@ -47,6 +47,7 @@ const CSS = `
 .txi-kind{display:inline-block;font-size:var(--font-ui-smaller);color:var(--text-accent);text-transform:uppercase;letter-spacing:.05em}
 .txi-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.txi-actions button{height:26px;font-size:var(--font-ui-smaller)}
 .txi-bar{height:6px;border-radius:3px;background:var(--background-modifier-border);overflow:hidden;margin:4px 0}.txi-bar>div{height:100%;background:var(--interactive-accent);border-radius:3px}
+.txi-note{margin:-2px 0 12px;padding:8px 12px;border-radius:8px;background:var(--background-secondary);color:var(--text-muted);font-size:var(--font-ui-smaller);line-height:1.45;max-width:72ch}
 .txi-empty{color:var(--text-faint);font-size:var(--font-ui-smaller);font-style:italic}
 /* fereastra de revizuire */
 .modal.txi-review{width:min(860px,96vw);height:min(760px,92vh);padding:0;display:flex;flex-direction:column}
@@ -59,7 +60,8 @@ const CSS = `
 .txi-grp{margin:0 0 14px}.txi-grp-h{display:flex;align-items:center;gap:8px;font-weight:600;font-size:var(--font-ui-small);padding:4px 0}.txi-grp-h .txi-meta{font-weight:400;color:var(--text-faint);font-size:var(--font-ui-smaller)}.txi-grp-h .txi-gact{margin-left:auto;display:flex;gap:6px}.txi-grp-h button{height:22px;font-size:var(--font-ui-smaller);padding:0 8px}
 .txi-hit{display:flex;gap:8px;align-items:flex-start;padding:5px 6px;border-radius:6px;font-size:var(--font-ui-smaller)}.txi-hit:hover{background:var(--background-modifier-hover)}
 .txi-hit input{margin-top:2px;flex:none}.txi-hit .txi-ctx{flex:1;min-width:0;color:var(--text-muted);line-height:1.45}.txi-hit .txi-ctx mark{background:rgba(var(--color-yellow-rgb),.35);color:var(--text-normal);border-radius:2px;padding:0 1px}
-.txi-hit .txi-in{color:var(--text-faint);display:block;margin-top:1px}.txi-hit .txi-x{flex:none;opacity:0;cursor:pointer;color:var(--text-faint);padding:0 4px}.txi-hit:hover .txi-x{opacity:1}
+.txi-hit .txi-in{color:var(--text-faint);display:block;margin-top:1px}.txi-hit .txi-alt-to{color:var(--text-accent)}
+.txi-hit .txi-alt{white-space:nowrap;font-size:var(--font-ui-smaller);padding:0 6px !important;border-radius:999px;border:1px solid var(--background-modifier-border)}.txi-hit .txi-alt:hover{color:var(--text-normal)}.txi-hit .txi-x{flex:none;opacity:0;cursor:pointer;color:var(--text-faint);padding:0 4px}.txi-hit:hover .txi-x{opacity:1}
 .txi-why{display:inline-block;font-size:var(--font-ui-smaller);padding:0 6px;border-radius:999px;border:1px solid var(--background-modifier-border);color:var(--text-muted);margin-left:6px}
 /* tab-ul nou */
 .texere-home .txh-ins{display:flex;flex-direction:column;gap:8px}
@@ -112,7 +114,7 @@ const UiMixin = {
   },
   // o notă nouă care leagă două concepte, cu locurile în care apar împreună
   async connectPair(p) {
-    const T = (a, b) => this.T(a, b), dir = String(this.settings.pairFolder || "02. Notes").replace(/\/+$/, "");
+    const T = (a, b) => this.T(a, b), dir = String(this.app.fileManager.getNewFileParent?.("")?.path || "").replace(/^\/$/, "").replace(/\/+$/, "");   // unde pune Obsidian notele noi
     const A = this.app.vault.getAbstractFileByPath(p.a), B = this.app.vault.getAbstractFileByPath(p.b); if (!A || !B) return;
     const name = `${A.basename} – ${B.basename}`, path = (dir ? dir + "/" : "") + name.replace(/[\\/:*?"<>|#^[\]]/g, " ") + ".md";
     let f = this.app.vault.getAbstractFileByPath(path);
@@ -171,7 +173,7 @@ const UiMixin = {
     const build = view => {
       if (P.settings.claimsInEditor === false) return Decoration.none;
       let file = null; try { file = view.state.field(require("obsidian").editorInfoField)?.file; } catch (e) {}
-      if (!file || !P.inFolders(file.path, P.claimFolders())) return Decoration.none;
+      if (!file || !P.inAnyProject(file.path)) return Decoration.none;
       const text = view.state.doc.toString(), list = P.uncitedIn(text, file.path), deco = [];
       for (const p of list) {
         const sugg = P.suggestCitations(p, text.slice(p.from, p.to), 2);
@@ -208,7 +210,7 @@ const UiMixin = {
     const range = { from: X.dayKey(mon), to: X.dayKey(sun) }, s = this.totals(range);
     this.settings.lastWeekly = wk; await this.saveSettings();
     if (s.added + s.d + s.r < 30) return;   // o săptămână fără scris și citit: nicio notă
-    const dir = String(this.settings.weeklyFolder || "02. Notes/Weekly reviews").replace(/\/+$/, ""), path = `${dir}/${wk}.md`;
+    const dir = String(this.settings.weeklyFolder || this.weeklyDefault()).replace(/\/+$/, ""), path = `${dir}/${wk}.md`;
     if (this.app.vault.getAbstractFileByPath(path)) return;
     try {
       let cur = ""; for (const part of dir.split("/")) { cur = cur ? cur + "/" + part : part; if (!this.app.vault.getAbstractFileByPath(cur)) await this.app.vault.createFolder(cur); }
@@ -218,6 +220,7 @@ const UiMixin = {
       a.addEventListener("click", e => { e.preventDefault(); n.hide(); this.app.workspace.getLeaf("tab").openFile(f); });
     } catch (e) { console.error("Texere · Insights: recenzia", e); }
   },
+  weeklyDefault() { const p = String(this.app.fileManager.getNewFileParent?.("")?.path || "").replace(/^\/$/, ""); return (p ? p + "/" : "") + "Weekly reviews"; },
   weeklyText(wk, range, s) {
     const T = (a, b) => this.T(a, b), en = this.en, n = x => fmt(x, en), lines = [];
     const lk = p => { const f = this.app.vault.getAbstractFileByPath(p); return f ? `[[${this.app.metadataCache.fileToLinktext(f, "", true)}]]` : p; };
@@ -261,7 +264,7 @@ class InsightsView extends ItemView {
     try { this.topics(w); } catch (e) { console.error(e); }
     try { this.patterns(w); } catch (e) { console.error(e); }
     try { this.forgotten(w); } catch (e) { console.error(e); }
-    try { await this.thesis(w); } catch (e) { console.error(e); }
+    try { await this.projectsSec(w); } catch (e) { console.error(e); }
     try { this.sources(w); } catch (e) { console.error(e); }
     try { this.links(w); } catch (e) { console.error(e); }
     c.scrollTop = keep;
@@ -280,7 +283,7 @@ class InsightsView extends ItemView {
     const t = P.totals(this.period), nums = c1.createDiv("txi-nums");
     this.num(nums, t.t, T("scrise", "typed")); this.num(nums, t.p, T("lipite", "pasted")); this.num(nums, t.x, T("inserate", "inserted")); this.num(nums, t.d, T("șterse", "deleted"), true); this.num(nums, t.net, T("net", "net"));
     if (t.t) c1.createEl("p", { text: T(`Ștergi ${Math.round(t.revision * 100)} de cuvinte la 100 scrise.`, `You delete ${Math.round(t.revision * 100)} words for every 100 you type.`) });
-    const st = P.streak(), c2 = this.card(g, T("Zile la rând", "Streak"), T(`minim ${P.settings.streakMin || 20} cuvinte`, `min. ${P.settings.streakMin || 20} words`)), n2 = c2.createDiv("txi-nums");
+    const st = P.streak(), c2 = this.card(g, T("Zile la rând", "Streak"), T("minim 20 de cuvinte pe zi", "min. 20 words a day")), n2 = c2.createDiv("txi-nums");
     this.num(n2, st.now, T("acum", "now")); this.num(n2, st.best, T("cel mai lung", "longest"));
     const top = P.topOf(this.period, "n", 4); if (top.length) { el(c2, "p", null, T("Ai lucrat cel mai mult la:", "You worked most on:")); const l = c2.createDiv("txi-list"); for (const r of top) this.row(l, P.nameOf(r.path), `+${fmt(r.added, en)} / −${fmt(r.d, en)}`, () => P.openPath(r.path)); }
     // calendarul anului, ca pe GitHub: 53 de săptămâni, de duminică la sâmbătă, pătrățele mici, lunile sus, „Mai puțin … Mai mult” jos
@@ -360,40 +363,47 @@ class InsightsView extends ItemView {
     const show = () => { box.empty(); const x = P.surprise(); if (!x) return el(box, "p", "txi-empty", T("Încă nu am destule date.", "Not enough data yet.")); el(box, "div", "txi-kind", x.kind); el(box, "div", "txi-big", x.title); el(box, "p", null, x.text); const a = box.createDiv("txi-actions"); a.createEl("button", { text: T("Încă una", "Another one") }).addEventListener("click", show); if (x.pair) a.createEl("button", { text: T("Scrie o notă care le leagă", "Write a note that connects them") }).addEventListener("click", () => P.connectPair(x.pair)); if (x.path) a.createEl("button", { cls: "mod-cta", text: T("Deschide", "Open") }).addEventListener("click", () => P.openPath(x.path)); };
     show();
   }
-  async thesis(w) {
-    const P = this.P, T = (a, b) => P.T(a, b), en = P.en, th = P.thesis();
-    const s = this.sec(w, T("Teza și documentele tale", "Your thesis and documents"), T(`Ritmul tezei (${th.folder}), țintele de cuvinte ale notelor și paragrafele care afirmă ceva fără citare.`, `Thesis pace (${th.folder}), word targets of your notes, and paragraphs that make a claim without a citation.`));
-    const g = s.createDiv("txi-grid"), c1 = this.card(g, T("Ritmul tezei", "Thesis pace")), n = c1.createDiv("txi-nums");
-    this.num(n, th.words, T("cuvinte acum", "words now")); this.num(n, th.avg, T("pe săptămână (media)", "per week (average)")); if (th.target) this.num(n, th.target, T("ținta", "target"));
-    if (th.target) { const bar = c1.createDiv("txi-bar"); bar.createDiv().style.width = Math.min(100, th.words / th.target * 100) + "%"; }
-    const dl = th.deadline ? th.deadline.toLocaleDateString(en ? "en-GB" : "ro-RO", { day: "numeric", month: "long", year: "numeric" }) : null;
-    if (!th.exists) c1.createEl("p", { text: T(`Folderul „${th.folder}” nu există. Alege-l în setări.`, `The folder “${th.folder}” doesn't exist. Choose it in the settings.`) });
-    else if (!th.target) c1.createEl("p", { text: T("Pune o țintă (și un termen) în setări și vezi când ajungi acolo.", "Set a target (and a deadline) in the settings to see when you'll get there.") });
-    else if (th.words >= th.target) c1.createEl("p", { text: T("Ținta e atinsă.", "Target reached.") });
-    else { if (th.eta) c1.createEl("p", { text: T(`În ritmul ăsta ajungi la țintă pe ${th.eta.toLocaleDateString("ro-RO", { day: "numeric", month: "long", year: "numeric" })}${dl ? ` (termenul: ${dl})` : ""}.`, `At this pace you reach the target on ${th.eta.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}${dl ? ` (deadline: ${dl})` : ""}.`) }); else c1.createEl("p", { text: T("N-ai scris în teză în ultimele 4 săptămâni.", "You haven't written in the thesis in the last 4 weeks.") }); if (th.perWeek != null) c1.createEl("p", { text: T(`Ca să prinzi termenul: ~${fmt(th.perWeek, en)} cuvinte pe săptămână.`, `To make the deadline: ~${fmt(th.perWeek, en)} words a week.`) }); }
-    const mx = Math.max(1, ...th.weeks.map(x => Math.abs(x.net))), sv = svg(c1.createDiv("txi-chart"), 8 * 40, 50);
-    th.weeks.forEach((x, i) => { rect(sv, i * 40, 38 - Math.max(0, x.net) / mx * 32, 26, Math.max(1, Math.max(0, x.net) / mx * 32), x.net > 0 ? "b" : "b0", `${x.wk}: ${x.net}`); txt(sv, i * 40 + 13, 48, x.wk.slice(6), null, "middle"); });
-    c1.createDiv("txi-actions").createEl("button", { text: T("Setările tezei", "Thesis settings") }).addEventListener("click", () => P.openSettings("insights"));
+  async projectsSec(w) {
+    const P = this.P, T = (a, b) => P.T(a, b), en = P.en, list = P.projects(), loc = en ? "en-GB" : "ro-RO", dfmt = d => d.toLocaleDateString(loc, { day: "numeric", month: "long", year: "numeric" });
+    const s = this.sec(w, T("Proiectele tale", "Your projects"), T("Ritmul fiecărui proiect (un folder sau o etichetă), țintele de cuvinte ale notelor și paragrafele care afirmă ceva fără citare.", "The pace of each project (a folder or a tag), word targets of your notes, and paragraphs that make a claim without a citation."));
+    const g = s.createDiv("txi-grid");
+    if (!list.length) { const c = this.card(g, T("Niciun proiect", "No project yet")); c.createEl("p", { text: T("Un proiect e un folder sau o etichetă: teza, un articol, un curs. Îi vezi ritmul, când ajungi la țintă și afirmațiile fără citare.", "A project is a folder or a tag: your thesis, an article, a course. You see its pace, when you'll reach the target and its uncited claims.") }); c.createDiv("txi-actions").createEl("button", { cls: "mod-cta", text: T("Adaugă un proiect", "Add a project") }).addEventListener("click", () => P.openSettings("projects")); }
+    for (const p of list) {
+      const th = P.project(p), c1 = this.card(g, th.name, th.value.startsWith("#") ? th.value : null), n = c1.createDiv("txi-nums");
+      this.num(n, th.words, T("cuvinte acum", "words now")); this.num(n, th.avg, T("pe săptămână", "per week")); if (th.target) this.num(n, th.target, T("ținta", "target"));
+      if (th.target) { const bar = c1.createDiv("txi-bar"); bar.createDiv().style.width = Math.min(100, th.words / th.target * 100) + "%"; }
+      const dl = th.deadline ? dfmt(th.deadline) : null;
+      if (!th.exists) c1.createEl("p", { text: T(`„${th.value}” nu mai e în vault. Alege-l din nou în setări.`, `“${th.value}” isn't in the vault anymore. Choose it again in the settings.`) });
+      else if (!th.target) c1.createEl("p", { text: T("Pune o țintă (și un termen) ca să vezi când ajungi acolo.", "Set a target (and a deadline) to see when you'll get there.") });
+      else if (th.words >= th.target) c1.createEl("p", { text: T("Ținta e atinsă.", "Target reached.") });
+      else { c1.createEl("p", { text: th.eta ? T(`În ritmul ăsta ajungi la țintă pe ${dfmt(th.eta)}${dl ? ` (termenul: ${dl})` : ""}.`, `At this pace you reach the target on ${dfmt(th.eta)}${dl ? ` (deadline: ${dl})` : ""}.`) : T("N-ai scris aici în ultimele 4 săptămâni.", "You haven't written here in the last 4 weeks.") }); if (th.perWeek != null) c1.createEl("p", { text: T(`Ca să prinzi termenul: ~${fmt(th.perWeek, en)} cuvinte pe săptămână.`, `To make the deadline: ~${fmt(th.perWeek, en)} words a week.`) }); }
+      const mx = Math.max(1, ...th.weeks.map(x => Math.abs(x.net))), sv = svg(c1.createDiv("txi-chart"), 8 * 40, 50);
+      th.weeks.forEach((x, i) => { rect(sv, i * 40, 38 - Math.max(0, x.net) / mx * 32, 26, Math.max(1, Math.max(0, x.net) / mx * 32), x.net > 0 ? "b" : "b0", `${x.wk}: ${x.net}`); txt(sv, i * 40 + 13, 48, x.wk.slice(6), null, "middle"); });
+    }
+    if (list.length) { const a = s.createDiv("txi-actions"); a.createEl("button", { text: T("Proiectele, în setări", "Projects in the settings") }).addEventListener("click", () => P.openSettings("projects")); }
+    const g2 = s.createDiv("txi-grid"); g2.style.marginTop = "12px";
     // țintele notelor
-    const c2 = this.card(g, T("Ținte de cuvinte", "Word targets")), l2 = c2.createDiv("txi-list"), tg = P.targets();
+    const c2 = this.card(g2, T("Ținte de cuvinte", "Word targets")), l2 = c2.createDiv("txi-list"), tg = P.targets();
     if (!tg.length) el(c2, "p", "txi-empty", T("Nicio notă cu țintă. Într-o notă: comanda „Texere · Insights · Pune o țintă de cuvinte”.", "No note has a target. In a note: the command “Texere · Insights · Set a word target”."));
     for (const t of tg) { const r = this.row(l2, t.file.basename, t.words == null ? `${fmt(t.target, en)}` : `${fmt(t.words, en)} / ${fmt(t.target, en)}`, () => P.openPath(t.file.path)); if (t.words != null) { const b = l2.createDiv("txi-bar"); b.createDiv().style.width = Math.min(100, t.words / t.target * 100) + "%"; } }
     // afirmații fără citare
-    const c3 = this.card(g, T("Afirmații fără citare", "Uncited claims"), P.claimFolders().join(", ")), l3 = c3.createDiv("txi-list"); let total = 0;
+    const c3 = this.card(g2, T("Afirmații fără citare", "Uncited claims"), T("în proiecte", "in your projects")), l3 = c3.createDiv("txi-list"); let total = 0;
     for (const f of this.P.app.vault.getMarkdownFiles()) {
-      if (!P.inFolders(f.path, P.claimFolders())) continue;
+      if (!P.inAnyProject(f.path)) continue;
       const list = P.uncitedIn(await P.app.vault.cachedRead(f), f.path); if (!list.length) continue; total += list.length;
       this.row(l3, f.basename, T(`${list.length} parag.`, `${list.length} para.`), async () => { const leaf = P.app.workspace.getLeaf(false); await leaf.openFile(f); const ed = leaf.view?.editor; if (ed) { const pos = ed.offsetToPos(list[0].from); ed.setCursor(pos); ed.scrollIntoView({ from: pos, to: pos }, true); } });
     }
-    if (!total) el(c3, "p", "txi-empty", T("Niciunul. Bravo.", "None. Well done."));
+    if (!list.length) el(c3, "p", "txi-empty", T("Se caută în notele proiectelor: adaugă un proiect.", "Looked for in your projects' notes: add a project."));
+    else if (!total) el(c3, "p", "txi-empty", T("Niciunul. Bravo.", "None. Well done."));
     else c3.createEl("p", { text: T("În notă, paragraful are o linie portocalie la stânga și, la final, sursa pe care ai putea-o cita.", "In the note, the paragraph has an orange line on the left and, at the end, a source you could cite.") });
   }
   sources(w) {
-    const P = this.P, T = (a, b) => P.T(a, b), en = P.en, th = String(P.settings.thesisFolder || "03. Workspace/02. Thesis").replace(/\/+$/, "");
+    const P = this.P, T = (a, b) => P.T(a, b), en = P.en, projects = P.projects();
     const s = this.sec(w, T("Sursele și lectura", "Sources and reading"), T("Pe cine citezi și cum citești: ce evidențiezi și ce întrebări îți rămân.", "Who you cite and how you read: what you highlight and which questions stay open."));
+    if (!P.hasSources()) { const n = s.createDiv("txi-note"); n.setText(T("Texere · Sources nu e pornit: autorii, anii și evidențierile se citesc din proprietățile și etichetele notelor tale, așa că cifrele de aici pot fi mai puțin precise.", "Texere · Sources isn't on: authors, years and highlights are read from your notes' properties and tags, so these numbers may be less accurate.")); }
     const g = s.createDiv("txi-grid"), c1 = this.card(g, T("Echilibrul citărilor", "Balance of citations"));
-    const tabs = c1.createDiv("txi-tabs"); for (const [id, l] of [["", T("Toate notele", "All notes")], [th, T("Teza", "Thesis")]]) { const b = tabs.createEl("button", { text: l, cls: this.balScope === id ? "on" : "" }); b.addEventListener("click", () => { this.balScope = id; this.render(); }); }
-    const b = P.balance(this.balScope || null);
+    const tabs = c1.createDiv("txi-tabs"); for (const [id, l] of [["", T("Toate notele", "All notes")], ...projects.map((p, i) => [String(i), P.projectName(p)])]) { const b = tabs.createEl("button", { text: l, cls: this.balScope === id ? "on" : "" }); b.addEventListener("click", () => { this.balScope = id; this.render(); }); }
+    const b = P.balance(this.balScope ? projects[+this.balScope] : null);
     if (!b.total) el(c1, "p", "txi-empty", T("Nicio citare [@…] încă.", "No [@…] citations yet."));
     else {
       const n = c1.createDiv("txi-nums"); this.num(n, b.total, T("citări", "citations")); this.num(n, b.unique, T("surse", "sources"));
@@ -416,7 +426,8 @@ class InsightsView extends ItemView {
   }
   links(w) {
     const P = this.P, T = (a, b) => P.T(a, b), un = P.visibleUnlinked();
-    const s = this.sec(w, T("Linkuri și aliasuri", "Links and aliases"), T(`Menționările fără link se caută ${P.settings.autoScan ? `singure, la ${P.settings.autoScan} minute,` : "când apeși „Actualizează”"} în notele tale, după titlurile și aliasurile notelor din ${P.targetFolders().join(", ")}.`, `Unlinked mentions are found ${P.settings.autoScan ? `automatically every ${P.settings.autoScan} minutes` : "when you press Refresh"} in your notes, from the titles and aliases of the notes in ${P.targetFolders().join(", ")}.`));
+    const tf = P.targetFolders(), where = tf.length ? tf.join(", ") : T("notele cu aliasuri", "notes with aliases");
+    const s = this.sec(w, T("Linkuri și aliasuri", "Links and aliases"), T(`Menționările fără link se caută singure, la 30 de minute, în notele tale, după titlurile și aliasurile notelor-concept (${where}).`, `Unlinked mentions are found automatically every 30 minutes in your notes, from the titles and aliases of your concept notes (${where}).`));
     const g = s.createDiv("txi-grid"); g.style.gridTemplateColumns = "repeat(auto-fit,minmax(190px,1fr))";
     const tile = (title, n, text, tab) => { const c = this.card(g, title); c.createDiv("txi-nums"); this.num(c.querySelector(".txi-nums"), n, text); c.createDiv("txi-actions").createEl("button", { text: T("Revizuiește", "Review"), cls: n ? "mod-cta" : "" }).addEventListener("click", () => P.review(tab)); };
     tile(T("Menționări fără link", "Unlinked mentions"), un.length, T(`în ${new Set(un.map(u => u.note)).size} note`, `in ${new Set(un.map(u => u.note)).size} notes`), "links");
@@ -469,6 +480,9 @@ class ReviewModal extends Modal {
         const r = g.createDiv("txi-hit"), cb = r.createEl("input", { type: "checkbox" }); cb.checked = this.sel.has(key(u)); cb.addEventListener("change", () => { cb.checked ? this.sel.add(key(u)) : this.sel.delete(key(u)); this.updateFoot(); });
         const cx = r.createDiv("txi-ctx"); cx.appendText(u.b); cx.createEl("mark", { text: u.hit }); cx.appendText(u.a);
         cx.createSpan({ cls: "txi-in", text: P.nameOf(u.note) + (u.amb ? T(" · mai multe note au acest termen", " · several notes share this term") : "") }); cx.style.cursor = "pointer"; cx.addEventListener("click", () => { cb.checked = !cb.checked; cb.dispatchEvent(new Event("change")); });
+        if (u.alt) cx.createSpan({ cls: "txi-in txi-alt-to", text: T(`→ se leagă cu „${P.nameOf(u.alt)}”`, `→ links to “${P.nameOf(u.alt)}”`) });
+        const al = r.createSpan({ cls: "txi-x txi-alt", text: T("Leagă cu…", "Link with…") }); al.title = T("Alege altă notă pentru acest link", "Choose another note for this link");
+        al.addEventListener("click", () => new NotePicker(P, f => { u.alt = f.path === u.target ? null : f.path; this.sel.add(key(u)); this.draw(); }).open());
         const x = r.createSpan({ cls: "txi-x", text: "✕" }); x.title = T("Nu aici: nu mai sugera acest link în nota asta", "Not here: don't suggest this link in this note again"); x.addEventListener("click", async () => { await P.notHereAdd(u.note, u.target); this.sel.delete(key(u)); this.draw(); });
       }
     }
@@ -517,6 +531,14 @@ class ReviewModal extends Modal {
       r.createEl("button", { text: T("Nu sunt dubluri", "Not duplicates") }).addEventListener("click", async () => { await P.notDuplicate(d.a, d.b); this.draw(); });
     }
   }
+}
+
+// alegi nota cu care se face linkul (oricare din vault)
+class NotePicker extends require("obsidian").FuzzySuggestModal {
+  constructor(P, done) { super(P.app); this.P = P; this.done = done; this.setPlaceholder(P.T("Leagă cu nota…", "Link with the note…")); }
+  getItems() { return this.app.vault.getMarkdownFiles(); }
+  getItemText(f) { return f.path.replace(/\.md$/, ""); }
+  onChooseItem(f) { this.done(f); }
 }
 
 class CreateNoteModal extends Modal {

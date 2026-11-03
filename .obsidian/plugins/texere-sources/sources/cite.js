@@ -2,6 +2,8 @@
 // Mutat din main.js fără schimbări de comportament; bibliografia vine din biblioteca comună (library.js).
 const { Notice, EditorSuggest } = require("obsidian");
 const LANG = "texere-lang";
+// limba: cea aleasă în Texere; dacă n-a fost aleasă, limba lui Obsidian (fiecare plugin Texere merge și singur)
+const isEn = app => { const l = app?.loadLocalStorage?.(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); };
 
 // ---------- Citări din mers: scrii „@” (sau „[@”) și alegi sursa din bibliografie ----------
 class CiteSuggest extends EditorSuggest {
@@ -258,7 +260,7 @@ class CiteEngine {
     return a.length > 2 ? a[0] + " et al." : a.join(" & ") || id;
   }
   tip(c) {
-    const en = this.app.loadLocalStorage(LANG) === "en";
+    const en = isEn(this.app);
     const lines = c.items.map(i => { const r = this.items[i.id]; const y = r?.issued?.["date-parts"]?.[0]?.[0] || ""; return `${this.authors(i.id)}${y ? " (" + y + ")" : ""}. ${r?.title || ""}`; });
     return lines.join("\n") + "\n" + (en ? "⌘/Ctrl + click: open the source note" : "⌘/Ctrl + clic: deschide nota sursei");
   }
@@ -369,7 +371,7 @@ const CiteStyleMixin = {
         if (c.from < fm.end || skipNode(st, c.from)) continue;
         if (!E.known(c)) {
           if (c.kind === "c") b.add(c.from, c.to, Decoration.mark({ class: "texere-cite-missing",
-            attributes: { title: (this.app.loadLocalStorage(LANG) === "en" ? "Not in the bibliography: " : "Nu e în bibliografie: ") + c.items.filter(i => !E.items[i.id]).map(i => "@" + i.id).join(", ") } }));
+            attributes: { title: (isEn(this.app) ? "Not in the bibliography: " : "Nu e în bibliografie: ") + c.items.filter(i => !E.items[i.id]).map(i => "@" + i.id).join(", ") } }));
           continue;
         }
         if (sel.some(r => r.from <= c.end && r.to >= c.from)) continue;   // cursorul e pe citare: se vede textul sursă
@@ -420,7 +422,7 @@ const CiteStyleMixin = {
     this.updateCiteStatus = () => {
       const v = this.app.workspace.getActiveViewOfType(MarkdownView);
       if (!E.ready || !v?.file || !E.styles.size) { sb.style.display = "none"; return; }
-      const fm = citeFm(v.editor?.getValue?.().slice(0, 4000) || ""), id = E.current(fm), en = this.app.loadLocalStorage(LANG) === "en";
+      const fm = citeFm(v.editor?.getValue?.().slice(0, 4000) || ""), id = E.current(fm), en = isEn(this.app);
       sb.style.display = ""; txt.setText(E.label(id));
       sb.setAttribute("aria-label", en ? "Citation style of this note (click to change)" : "Stilul citărilor din această notă (clic pentru a-l schimba)");
       sb.setAttribute("data-tooltip-position", "top");
@@ -477,7 +479,7 @@ const CiteStyleMixin = {
     const b = E.bibliography(text);
     const targets = [root.querySelector(".markdown-source-view .cm-sizer"), root.querySelector(".markdown-reading-view .markdown-preview-sizer")].filter(Boolean);
     if (!b) { root.querySelectorAll(".texere-biblio").forEach(e => e.remove()); return; }
-    const en = this.app.loadLocalStorage(LANG) === "en";
+    const en = isEn(this.app);
     // dacă nota are deja un titlu „Bibliografie” (ex. șablonul New article), panoul nu-l mai repetă
     const hasHead = /^#{1,6}\s*(bibliography|bibliografie|references|referințe|referinte|works cited)\s*$/im.test(text);
     const sig = JSON.stringify([b.style, b.html, b.missing, hasHead, en]);
@@ -531,7 +533,7 @@ const CiteStyleMixin = {
   // meniul din bara de jos: stilurile, cel curent bifat
   citeMenu(evt) {
     const { Menu, MarkdownView } = require("obsidian");
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en";
+    const E = this.cite, en = isEn(this.app);
     const v = this.app.workspace.getActiveViewOfType(MarkdownView); if (!v?.file) return;
     const cur = E.current(citeFm(v.editor.getValue().slice(0, 4000))), def = E.defaultId();
     const m = new Menu();
@@ -546,7 +548,7 @@ const CiteStyleMixin = {
 
   citePicker(isDefault) {
     const { FuzzySuggestModal, MarkdownView } = require("obsidian");
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en", plugin = this;
+    const E = this.cite, en = isEn(this.app), plugin = this;
     const v = this.app.workspace.getActiveViewOfType(MarkdownView);
     const M = class extends FuzzySuggestModal {
       getItems() { return E.list(); }
@@ -568,7 +570,7 @@ const CiteStyleMixin = {
 
   async citeAdd(noNote) {
     const { SuggestModal, MarkdownView } = require("obsidian");
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en", plugin = this;
+    const E = this.cite, en = isEn(this.app), plugin = this;
     let idx; try { idx = await this.citeIndex(); } catch (e) { new Notice(en ? "I can't find the list of styles (styles-index.json in the Texere plugin)." : "Nu găsesc lista stilurilor (styles-index.json din pluginul Texere)."); return; }
     const file = noNote ? null : this.app.workspace.getActiveViewOfType(MarkdownView)?.file;   // din Settings: doar instalează, nu schimbă nota deschisă
     const FMT = { "author-date": en ? "Author–date · (Smith, 2020)" : "Autor–an · (Smith, 2020)", numeric: en ? "Numbered · [1]" : "Numerotat · [1]",
@@ -605,7 +607,7 @@ const CiteStyleMixin = {
 
   async citeInstall(x, file) {
     const { requestUrl } = require("obsidian");
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en", ad = this.app.vault.adapter;
+    const E = this.cite, en = isEn(this.app), ad = this.app.vault.adapter;
     const path = (E.styleDir() ? E.styleDir() + "/" : "") + x.name + ".csl";
     if (!(await ad.exists(path))) {
       const get = async (name, dep) => {
@@ -642,7 +644,7 @@ const CiteStyleMixin = {
   // stilul tău: o fereastră mică în care alegi fișierul .csl, îl tragi din Finder sau lipești codul
   citeImport(file) {
     const { Modal } = require("obsidian");
-    const en = this.app.loadLocalStorage(LANG) === "en", T = (ro, e) => en ? e : ro, plugin = this;
+    const en = isEn(this.app), T = (ro, e) => en ? e : ro, plugin = this;
     const M = class extends Modal {
       onOpen() {
         this.titleEl.setText(T("Importă un stil (.csl)", "Import a style (.csl)"));
@@ -677,7 +679,7 @@ const CiteStyleMixin = {
   },
   async citeImportText(xml, file) {
     const { requestUrl } = require("obsidian");
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en", ad = this.app.vault.adapter;
+    const E = this.cite, en = isEn(this.app), ad = this.app.vault.adapter;
     xml = String(xml).replace(/^\uFEFF/, "");
     if (!/<style\b[^>]*xmlns="http:\/\/purl\.org\/net\/xbiblio\/csl"/.test(xml)) throw new Error(en ? "this isn't a CSL style file (.csl)." : "acesta nu e un fișier de stil CSL (.csl).");
     // stilul unei reviste care doar trimite la alt stil: aducem regulile acelui stil, ca la „+ Adaugă un stil”
@@ -721,7 +723,7 @@ const CiteStyleMixin = {
   // ghidul pentru un stil propriu: pașii, cu butoanele pentru editor și pentru import
   citeGuide(file) {
     const { Modal } = require("obsidian");
-    const en = this.app.loadLocalStorage(LANG) === "en", plugin = this, T = (ro, e) => en ? e : ro, dir = this.cite.styleDir();
+    const en = isEn(this.app), plugin = this, T = (ro, e) => en ? e : ro, dir = this.cite.styleDir();
     const M = class extends Modal {
       onOpen() {
         this.titleEl.setText(T("Propriul tău stil de citare", "Your own citation style"));
@@ -755,7 +757,7 @@ const CiteStyleMixin = {
   // „Șterge un stil”: fișierul .csl merge la coșul de gunoi; notele care îl foloseau trec la stilul implicit
   // șterge un stil: fișierul .csl merge la coșul de gunoi; notele care îl foloseau trec la stilul implicit
   async removeStyle(id) {
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en";
+    const E = this.cite, en = isEn(this.app);
     if (id === E.defaultId()) { new Notice(en ? "The default style can't be removed; choose another default first." : "Stilul implicit nu se poate șterge; alege întâi alt stil implicit."); return; }
     const f = this.app.vault.getAbstractFileByPath((E.styleDir() ? E.styleDir() + "/" : "") + id + ".csl"); if (!f) return;
     const label = E.label(id);
@@ -765,7 +767,7 @@ const CiteStyleMixin = {
 
   citeRemove() {
     const { FuzzySuggestModal } = require("obsidian");
-    const E = this.cite, en = this.app.loadLocalStorage(LANG) === "en", plugin = this, def = E.defaultId();
+    const E = this.cite, en = isEn(this.app), plugin = this, def = E.defaultId();
     const M = class extends FuzzySuggestModal {
       getItems() { return E.list().filter(s => s.id !== def); }
       getItemText(s) { return s.label + "  —  " + s.title; }
@@ -783,7 +785,7 @@ const CiteStyleMixin = {
   async setDefaultStyle(id) {
     this.settings.citationStyle = id; await this.saveData(this.settings);
     this.refreshCites();
-    new Notice((this.app.loadLocalStorage(LANG) === "en" ? "Default citation style: " : "Stilul implicit al citărilor: ") + this.cite.label(id));
+    new Notice((isEn(this.app) ? "Default citation style: " : "Stilul implicit al citărilor: ") + this.cite.label(id));
   },
 };
 

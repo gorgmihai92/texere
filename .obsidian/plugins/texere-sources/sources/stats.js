@@ -1,6 +1,8 @@
 // Texere · Sources · panoul de statistici din notele surselor (scite, OpenAlex, Semantic Scholar, evidențierile tale).
 // Mutat din main.js fără schimbări de comportament.
 const LANG = "texere-lang";
+// limba: cea aleasă în Texere; dacă n-a fost aleasă, limba lui Obsidian (fiecare plugin Texere merge și singur)
+const isEn = app => { const l = app?.loadLocalStorage?.(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); };
 const { CITE_KEY, fitToText, keepFit } = require("./cite");
 
 
@@ -189,7 +191,7 @@ const StatsMixin = {
 
   buildStats(key, fm, remote, busy, text, cited, view) {
     const { setIcon, Menu } = require("obsidian");
-    const en = this.app.loadLocalStorage(LANG) === "en", T = (ro, e) => en ? e : ro;
+    const en = isEn(this.app), T = (ro, e) => en ? e : ro;
     const num = n => (n == null ? "—" : Number(n).toLocaleString(en ? "en-US" : "ro-RO"));
     const el = (tag, cls, txt) => { const x = document.createElement(tag); if (cls) x.className = cls; if (txt != null) x.textContent = txt; return x; };
     const chip = (row, n, label, color, tip) => {

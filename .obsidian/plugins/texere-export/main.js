@@ -6,6 +6,8 @@
  */
 const { Plugin, normalizePath } = require("obsidian");
 const LANG = "texere-lang";
+// limba: cea aleasă în Texere; dacă n-a fost aleasă, limba lui Obsidian (fiecare plugin Texere merge și singur)
+const isEn = app => { const l = app?.loadLocalStorage?.(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); };
 
 module.exports = class TexereExport extends Plugin {
   async onload() {
@@ -33,7 +35,7 @@ module.exports = class TexereExport extends Plugin {
     new Function("module", "exports", "require", await ad.read(dir + "/export.js"))(m, m.exports, require);
     const S = {   // ce folosea exportul din Texere · Sources, acum și fără el
       app: this.app, host: this,
-      get en() { return plugin.app.loadLocalStorage(LANG) === "en"; },
+      get en() { return isEn(plugin.app); },
       T(a, b) { return this.en ? b : a; },
       conf: () => plugin.settings,
       save: () => plugin.saveData(plugin.settings),

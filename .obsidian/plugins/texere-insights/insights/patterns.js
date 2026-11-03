@@ -135,27 +135,28 @@ const PatternsMixin = {
     let last = this._lastSurprise, pick; for (let i = 0; i < 5; i++) { pick = pool[Math.floor(Math.random() * pool.length)]; if (pick.title !== last) break; }
     this._lastSurprise = pick.title; return pick;
   },
-  // ritmul tezei: cuvinte acum, pe săptămână, când ajungi la țintă
-  thesis(now = new Date()) {
-    const folder = String(this.settings.thesisFolder || "03. Workspace/02. Thesis").replace(/\/+$/, ""), N = this.notesC();
-    let words = 0, docs = 0; for (const [p, e] of Object.entries(N)) if (p.startsWith(folder + "/")) { words += e.words || 0; docs++; }
-    const weeks = []; for (let i = 7; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i * 7); const wk = X.weekKey(d); weeks.push({ wk, net: 0 }); }
-    for (const [k, D] of Object.entries(this.merged())) { const wk = X.weekKey(X.parseDay(k)), w = weeks.find(x => x.wk === wk); if (!w) continue; for (const [p, v] of Object.entries(D.n || {})) if (p.startsWith(folder + "/")) w.net += v.t + v.p + v.x - v.d; }
+  // ritmul unui proiect (un folder sau o etichetă): cuvinte acum, pe săptămână, când ajungi la țintă
+  project(p, now = new Date()) {
+    const N = this.notesC(); let words = 0, docs = 0;
+    for (const [path, e] of Object.entries(N)) if (this.inProject(path, p)) { words += e.words || 0; docs++; }
+    const weeks = []; for (let i = 7; i >= 0; i--) { const d = new Date(now); d.setDate(d.getDate() - i * 7); weeks.push({ wk: X.weekKey(d), net: 0 }); }
+    for (const [k, D] of Object.entries(this.merged())) { const wk = X.weekKey(X.parseDay(k)), w = weeks.find(x => x.wk === wk); if (!w) continue; for (const [path, v] of Object.entries(D.n || {})) if (this.inProject(path, p)) w.net += v.t + v.p + v.x - v.d; }
     const last4 = weeks.slice(-5, -1), logged = last4.filter(w => w.net !== 0).length, avg = logged ? last4.reduce((a, w) => a + w.net, 0) / 4 : 0;
-    const target = +this.settings.thesisTarget || 0, deadline = this.settings.thesisDeadline ? new Date(this.settings.thesisDeadline) : null;
+    const target = +p.target || 0, deadline = p.deadline ? new Date(p.deadline) : null;
     let eta = null, perWeek = null;
-    if (target && words < target && avg > 0) { eta = new Date(now.getTime() + (target - words) / avg * 7 * 864e5); }
+    if (target && words < target && avg > 0) eta = new Date(now.getTime() + (target - words) / avg * 7 * 864e5);
     if (target && deadline && deadline > now) perWeek = Math.max(0, Math.ceil((target - words) / Math.max(1, (deadline - now) / (7 * 864e5))));
-    return { folder, exists: !!this.app.vault.getAbstractFileByPath(folder), words, docs, weeks, avg: Math.round(avg), target, deadline, eta, perWeek };
+    const v = String(p.value || ""), exists = v.startsWith("#") ? docs > 0 || this.vaultTags().includes(v) : !!this.app.vault.getAbstractFileByPath(v);
+    return { name: this.projectName(p), value: v, exists, words, docs, weeks, avg: Math.round(avg), target, deadline, eta, perWeek };
   },
   // echilibrul surselor citate în notele tale (sau doar în teză): autori, decenii, limbi, tipuri
-  balance(scope) {
-    const N = this.notesC(), lib = this.library(), byId = {}; let total = 0;
+  balance(scope) {   // scope: un proiect (sau nimic = toate notele tale)
+    const N = this.notesC(), byId = {}; let total = 0;
     const litById = {}; for (const [p, e] of Object.entries(N)) if (e.kind === "lit" && e.id) litById[e.id] = p;
-    for (const [p, e] of Object.entries(N)) { if (e.kind !== "own" || (scope && !p.startsWith(scope + "/"))) continue; for (const c of e.cites || []) { byId[c] = (byId[c] || 0) + 1; total++; } }
+    for (const [p, e] of Object.entries(N)) { if (e.kind !== "own" || (scope && !this.inProject(p, scope))) continue; for (const c of e.cites || []) { byId[c] = (byId[c] || 0) + 1; total++; } }
     const authors = {}, decades = {}, langs = {}, types = {}; let oldest = null, newest = null;
     for (const [id, n] of Object.entries(byId)) {
-      const s = lib[id] || this.cslFromNote(litById[id]) || {};
+      const s = this.sourceMeta(id, litById[id]) || {};
       const fam = (s.author || [])[0]?.family || (s.author || [])[0]?.literal || "?"; authors[fam] = (authors[fam] || 0) + n;
       const y = +(s.issued?.["date-parts"]?.[0]?.[0] || s.year || 0); if (y) { const d = Math.floor(y / 10) * 10; decades[d] = (decades[d] || 0) + n; oldest = oldest === null ? y : Math.min(oldest, y); newest = newest === null ? y : Math.max(newest, y); }
       const lang = this.langOf(s); langs[lang] = (langs[lang] || 0) + n;

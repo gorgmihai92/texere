@@ -37,7 +37,7 @@ const WritingMixin = {
   // ——— numărarea, din editor ———
   onEdit(u) {
     let file = null; try { file = u.state.field(require("obsidian").editorInfoField)?.file; } catch (e) {}
-    if (!file || file.extension !== "md" || this.excludedFromCount(file.path)) return;
+    if (!file || file.extension !== "md") return;
     const focus = u.view.hasFocus, paste = Date.now() < this._pasteUntil;
     for (const tr of u.transactions) {
       if (!tr.docChanged || tr.isUserEvent("undo") || tr.isUserEvent("redo") || tr.isUserEvent("move")) continue;
@@ -63,7 +63,6 @@ const WritingMixin = {
     }
     this.targetSoon?.();
   },
-  excludedFromCount(path) { return (this.settings.countExclude || []).some(f => f && (path === f || path.startsWith(f.replace(/\/+$/, "") + "/"))); },
   folderKey(path) { const parts = path.split("/").slice(0, -1); return parts.length ? parts.slice(0, 2).join("/") : "/"; },
   addCount(file, k, n) {
     if (!n || n < 0) return;
@@ -89,9 +88,6 @@ const WritingMixin = {
   },
 
   // ——— lectura: evidențierile adăugate, din etichetele notelor de literatură ———
-  hlTags() { const c = this.app.plugins.plugins["pdf-plus"]?.settings?.colors; const n = c ? Object.keys(c).map(s => s.toLowerCase()) : []; return n.length ? n : HL_TAGS; },
-  litDir() { try { return String(this.app.plugins.plugins["texere-sources"]?.sources?.litDir?.() || "").replace(/\/+$/, "") || "01. Sources/Literature Notes"; } catch (e) { return "01. Sources/Literature Notes"; } },
-  isLit(path) { const l = this.litDir(); return path.startsWith(l + "/"); },
   hlCount(cache) { const tags = this.hlTags(); return (cache?.tags || []).filter(t => tags.includes(t.tag.replace(/^#/, "").toLowerCase())).length; },
   hlBaseline() {
     let ch = false;
@@ -140,7 +136,7 @@ const WritingMixin = {
   },
   // zile la rând în care ai scris (cel puțin „minWords” cuvinte); azi contează doar dacă ai și scris azi
   streak(now = new Date()) {
-    const days = this.merged(), min = this.settings.streakMin || 20, ok = k => { const D = days[k]; return D && (D.t + D.p + D.x) >= min; };
+    const days = this.merged(), min = 20, ok = k => { const D = days[k]; return D && (D.t + D.p + D.x) >= min; };
     let n = 0; const d = new Date(now); if (!ok(dayKey(d))) d.setDate(d.getDate() - 1);
     while (ok(dayKey(d))) { n++; d.setDate(d.getDate() - 1); }
     let best = 0, cur = 0; for (const k of Object.keys(days).sort()) { if (ok(k)) { const prev = new Date(parseDay(k)); prev.setDate(prev.getDate() - 1); cur = days[dayKey(prev)] && ok(dayKey(prev)) ? cur + 1 : 1; best = Math.max(best, cur); } }
@@ -168,7 +164,7 @@ const WritingMixin = {
   },
 
   // ——— ținta de cuvinte a unei note: o bară subțire deasupra textului ———
-  targetKey() { return this.settings.targetKey || "word-target"; },
+  targetKey() { return "word-target"; },
   targetOf(file) { const v = this.app.metadataCache.getFileCache(file)?.frontmatter?.[this.targetKey()]; const n = parseInt(String(v ?? "").replace(/[^\d]/g, ""), 10); return n > 0 ? n : 0; },
   targetInit() {
     const css = document.createElement("style"); css.id = "texere-insights-target-css";

@@ -196,11 +196,12 @@ Stilul apare în dreapta jos (**APA**). Dă clic pe el ca să schimbi stilul not
 - **Cuvintele.** Ce scrii, lipești, inserezi cu altă unealtă (un plugin AI, un șablon) și ștergi, pe zi, săptămână, lună și an, cu zilele la rând și orele în care scrii cel mai bine. Anulează nu se numără. Fiecare laptop își ține numărătoarea; totalurile le adună.
 - **Ținta de cuvinte.** Într-o notă: **Texere · Insights · Pune o țintă de cuvinte**. O bară subțire deasupra textului arată cât mai ai și ce ai adăugat azi.
 - **Menționările fără link.** Conceptele scrise fără link (filosofiei, acțiunii, Dasein), în notele tale și în rândurile tale din notele de literatură, nu în citate. **Revizuiește** le grupează; **Leagă selectate** leagă prima menționare din fiecare notă și îți păstrează cuvintele: `[[Action|acțiunii]]`. Mai arată numele care apar des, dar n-au notă (**Creează nota**), sugerează aliasuri (din textul linkurilor, din felul în care scrii, forme scurte și, la cerere, traduceri din Wikidata, Wikipedia și MyMemory) și notele care par dublate.
-- **Afirmații fără citare.** În **03. Workspace**, un paragraf care argumentează („prin urmare”, „studiile arată”, un autor numit), dar nu citează nimic, primește o linie portocalie la stânga și, la final, o sursă pe care ai putea-o cita. Un clic o adaugă.
-- **Tipare.** Subiectele în creștere și ce citești fără să scrii despre asta; concepte care apar mereu împreună, dar nu sunt legate; note uitate care contează acum și **Surprinde-mă**; ritmul tezei față de țintă și termen; pe cine citezi; ce evidențiezi; lectura lângă scris.
+- **Proiecte.** Un proiect e un folder sau o etichetă (teza, un articol, un curs), cu țintă și termen opționale: cuvinte, ritmul pe săptămână și când ajungi acolo.
+- **Afirmații fără citare.** În proiectele tale, un paragraf care argumentează („prin urmare”, „studiile arată”, un autor numit), dar nu citează nimic, primește o linie portocalie la stânga și, la final, o sursă pe care ai putea-o cita. Un clic o adaugă.
+- **Tipare.** Subiectele în creștere și ce citești fără să scrii despre asta; concepte care apar mereu împreună, dar nu sunt legate; note uitate care contează acum și **Surprinde-mă**; pe cine citezi; ce evidențiezi; lectura lângă scris.
 - **Recenzia săptămânii.** În fiecare luni, o notă scurtă în **02. Notes/Weekly reviews**.
 
-Setări: **Settings → Texere · Insights**.
+Setări: **Settings → Texere · Insights** (Linkuri · Proiecte). Merge în orice vault; cu Texere · Sources, cifrele despre lectură și citări sunt mai precise.
 
 ## 6. Bibliografia și exportul documentului
 

@@ -18,6 +18,8 @@ const CONFIG = "Support/Templates/New laptop setup.md";
 const STARTS = ["Support/Admin/Scripts/Guide folding.md", "Support/Admin/Scripts/Help.md"];
 const FLAG = "texere-setup";
 const LANG = "texere-lang";   // limba aleasă în fereastra de configurare și în Ajutor (ro / en); o folosesc toate pluginurile Texere
+// limba: cea aleasă în Texere; dacă n-a fost aleasă, limba lui Obsidian (fiecare plugin Texere merge și singur)
+const isEn = app => { const l = app?.loadLocalStorage?.(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // pluginurile Texere (vin cu vault-ul)
@@ -69,7 +71,7 @@ module.exports = class Texere extends Plugin {
     this.app.workspace.onLayoutReady(() => setTimeout(() => { if (this._setup || (this.needsConfig() && this.app.plugins.plugins["templater-obsidian"])) return; this.onboard(false).catch(e => console.error("Texere: configurarea", e)); }, 4000));
   }
   save() { return this.saveData(this.settings); }
-  get en() { return this.app.loadLocalStorage(LANG) === "en"; }
+  get en() { return isEn(this.app); }
   T(a, b) { return this.en ? b : a; }
 
   base() { const a = this.app.vault.adapter; return a.getBasePath ? a.getBasePath() : a.basePath; }
@@ -107,7 +109,7 @@ module.exports = class Texere extends Plugin {
   }
   async runConfig(auto, lang) {
     if (lang) this.app.saveLocalStorage(LANG, lang);       // comanda în engleză deschide fereastra în engleză
-    const en = this.app.loadLocalStorage(LANG) === "en";
+    const en = isEn(this.app);
     const T = this.app.plugins.plugins["templater-obsidian"];
     const f = this.app.vault.getAbstractFileByPath(CONFIG);
     if (!T || !(f instanceof TFile)) { new Notice(en ? "I can't find the setup script (Support/Templates/New laptop setup)." : "Nu găsesc scriptul de configurare (Support/Templates/New laptop setup)."); return; }

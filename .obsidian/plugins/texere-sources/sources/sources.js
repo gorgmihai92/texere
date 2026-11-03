@@ -5,6 +5,8 @@
 const { Modal, Notice, Setting, PluginSettingTab, requestUrl, setIcon, TFile, normalizePath } = require("obsidian");
 
 const LANG = "texere-lang";
+// limba: cea aleasă în Texere; dacă n-a fost aleasă, limba lui Obsidian (fiecare plugin Texere merge și singur)
+const isEn = app => { const l = app?.loadLocalStorage?.(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); };
 // ceasurile lui Node: merg normal și când Obsidian e în fundal (salvezi din browser)
 const NT = (() => { try { const t = require("timers"); return typeof t?.setTimeout === "function" ? t : null; } catch (e) { return null; } })();
 const later = (f, ms) => (NT ? NT.setTimeout(f, ms) : setTimeout(f, ms));
@@ -245,7 +247,7 @@ const FolderSuggest = _obs.AbstractInputSuggest ? class extends _obs.AbstractInp
 
 class Sources {
   constructor(host, dir) { this.host = host; this.app = host.app; this.dir = dir; this.providers = []; }
-  get en() { return this.app.loadLocalStorage(LANG) === "en"; }
+  get en() { return isEn(this.app); }
   T(ro, en) { return this.en ? en : ro; }
   conf() {
     const s = this.host.settings; if (!s.sources) s.sources = {};

@@ -9,7 +9,17 @@ const MONTHS = new Set("january february march april may june july august septem
 const NOT_NAMES = new Set("texere obsidian zotero chapter capitolul introducere introduction conclusion concluzie figure figura tabel table note nota pdf the this that these those there what when where which while however therefore also according conform potrivit astfel deci asadar insa totusi daca cand unde care acest aceasta aceste acesta prin pentru dupa intre despre".split(" "));
 const CLAIM_RX = /\b(therefore|thus|hence|consequently|shows? that|argues?|claims?|according to|evidence|studies|research|suggests? that|demonstrates?|proves?|it follows|deci|așadar|asadar|prin urmare|rezultă|rezulta|arată că|arata ca|susține|sustine|afirmă|afirma|potrivit lui|conform lui|după cum arată|studiile|cercetările|demonstrează|demonstreaza|dovedește|dovedeste)\b|\d+\s?%/i;
 
-function lev1(a, b) {   // distanța de editare este 1 (o literă schimbată, adăugată, ștearsă sau două inversate)?
+// o variantă de scriere a aceluiași cuvânt, nu alt cuvânt: doar schimbările obișnuite între grafii (s/z: filosofie–filozofie, i/y, c/k, ph/f,
+// o literă dublată sau nu: realitate–realittate). „content” nu e „consent”: t/s nu e o grafie, e alt cuvânt.
+const SWAPS = [["s", "z"], ["i", "y"], ["c", "k"], ["ph", "f"], ["th", "t"], ["ck", "k"], ["ou", "u"]];
+function spellingVariant(a, b) {
+  if (a === b || Math.abs(a.length - b.length) > 2) return false;
+  const undouble = w => w.replace(/(\p{L})\1/gu, "$1");
+  if (undouble(a) === undouble(b)) return true;
+  for (const [x, y] of SWAPS) { const na = a.split(y).join(x), nb = b.split(y).join(x); if (na === nb || undouble(na) === undouble(nb)) return true; }
+  return false;
+}
+function lev1(a, b) {   // păstrat pentru căutarea candidaților (distanța de editare 1)
   if (a === b) return false; const la = a.length, lb = b.length; if (Math.abs(la - lb) > 1) return false;
   let i = 0; while (i < la && i < lb && a[i] === b[i]) i++;
   if (la === lb) { if (a.slice(i + 1) === b.slice(i + 1)) return true; return a[i] === b[i + 1] && a[i + 1] === b[i] && a.slice(i + 2) === b.slice(i + 2); }
@@ -18,10 +28,7 @@ function lev1(a, b) {   // distanța de editare este 1 (o literă schimbată, ad
 
 const LinksMixin = {
   // ——— ce se caută și unde ———
-  targetFolders() { return (this.settings.targetFolders?.length ? this.settings.targetFolders : ["Fields"]).map(f => String(f).replace(/\/+$/, "")); },
   inFolders(path, list) { return list.some(f => f && (path === f || path.startsWith(f + "/"))); },
-  isTarget(path) { return this.inFolders(path, this.targetFolders()); },
-  scanExcluded(path) { return this.inFolders(path, (this.settings.scanExclude || ["Support"]).map(f => String(f).replace(/\/+$/, ""))) || path.startsWith(".trash/"); },
   isOwn(path) { return !this.isLit(path) && !this.isTarget(path) && !this.scanExcluded(path); },
   termEntries() {
     const out = [];
@@ -35,9 +42,9 @@ const LinksMixin = {
   },
   termIndex() {
     const entries = this.termEntries(), ign = this.settings.ignoreTerms || [];
-    const sig = JSON.stringify([entries.map(e => [e.path, e.terms]), ign, this.settings.minTerm || 4]);
+    const sig = JSON.stringify([entries.map(e => [e.path, e.terms]), ign]);
     if (this._idx && this._idxSig === sig) return this._idx;
-    this._idx = X.buildIndex(entries, { ignore: ign, min: this.settings.minTerm || 4 }); this._idx.sig = sig; this._idx.entries = entries; this._idxSig = sig;
+    this._idx = X.buildIndex(entries, { ignore: ign, min: 4 }); this._idx.sig = sig; this._idx.entries = entries; this._idxSig = sig;
     return this._idx;
   },
 
@@ -55,7 +62,7 @@ const LinksMixin = {
     if (this._scanning) return this._scanning;
     this._scanning = (async () => {
       const t0 = Date.now(), idx = this.termIndex(), C = this.scanCache || (this.scanCache = { at: 0, sig: "", notes: {} });
-      const sig = idx.sig + "|" + JSON.stringify([this.settings.scanQuotes, this.settings.scanExclude, this.hlTags(), 3]);
+      const sig = idx.sig + "|" + JSON.stringify([this.excludedFolders(), this.conceptFolders(), this.hlTags(), 4]);
       if (C.sig !== sig) { full = true; C.sig = sig; }
       const files = this.app.vault.getMarkdownFiles().filter(f => !this.scanExcluded(f.path)), seen = new Set();
       let n = 0;
@@ -78,21 +85,23 @@ const LinksMixin = {
   },
   async scanNote(f, idx) {
     const text = await this.app.vault.cachedRead(f), lit = this.isLit(f.path), cache = this.app.metadataCache.getFileCache(f) || {};
-    const hlTags = this.hlTags(), skip = X.skipRanges(text, { skipQuotes: !this.settings.scanQuotes, hlTags });
-    const all = X.matchAll(idx, text, skip), ent = { mtime: f.stat.mtime, size: f.stat.size, ctime: f.stat.ctime, kind: lit ? "lit" : this.isTarget(f.path) ? "target" : "own" };
+    const hlTags = this.hlTags(), skip = X.skipRanges(text, { skipQuotes: true, hlTags });
+    // în notele de literatură, conceptele din citate contează pentru tipare și citări sugerate (dar nu primesc linkuri)
+    const all = X.matchAll(idx, text, skip), full = lit ? X.matchAll(idx, text, X.skipRanges(text, { skipQuotes: false, hlTags })) : all, ent = { mtime: f.stat.mtime, size: f.stat.size, ctime: f.stat.ctime, kind: lit ? "lit" : this.isTarget(f.path) ? "target" : "own" };
     const fm = cache.frontmatter || {}, created = Date.parse(fm.dateCreated || fm.created || fm["date-created"] || "") || f.stat.ctime;
     ent.created = created;
     ent.words = X.countWords(text);
     // prima menționare a fiecărui concept (pentru linkuri) și câte menționări are fiecare
     const first = {}, counts = {};
-    for (const m of all) for (const p of m.g.paths) { counts[p] = (counts[p] || 0) + 1; if (!first[p] && p !== f.path) { const c = X.context(text, m.from, m.to); first[p] = { from: m.from, to: m.to, hit: text.slice(m.from, m.to), b: c.before, a: c.after, amb: m.g.paths.length > 1 }; } }
+    for (const m of full) for (const p of m.g.paths) counts[p] = (counts[p] || 0) + 1;
+    for (const m of all) for (const p of m.g.paths) { if (!first[p] && p !== f.path) { const c = X.context(text, m.from, m.to); first[p] = { from: m.from, to: m.to, hit: text.slice(m.from, m.to), b: c.before, a: c.after, amb: m.g.paths.length > 1 }; } }
     ent.first = first; ent.counts = counts;
     // paragrafele: ce concepte apar împreună (cu sau fără link), pentru tipare
     const resolve = l => { const t = this.app.metadataCache.getFirstLinkpathDest(String(l).split("#")[0].split("|")[0], f.path); return t && this.isTarget(t.path) ? t.path : null; };
     const paras = [];
     for (const p of X.paragraphs(text)) {
       const set = new Set();
-      for (const m of all) if (m.from >= p.from && m.to <= p.to) m.g.paths.forEach(x => set.add(x));
+      for (const m of full) if (m.from >= p.from && m.to <= p.to) m.g.paths.forEach(x => set.add(x));
       const lr = /\[\[([^\]|#]+)/g; let lm; while ((lm = lr.exec(p.text))) { const r = resolve(lm[1]); if (r) set.add(r); }
       set.delete(f.path);
       const isHl = lit && (/\.pdf#page=/i.test(p.text) || new RegExp(`(^|\\n)#(${hlTags.join("|")})\\s`, "i").test(p.text));
@@ -105,7 +114,7 @@ const LinksMixin = {
     if (lit) {
       const hl = {}, qs = []; let tag;
       for (const t of cache.tags || []) { tag = t.tag.replace(/^#/, "").toLowerCase(); if (hlTags.includes(tag)) { hl[tag] = (hl[tag] || 0) + 1; if (tag === "question" && qs.length < 40) { const line = text.split("\n")[t.position.start.line] || ""; qs.push(line.replace(/^#\w+\s*/, "").replace(/\s*\[@[^\]]*\].*$/, "").trim().slice(0, 300)); } } }
-      ent.hl = hl; ent.qs = qs; ent.id = fm.id || fm["citation-key"] || null;
+      ent.hl = hl; ent.qs = qs; ent.id = fm.id || fm["citation-key"] || fm.citekey || fm.citationKey || null;
       // cuvintele importante ale sursei (pentru citările sugerate)
       ent.toks = this.topTokens(text, 120);
     } else {
@@ -144,10 +153,10 @@ const LinksMixin = {
   computeLinks() {
     const C = this.scanCache, out = [], notHere = this.settings.notHere || {}, rl = this.app.metadataCache.resolvedLinks || {};
     // un concept găsit în foarte multe note e probabil și un cuvânt obișnuit („being”, „existence”): îl arătăm, dar nu-l bifăm
-    const df = {}; let docs = 0; for (const e of Object.values(C.notes)) { if (e.kind === "target" && !this.settings.scanTargets) continue; docs++; for (const t of Object.keys(e.first || {})) df[t] = (df[t] || 0) + 1; }
+    const df = {}; let docs = 0; for (const e of Object.values(C.notes)) { if (e.kind === "target") continue; docs++; for (const t of Object.keys(e.first || {})) df[t] = (df[t] || 0) + 1; }
     const commonAt = Math.max(10, Math.ceil(docs * 0.06));
     for (const [path, e] of Object.entries(C.notes)) {
-      if (!e.first || (e.kind === "target" && !this.settings.scanTargets)) continue;   // notele-concept între ele: doar dacă vrei (setări)
+      if (!e.first || e.kind === "target") continue;   // notele-concept între ele: nu (sunt descrieri, nu scrisul tău)
       const linked = rl[path] || {}, skipHere = new Set(notHere[path] || []);
       for (const [target, m] of Object.entries(e.first)) {
         if (linked[target] || skipHere.has(target) || !this.app.vault.getAbstractFileByPath(target)) continue;
@@ -164,9 +173,9 @@ const LinksMixin = {
     for (const [path, list] of Object.entries(byNote)) {
       const file = this.app.vault.getAbstractFileByPath(path); if (!(file instanceof TFile)) { missed += list.length; continue; }
       await this.app.vault.process(file, text => {
-        const skip = X.skipRanges(text, { skipQuotes: !this.settings.scanQuotes, hlTags: this.hlTags() }), used = [];
+        const skip = X.skipRanges(text, { skipQuotes: true, hlTags: this.hlTags() }), used = [];
         for (const it of list.slice().sort((a, b) => b.from - a.from)) {
-          const target = this.app.vault.getAbstractFileByPath(it.target); if (!(target instanceof TFile)) { missed++; continue; }
+          const target = this.app.vault.getAbstractFileByPath(it.alt || it.target); if (!(target instanceof TFile)) { missed++; continue; }   // „Leagă cu…”: altă notă, aleasă de tine
           let a = it.from, b = it.to;
           if (text.slice(a, b) !== it.hit || X.inRanges(skip, a, b)) {   // nota s-a schimbat de la căutare: găsim din nou prima apariție
             a = -1; let i = -1; while ((i = text.indexOf(it.hit, i + 1)) >= 0) { const j = i + it.hit.length; if (!X.inRanges(skip, i, j) && !X.isWord(text[i - 1]) && !X.isWord(text[j])) { a = i; break; } }
@@ -245,7 +254,7 @@ const LinksMixin = {
     for (const e of idx.entries) for (const term of e.terms) {
       const tk = X.fold(X.cleanTitle(term)); if (tk.includes(" ") || tk.length < 6) continue;
       const cands = new Set(); keyDel(tk, d => (dels.get(d) || []).forEach(c => cands.add(c)));
-      for (const c of cands) if (c !== tk && lev1(c, tk) && !X.matchAll(idx, byFold[c].w).length) add(e.path, byFold[c].w, "spelling", byFold[c].n);
+      for (const c of cands) if (c !== tk && lev1(c, tk) && spellingVariant(c, tk) && !X.matchAll(idx, byFold[c].w).length) add(e.path, byFold[c].w, "spelling", byFold[c].n);
     }
     // 3. prescurtări pe care le folosești (AI pentru Artificial Intelligence), de cel puțin 2 ori
     const acr = {}; for (const e of Object.values(this.scanCache.notes)) for (const [a, n] of Object.entries(e.acr || {})) acr[a] = (acr[a] || 0) + n;
@@ -312,9 +321,8 @@ const LinksMixin = {
   async notDuplicate(a, b) { const [x, y] = [a, b].sort(); this.settings.notDuplicates = [...new Set([...(this.settings.notDuplicates || []), x + "\u0000" + y])]; await this.saveSettings(); this.duplicates = (this.duplicates || []).filter(d => !(d.a === x && d.b === y)); this.changed(); },
 
   // ——— afirmații fără citare (în paragrafele tale din folderele alese) ———
-  claimFolders() { return (this.settings.claimFolders?.length ? this.settings.claimFolders : ["03. Workspace"]).map(f => String(f).replace(/\/+$/, "")); },
   uncitedIn(text, path) {
-    if (!this.inFolders(path, this.claimFolders())) return [];
+    if (!this.inAnyProject(path)) return [];   // în notele proiectelor tale
     const out = [], idx = this.termIndex(), skipped = new Set(this.settings.notClaims || []);
     for (const p of X.paragraphs(text)) {
       const t = p.text, words = X.wordStarts(t, "");
@@ -330,11 +338,11 @@ const LinksMixin = {
   hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36); },
   // ce sursă ai putea cita: autorul numit în paragraf, conceptele comune, cuvintele comune cu evidențierile ei
   suggestCitations(p, text, n = 2) {
-    const C = this.scanCache?.notes || {}, lib = this.library(), toks = new Set(this.topTokens(text, 60)), out = [];
+    const C = this.scanCache?.notes || {}, toks = new Set(this.topTokens(text, 60)), out = [];
     const names = p.names.map(X.fold);
     for (const [path, e] of Object.entries(C)) {
       if (e.kind !== "lit" || !e.id) continue;
-      const src = lib[e.id] || {}, fams = (src.author || []).map(a => X.fold(a.family || a.literal || "")).filter(Boolean);
+      const src = this.sourceMeta(e.id, path) || {}, fams = (src.author || []).map(a => X.fold(a.family || a.literal || "")).filter(Boolean);
       let score = 0, why = [];
       if (fams.some(f => names.some(nm => nm.split(/\s+/).includes(f)))) { score += 6; why.push("author"); }
       const shared = p.concepts.filter(c => (e.counts?.[c] || 0) > 0 || (e.fm || []).includes(c)); if (shared.length) { score += shared.length * 2; why.push("concepts"); }
@@ -343,11 +351,10 @@ const LinksMixin = {
     }
     return out.sort((a, b) => b.score - a.score).slice(0, n);
   },
-  library() { try { return this.app.plugins.plugins["texere-sources"]?.cite?.raw || {}; } catch (e) { return {}; } },
   citeLabel(id, path) {
-    const s = this.library()[id]; if (s) { const a = s.author?.[0]; const fam = a?.family || a?.literal || ""; const y = s.issued?.["date-parts"]?.[0]?.[0] || ""; return `${fam}${(s.author || []).length > 1 ? " et al." : ""} ${y}`.trim(); }
+    const s = this.sourceMeta(id, path); if (s && (s.author || []).length) { const a = s.author?.[0]; const fam = a?.family || a?.literal || ""; const y = s.issued?.["date-parts"]?.[0]?.[0] || ""; return `${fam}${(s.author || []).length > 1 ? " et al." : ""} ${y}`.trim(); }
     const f = this.app.vault.getAbstractFileByPath(path); return f ? f.basename.split(" – ")[0] : id;
   },
 };
 
-module.exports = { LinksMixin, lev1, CLAIM_RX };
+module.exports = { LinksMixin, lev1, spellingVariant, CLAIM_RX };
