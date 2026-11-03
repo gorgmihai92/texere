@@ -614,7 +614,7 @@ const CSS = `.texere-core-settings .tx-intro{color:var(--text-muted);font-size:v
 .texere-home .txh-new svg{width:20px;height:20px}.texere-home .txh-new:hover{background:var(--background-modifier-hover) !important}
 @container (max-width: 600px){.texere-home .txh-nl{display:none}.texere-home .txh-nb{padding:0 11px}}
 .texere-home .tx-embedded{box-sizing:border-box;display:flex;flex-direction:column;width:min(900px,100%) !important;max-width:100% !important;height:100% !important;max-height:none !important;margin:0 auto !important;padding:22px 24px 0;background:transparent;border:0;box-shadow:none;position:relative}
-.texere-home .tx-embedded>.modal-title:empty{display:none}
+.texere-home .tx-embedded>.modal-title:empty,.texere-home .tx-embedded.txh-help>.modal-title{display:none !important}
 .texere-home .tx-embedded>.modal-title{display:flex !important;flex-wrap:wrap;align-items:flex-end !important;justify-content:flex-start !important;gap:8px 24px;align-self:stretch !important;width:auto !important;max-width:none !important;margin:0 0 12px !important;padding:0 !important;text-align:left !important;border-bottom:1px solid var(--background-modifier-border) !important;font-size:var(--font-ui-large) !important;font-weight:600 !important;line-height:1.3 !important;color:var(--text-normal)}
 .texere-home .tx-embedded>.modal-title:not(:has(.ts-head-t)){padding-bottom:10px !important}
 .texere-home .tx-embedded>.modal-title .ts-head-t{padding-bottom:10px;font-size:inherit;font-weight:inherit;margin:0}
