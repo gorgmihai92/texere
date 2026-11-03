@@ -24,6 +24,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const TEXERE = [
   { id: "texere-sources", name: "Texere · Sources", ro: "Caută surse în cataloage și le adaugă cu PDF-ul gratuit, importă din Zotero, citează în stilul ales și aduce evidențierile din PDF în notă.", en: "Searches catalogs and adds sources with their free PDF, imports from Zotero, cites in your chosen style and brings PDF highlights into your notes." },
   { id: "texere-export", name: "Texere · Export", ro: "Exportă nota în PDF, Word, LaTeX, HTML sau Markdown, cu cuprins, pagină și șabloanele facultății. Citările vin din Texere · Sources.", en: "Exports a note to PDF, Word, LaTeX, HTML or Markdown, with contents, page layout and thesis templates. Citations come from Texere · Sources." },
+  { id: "texere-insights", name: "Texere · Insights", ro: "Câte cuvinte scrii, lipești și ștergi; menționările fără link și aliasurile sugerate; tiparele din lectura și scrisul tău.", en: "How much you write, paste and delete; unlinked mentions and suggested aliases; patterns in your reading and writing." },
 ];
 // pluginurile de care depinde Texere (doar acestea): din lista oficială Obsidian, instalate ca din Setări → Community plugins
 const DEPS = [
@@ -385,6 +386,8 @@ module.exports = class Texere extends Plugin {
         if (p.btn) { const b = r.createEl("button", { text: p.btn }); b.addEventListener("click", async () => { b.disabled = true; b.setText("…"); try { await p.fn(); } catch (e) { new Notice(e?.message || String(e), 8000); } redraw(); }); }
       }
     }
+    // 3b. Texere · Insights (dacă e pornit): cât ai scris azi, menționările fără link, ideea zilei
+    try { const I = this.app.plugins.plugins["texere-insights"]; if (I?.homeSection) I.homeSection(inner, leaf); } catch (e) { console.error("Texere: Insights în tab-ul nou", e); }
     // 4. ultimele 5 fișiere deschise, cu folderul și când le-ai deschis sau schimbat ultima dată
     let opened = {}; try { opened = this.app.loadLocalStorage("texere-opened") || {}; } catch (e) {}
     const recent = this.app.workspace.getLastOpenFiles().map(p => this.app.vault.getAbstractFileByPath(p)).filter(f => f instanceof TFile).slice(0, 5);

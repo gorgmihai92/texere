@@ -45,5 +45,8 @@ Thumbs.db
 /.obsidian/plugins/texere/data.json
 /.obsidian/plugins/texere-sources/data.json
 /.obsidian/plugins/texere-export/data.json
+/.obsidian/plugins/texere-insights/data.json
+/.obsidian/plugins/texere-insights/stats/
+/.obsidian/plugins/texere-insights/cache/
 /.obsidian/plugins/texere-sources/sources/sources-test.log
 /.obsidian/plugins/texere-sources/sources/pdf-log.txt

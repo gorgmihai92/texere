@@ -42,11 +42,12 @@ Everything is plain Markdown on your computer. No account, no subscription.
 
 ## Inside
 
-Three plugins made for Texere:
+Four plugins made for Texere:
 
 - **Texere · The Researcher's Vault**: the setup, the checks, the new-tab dashboard and the Help button.
 - **Texere · Sources**: sources, Zotero, citations, highlights and the bibliography.
 - **Texere · Export**: export, with citations and bibliography from Sources.
+- **Texere · Insights**: how much you write, paste and delete; unlinked mentions and aliases; patterns in your reading and writing.
 
 They use PDF++ (highlights) and Templater (setup and Help). The vault also has Style Settings, Omnisearch, Excalidraw and Editing Toolbar. You don't need Zotero, Word, Pandoc or LaTeX.
 
@@ -74,7 +75,7 @@ Obsidian, on Mac or Windows. Windows isn't fully tested yet.
 
 ## License
 
-- **Code** (the scripts, the setup and the three Texere plugins): [MIT](LICENSE). Texere · Sources bundles [citeproc-js](https://github.com/Juris-M/citeproc-js) (CPAL/AGPL) and the [CSL styles and locales](https://citationstyles.org) (CC BY-SA 3.0). Texere · Export bundles docx, markdown-it and Paged.js (MIT).
+- **Code** (the scripts, the setup and the four Texere plugins): [MIT](LICENSE). Texere · Sources bundles [citeproc-js](https://github.com/Juris-M/citeproc-js) (CPAL/AGPL) and the [CSL styles and locales](https://citationstyles.org) (CC BY-SA 3.0). Texere · Export bundles docx, markdown-it and Paged.js (MIT).
 - **Guides and notes** (the guides, the philosophy map, the templates): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - The PDFs in `01. Sources/Documents` and the community plugins keep their own licenses. Details in [LICENSE](LICENSE).
 

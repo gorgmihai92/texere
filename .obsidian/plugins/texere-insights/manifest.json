@@ -1,0 +1,10 @@
+{
+  "id": "texere-insights",
+  "name": "Texere · Insights",
+  "version": "1.0.0",
+  "minAppVersion": "1.4.0",
+  "description": "How much you write, paste and delete; unlinked mentions and alias suggestions; patterns in your reading and writing. Part of Texere · The Researcher's Vault.",
+  "author": "George Mihai",
+  "authorUrl": "https://www.georgemihai.com",
+  "isDesktopOnly": true
+}

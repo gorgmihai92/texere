@@ -3,8 +3,8 @@ title: Texere
 subtitle: The Researcher's Vault
 author: George Mihai
 lang: en
-version: "3.1.0"
-date: "Version 3.1.0 · 1 November 2026"
+version: "3.2.0"
+date: "Version 3.2.0 · 3 November 2026"
 ---
 *Ghidul este disponibil și în limba română: [[Texere – Vault-ul cercetătorului|Texere: Vault-ul cercetătorului]].*
 
@@ -70,6 +70,7 @@ Obsidian works with plain text files (Markdown) on your own computer. Notes link
 | **Texere · The Researcher's Vault** | Sets up the vault, checks what's missing, shows the dashboard in a new tab and runs the **Help** button. Its settings page shows what's on, off or missing. |
 | **Texere · Sources** | Adds sources from catalogs, Zotero or a PDF. Shows citations in your style, brings highlights into notes and keeps the bibliography. Button: the books icon on the left. |
 | **Texere · Export** | PDF, Word, LaTeX, HTML or Markdown, with citations, bibliography and contents. Button: **Export**, bottom right. |
+| **Texere · Insights** | How much you write, paste and delete; unlinked mentions and aliases; patterns in your reading and writing. Button: the lightbulb on the left. |
 
 They use two community plugins that come with the vault: **PDF++** (highlights) and **Templater** (setup and Help). You don't need Zotero, Word or LaTeX.
 
@@ -189,6 +190,19 @@ The style is shown at the bottom right (**APA**). Click it to change the style o
 - [[Metodologia cercetării - Literature Review]] (in Romanian)
 - [[Metodologia cercetării - Structura unei lucrări științifice]] (in Romanian)
 
+### 5.4 Insights: your writing, links and patterns
+
+**Texere · Insights** shows how you work. Everything stays on your laptop. Open it from the lightbulb on the left; the new tab shows today's words and one idea a day.
+
+- **Words.** What you type, paste, insert with another tool (an AI plugin, a template) and delete, per day, week, month and year, with your streak and the hours you write best. Undo isn't counted. Each laptop keeps its own count and the totals add them up.
+- **Word target.** In a note: **Texere · Insights · Set a word target**. A thin bar above the text shows how far you are and what you added today.
+- **Unlinked mentions.** Concepts you wrote without a link (filosofiei, acțiunii, Dasein), in your notes and in your own lines in literature notes, not in the quotes. **Review** groups them; **Link selected** links the first mention in each note and keeps your words: `[[Action|acțiunii]]`. It also lists names that appear often but have no note (**Create note**), suggests aliases (from your link text, your spelling, short forms and, when you ask, Wikidata) and shows notes that look duplicated.
+- **Uncited claims.** In **03. Workspace**, a paragraph that argues ("therefore", "studies show", a named author) but cites nothing gets an orange line on the left and, at the end, a source you could cite. One click adds it.
+- **Patterns.** Rising topics and what you read without writing about it; concepts that keep appearing together but aren't linked; forgotten notes that matter now, and **Surprise me**; your thesis pace against a target and deadline; who you cite; what you highlight; reading next to writing.
+- **Weekly review.** Every Monday, a short note in **02. Notes/Weekly reviews**.
+
+Settings: **Settings → Texere · Insights**.
+
 ## 6. Bibliography and export
 
 > [!tip] Try it
@@ -262,6 +276,7 @@ The setup does steps 3 to 5 and 7 for you.
 
 ## 11. Version history
 
+- **3.2.0** · 3 November 2026 · **Texere · Insights**: words typed, pasted, inserted and deleted; word targets; unlinked mentions linked in one click; alias suggestions; uncited claims while you write; patterns, thesis pace and a weekly review
 - **3.1.0** · 1 November 2026 · a shorter guide; Texere creates the suggested folders (**02. Thesis** replaces 02. Disertation) and guards the ones it needs; your own export templates; a dashboard in every new tab; the Zotero tab filters by highlights and doesn't double them; lost letters (ș, ț) come back from the page Zotero saved; the Zotero button no longer waits for the PDF and adds only one; a PDF the site won't hand over: **Open the PDF**, save it to Downloads or drag it into Inbox, and Texere attaches it; Zotero always finds its port free
 - **3.0.0** · 1 November 2026 · sources, citations and export come from three Texere plugins, without BibLib, Pandoc or LaTeX; Zotero import with highlights; export with preview and thesis templates; the bibliography moved to **Support/Admin/Bibliography**
 - **2.3.0** · 30 October 2026 · new folders: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support, and **Home**

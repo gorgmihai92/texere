@@ -3,8 +3,8 @@ title: Texere
 subtitle: Vault-ul cercetătorului
 author: George Mihai
 lang: ro
-version: "3.1.0"
-date: "Versiunea 3.1.0 · 1 noiembrie 2026"
+version: "3.2.0"
+date: "Versiunea 3.2.0 · 3 noiembrie 2026"
 ---
 *This guide is also available in English: [[Texere – The Researcher's Vault|Texere: The Researcher's Vault]].*
 
@@ -70,6 +70,7 @@ Obsidian lucrează cu fișiere text (Markdown), pe calculatorul tău. Notele tri
 | **Texere · The Researcher's Vault** | Configurează vault-ul, verifică ce lipsește, arată panoul din tabul nou și pornește butonul **Ajutor**. Pagina lui din setări arată ce e pornit, oprit sau lipsește. |
 | **Texere · Sources** | Adaugă surse din cataloage, din Zotero sau dintr-un PDF. Arată citările în stilul ales, aduce evidențierile în note și ține bibliografia. Butonul: iconița cu cărți din stânga. |
 | **Texere · Export** | PDF, Word, LaTeX, HTML sau Markdown, cu citări, bibliografie și cuprins. Butonul: **Exportă**, dreapta-jos. |
+| **Texere · Insights** | Cât scrii, lipești și ștergi; menționările fără link și aliasurile; tiparele din lectura și scrisul tău. Butonul: becul din stânga. |
 
 Folosesc două pluginuri din comunitate, care vin cu vault-ul: **PDF++** (sublinierile) și **Templater** (configurarea și Ajutorul). Nu ai nevoie de Zotero, Word sau LaTeX.
 
@@ -188,6 +189,19 @@ Stilul apare în dreapta jos (**APA**). Dă clic pe el ca să schimbi stilul not
 - [[Metodologia cercetării - Literature Review]]
 - [[Metodologia cercetării - Structura unei lucrări științifice]]
 
+### 5.4 Insights: scrisul, linkurile și tiparele tale
+
+**Texere · Insights** îți arată cum lucrezi. Totul rămâne pe laptop. Îl deschizi din becul din stânga; tab-ul nou arată cuvintele de azi și o idee pe zi.
+
+- **Cuvintele.** Ce scrii, lipești, inserezi cu altă unealtă (un plugin AI, un șablon) și ștergi, pe zi, săptămână, lună și an, cu zilele la rând și orele în care scrii cel mai bine. Anulează nu se numără. Fiecare laptop își ține numărătoarea; totalurile le adună.
+- **Ținta de cuvinte.** Într-o notă: **Texere · Insights · Pune o țintă de cuvinte**. O bară subțire deasupra textului arată cât mai ai și ce ai adăugat azi.
+- **Menționările fără link.** Conceptele scrise fără link (filosofiei, acțiunii, Dasein), în notele tale și în rândurile tale din notele de literatură, nu în citate. **Revizuiește** le grupează; **Leagă selectate** leagă prima menționare din fiecare notă și îți păstrează cuvintele: `[[Action|acțiunii]]`. Mai arată numele care apar des, dar n-au notă (**Creează nota**), sugerează aliasuri (din textul linkurilor, din felul în care scrii, forme scurte și, la cerere, Wikidata) și notele care par dublate.
+- **Afirmații fără citare.** În **03. Workspace**, un paragraf care argumentează („prin urmare”, „studiile arată”, un autor numit), dar nu citează nimic, primește o linie portocalie la stânga și, la final, o sursă pe care ai putea-o cita. Un clic o adaugă.
+- **Tipare.** Subiectele în creștere și ce citești fără să scrii despre asta; concepte care apar mereu împreună, dar nu sunt legate; note uitate care contează acum și **Surprinde-mă**; ritmul tezei față de țintă și termen; pe cine citezi; ce evidențiezi; lectura lângă scris.
+- **Recenzia săptămânii.** În fiecare luni, o notă scurtă în **02. Notes/Weekly reviews**.
+
+Setări: **Settings → Texere · Insights**.
+
 ## 6. Bibliografia și exportul documentului
 
 > [!tip] Încearcă
@@ -261,6 +275,7 @@ Configurarea face singură pașii 3–5 și 7.
 
 ## 11. Istoric versiuni
 
+- **3.2.0** · 3 noiembrie 2026 · **Texere · Insights**: cuvinte scrise, lipite, inserate și șterse; ținte de cuvinte; menționări fără link legate cu un clic; aliasuri sugerate; afirmații fără citare cât scrii; tipare, ritmul tezei și recenzia săptămânii
 - **3.1.0** · 1 noiembrie 2026 · un ghid mai scurt; Texere creează structura de foldere propusă (**02. Thesis** în loc de 02. Disertation) și le păzește pe cele de care are nevoie; șabloane de export proprii; un panou în fiecare tab nou; fila Zotero filtrează după evidențieri și nu le dublează; literele pierdute (ș, ț) se refac din pagina salvată de Zotero; butonul Zotero nu mai așteaptă după PDF și adaugă unul singur; un PDF pe care situl nu-l dă: **Deschide PDF-ul**, salvează-l în Downloads sau trage-l în Inbox, iar Texere îl atașează; Zotero își găsește mereu portul liber
 - **3.0.0** · 1 noiembrie 2026 · sursele, citările și exportul vin din trei pluginuri Texere, fără BibLib, Pandoc sau LaTeX; importul din Zotero cu evidențieri; exportul cu previzualizare și șabloanele facultății; bibliografia s-a mutat în **Support/Admin/Bibliography**
 - **2.3.0** · 30 octombrie 2026 · foldere noi: 01. Sources, 02. Notes, 03. Workspace, 04. Export, Fields, Support și **Home**
