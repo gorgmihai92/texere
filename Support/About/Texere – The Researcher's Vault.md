@@ -192,11 +192,11 @@ The style is shown at the bottom right (**APA**). Click it to change the style o
 
 ### 5.4 Insights: your writing, links and patterns
 
-**Texere · Insights** shows how you work. Everything stays on your laptop. Open it from the lightbulb on the left; the new tab shows today's words and one idea a day.
+**Texere · Insights** shows how you work. Everything stays on your laptop. Open it from the lightbulb on the left; the new tab shows today's words and the unlinked mentions.
 
 - **Words.** What you type, paste, insert with another tool (an AI plugin, a template) and delete, per day, week, month and year, with your streak and the hours you write best. Undo isn't counted. Each laptop keeps its own count and the totals add them up.
 - **Word target.** In a note: **Texere · Insights · Set a word target**. A thin bar above the text shows how far you are and what you added today.
-- **Unlinked mentions.** Concepts you wrote without a link (filosofiei, acțiunii, Dasein), in your notes and in your own lines in literature notes, not in the quotes. **Review** groups them; **Link selected** links the first mention in each note and keeps your words: `[[Action|acțiunii]]`. It also lists names that appear often but have no note (**Create note**), suggests aliases (from your link text, your spelling, short forms and, when you ask, Wikidata) and shows notes that look duplicated.
+- **Unlinked mentions.** Concepts you wrote without a link (filosofiei, acțiunii, Dasein), in your notes and in your own lines in literature notes, not in the quotes. **Review** groups them; **Link selected** links the first mention in each note and keeps your words: `[[Action|acțiunii]]`. It also lists names that appear often but have no note (**Create note**), suggests aliases (from your link text, your spelling, short forms and, when you ask, translations from Wikidata, Wikipedia and MyMemory) and shows notes that look duplicated.
 - **Uncited claims.** In **03. Workspace**, a paragraph that argues ("therefore", "studies show", a named author) but cites nothing gets an orange line on the left and, at the end, a source you could cite. One click adds it.
 - **Patterns.** Rising topics and what you read without writing about it; concepts that keep appearing together but aren't linked; forgotten notes that matter now, and **Surprise me**; your thesis pace against a target and deadline; who you cite; what you highlight; reading next to writing.
 - **Weekly review.** Every Monday, a short note in **02. Notes/Weekly reviews**.

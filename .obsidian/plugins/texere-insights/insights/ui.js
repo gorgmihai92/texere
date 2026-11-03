@@ -131,7 +131,7 @@ const UiMixin = {
       l.createSpan({ text: T(`${un.length} menționări fără link în ${notes} ${notes === 1 ? "notă" : "note"}`, `${un.length} unlinked ${un.length === 1 ? "mention" : "mentions"} in ${notes} ${notes === 1 ? "note" : "notes"}`) });
       l.createEl("button", { text: T("Revizuiește", "Review") }).addEventListener("click", () => this.review("links"));
     }
-    let idea = null; try { idea = this.insightOfTheDay(); } catch (e) {}
+    let idea = null;   // ideea zilei nu mai apare în tab-ul nou (e în pagina Insights, la „Surprinde-mă”)
     if (idea) {
       const c = box.createDiv("txh-ins-idea"), ic = c.createSpan("txh-ins-ic"); try { setIcon(ic, idea.icon || "lightbulb"); } catch (e) {}
       const t = c.createDiv("txh-ins-t"); t.setText(idea.text);
@@ -472,16 +472,15 @@ class ReviewModal extends Modal {
   }
   drawAliases(body, foot) {
     const P = this.P, T = (a, b) => P.T(a, b), list = P.aliasSugg || [];
-    const why = { link: T("textul linkurilor tale", "your link text"), spelling: T("cum scrii", "how you spell it"), short: T("formă scurtă", "short form"), wikidata: "Wikidata" };
-    const wd = foot.createEl("button", { text: T("Caută traduceri (Wikidata)", "Look up translations (Wikidata)") }); wd.title = T("Pentru conceptele fără alias: numele în română de pe Wikidata. Singura parte care folosește internetul.", "For concepts without an alias: the Romanian name from Wikidata. The only part that uses the internet.");
-    wd.addEventListener("click", async () => { wd.disabled = true; const r = await P.wikidata((d, t) => wd.setText(`${d}/${t}`)); new Notice(T(`Wikidata: traduceri pentru ${r.got} din ${r.asked} concepte.`, `Wikidata: translations for ${r.got} of ${r.asked} concepts.`), 6000); this.draw(); });
-    const min = Math.max(2, +P.settings.aliasMinSources || 2);
-    foot.createDiv({ cls: "txi-muted", text: T(`Doar ce confirmă cel puțin ${min} surse: note diferite în care apare, plus Wikidata.`, `Only what at least ${min} sources confirm: different notes where it appears, plus Wikidata.`) });
+    const why = { link: T("textul linkurilor tale", "your link text"), spelling: T("cum scrii", "how you spell it"), short: T("formă scurtă", "short form"), wikidata: "Wikidata", wikipedia: "Wikipedia", mymemory: "MyMemory" };
+    const wd = foot.createEl("button", { text: T("Caută traduceri", "Look up translations") }); wd.title = T("Pentru conceptele fără alias: numele în română din Wikidata, Wikipedia și MyMemory. Cu cât sunt de acord mai multe, cu atât sugestia e mai sigură. Singura parte care folosește internetul.", "For concepts without an alias: the Romanian name from Wikidata, Wikipedia and MyMemory. The more of them agree, the safer the suggestion. The only part that uses the internet.");
+    wd.addEventListener("click", async () => { wd.disabled = true; const r = await P.translate((d, t) => wd.setText(`${d}/${t}`)); new Notice(T(`Traduceri pentru ${r.got} din ${r.asked} concepte (Wikidata, Wikipedia, MyMemory).`, `Translations for ${r.got} of ${r.asked} concepts (Wikidata, Wikipedia, MyMemory).`), 6000); this.draw(); });
+    foot.createDiv({ cls: "txi-muted", text: T("Aliasurile noi ajută la găsirea menționărilor și la căutare.", "New aliases help find mentions and search.") });
     if (!list.length) { body.createDiv({ cls: "txi-empty", text: T("Nicio sugestie acum.", "No suggestions right now.") }); return; }
     for (const s of list) {
       const r = body.createDiv("txi-row"); const nm = r.createSpan({ cls: "txi-name" }); nm.createEl("b", { text: s.alias }); nm.appendText(T(" → ", " → ") + P.nameOf(s.target)); for (const w of s.why) nm.createSpan({ cls: "txi-why", text: why[w] || w });
-      const srcTxt = [s.notes ? T(`${s.notes} ${s.notes === 1 ? "notă" : "note"}`, `${s.notes} ${s.notes === 1 ? "note" : "notes"}`) : null, s.why.includes("wikidata") ? "Wikidata" : null].filter(Boolean).join(" · ");
-      const meta = r.createSpan({ cls: "txi-meta", text: srcTxt }); meta.title = T(`${s.count} apariții`, `${s.count} occurrences`);
+      const tr = s.why.filter(w => ["wikidata", "wikipedia", "mymemory"].includes(w)).length;
+      r.createSpan({ cls: "txi-meta", text: tr ? T(`${tr}/3 surse`, `${tr}/3 sources`) : s.count > 1 ? `${s.count}×` : "" });
       r.createEl("button", { cls: "mod-cta", text: T("Adaugă", "Add") }).addEventListener("click", async () => { await P.addAlias(s.target, s.alias); this.draw(); });
       r.createEl("button", { text: T("Ignoră", "Ignore") }).addEventListener("click", async () => { await P.ignoreAlias(s.target, s.alias); this.draw(); });
     }
