@@ -229,12 +229,20 @@ const UiMixin = {
 
 // ——— pagina Insights ———
 class InsightsView extends ItemView {
-  constructor(leaf, P) { super(leaf); this.P = P; this.period = "week"; this.balScope = ""; this.open = null; }
+  constructor(leaf, P) { super(leaf); this.P = P; this.period = "week"; this.balScope = ""; this.expanded = null; }
   getViewType() { return VIEW; }
   getDisplayText() { return "Texere · Insights"; }
   getIcon() { return "lightbulb"; }
-  async onOpen() { this.contentEl.addClass("txi-view"); await this.P.allLogs(); if (!this.P.scanCache?.at) this.P.scan(false, true).then(() => this.render()); this.render(); }
-  async render() {
+  async onOpen() {
+    this.contentEl.addClass("txi-view");
+    try { await this.P.allLogs(); } catch (e) {}
+    if (!this.P.scanCache?.at) this.P.scan(false, true).then(() => this.render()).catch(e => console.error("Texere · Insights", e));
+    await this.render();
+  }
+  // o eroare nu lasă pagina goală: o arată, ca să știi ce s-a întâmplat
+  showError(e) { console.error("Texere · Insights: pagina", e); const d = this.contentEl.createDiv("txi-wrap"); d.createEl("h2", { text: "Texere · Insights" }); d.createEl("p", { cls: "txi-muted", text: this.P.T("Pagina n-a putut fi desenată: ", "The page couldn't be drawn: ") + (e?.message || e) }); }
+  async render() { try { await this.draw(); } catch (e) { this.contentEl.empty(); this.showError(e); } }
+  async draw() {
     const P = this.P, T = (a, b) => P.T(a, b), en = P.en, c = this.contentEl, keep = c.scrollTop;
     c.empty(); const w = c.createDiv("txi-wrap");
     const head = w.createDiv("txi-head"); head.createEl("h2", { text: "Texere · Insights" });
@@ -294,7 +302,7 @@ class InsightsView extends ItemView {
     const P = this.P, T = (a, b) => P.T(a, b), em = P.emerging();
     const s = this.sec(w, T("Subiecte", "Topics"), T("Ce te interesează mai mult în ultimele două luni, ce lași deoparte și ce citești fără să scrii despre asta. Clic pe un concept: povestea lui în vault.", "What interests you more in the last two months, what you're leaving aside, and what you read without writing about it. Click a concept to see its story in your vault."));
     const g = s.createDiv("txi-grid");
-    const list = (title, rows, meta) => { const c = this.card(g, title), l = c.createDiv("txi-list"); if (!rows.length) el(c, "p", "txi-empty", T("Nimic încă.", "Nothing yet.")); for (const r of rows) { const row = this.row(l, r.name, meta(r), () => { this.open = this.open === r.path ? null : r.path; this.render(); }); if (this.open === r.path) this.timeline(l, r.path); } };
+    const list = (title, rows, meta) => { const c = this.card(g, title), l = c.createDiv("txi-list"); if (!rows.length) el(c, "p", "txi-empty", T("Nimic încă.", "Nothing yet.")); for (const r of rows) { const row = this.row(l, r.name, meta(r), () => { this.expanded = this.expanded === r.path ? null : r.path; this.render(); }); if (this.expanded === r.path) this.timeline(l, r.path); } };
     const trend = r => r.bef < 0.5 ? T("nou", "new") : `×${(r.rec / r.bef).toFixed(1)}`;
     list(T("În creștere", "Rising"), em.rising, trend);
     list(T("Citite, nescrise", "Read, not written"), em.unwritten, r => T(`${r.r6} evid.`, `${r.r6} highl.`));
