@@ -34,6 +34,14 @@ const CSS = `
 .txi-chart{margin-top:8px}.txi-chart text{font-size:8px;fill:var(--text-faint)}
 .txi-chart .b{fill:var(--interactive-accent);opacity:.75}.txi-chart .b2{fill:var(--text-faint);opacity:.55}.txi-chart .b0{fill:var(--background-modifier-border)}
 .txi-chart .h0{fill:var(--background-modifier-border)}.txi-chart .h1{fill:var(--interactive-accent);opacity:.3}.txi-chart .h2{fill:var(--interactive-accent);opacity:.5}.txi-chart .h3{fill:var(--interactive-accent);opacity:.75}.txi-chart .h4{fill:var(--interactive-accent)}
+.txi-gh{--g0:#ebedf0;--g1:#9be9a8;--g2:#40c463;--g3:#30a14e;--g4:#216e39}
+.theme-dark .txi-gh{--g0:#161b22;--g1:#0e4429;--g2:#006d32;--g3:#26a641;--g4:#39d353}
+.txi-gh-head h4{margin:0 0 8px;font-weight:500}.txi-gh-scroll{overflow-x:auto;padding-bottom:2px}.txi-gh-svg{display:block}
+.txi-gh-svg .g0{fill:var(--g0);outline:1px solid rgba(27,31,35,.06);outline-offset:-1px}.txi-gh-svg .g1{fill:var(--g1)}.txi-gh-svg .g2{fill:var(--g2)}.txi-gh-svg .g3{fill:var(--g3)}.txi-gh-svg .g4{fill:var(--g4)}
+.txi-gh-svg rect{shape-rendering:geometricPrecision}.txi-gh-svg rect:hover{stroke:var(--text-faint);stroke-width:1}.txi-gh-l{font-size:9px;fill:var(--text-muted)}
+.txi-gh-foot{display:flex;align-items:center;gap:12px;margin-top:6px}.txi-gh-foot .txi-muted{margin:0}
+.txi-gh-legend{margin-left:auto;display:flex;align-items:center;gap:3px;font-size:var(--font-ui-smaller);color:var(--text-muted)}.txi-gh-legend span:first-child{margin-right:3px}.txi-gh-legend span:last-child{margin-left:3px}
+.txi-gh-sq{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--g0)}.txi-gh-sq.g1{background:var(--g1)}.txi-gh-sq.g2{background:var(--g2)}.txi-gh-sq.g3{background:var(--g3)}.txi-gh-sq.g4{background:var(--g4)}
 .txi-legend{display:flex;gap:12px;font-size:var(--font-ui-smaller);color:var(--text-faint);margin-top:4px}.txi-legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:0}
 .txi-big{font-size:var(--font-ui-medium);line-height:1.45;margin:6px 0 10px;color:var(--text-normal)}
 .txi-kind{display:inline-block;font-size:var(--font-ui-smaller);color:var(--text-accent);text-transform:uppercase;letter-spacing:.05em}
@@ -275,13 +283,27 @@ class InsightsView extends ItemView {
     const st = P.streak(), c2 = this.card(g, T("Zile la rând", "Streak"), T(`minim ${P.settings.streakMin || 20} cuvinte`, `min. ${P.settings.streakMin || 20} words`)), n2 = c2.createDiv("txi-nums");
     this.num(n2, st.now, T("acum", "now")); this.num(n2, st.best, T("cel mai lung", "longest"));
     const top = P.topOf(this.period, "n", 4); if (top.length) { el(c2, "p", null, T("Ai lucrat cel mai mult la:", "You worked most on:")); const l = c2.createDiv("txi-list"); for (const r of top) this.row(l, P.nameOf(r.path), `+${fmt(r.added, en)} / −${fmt(r.d, en)}`, () => P.openPath(r.path)); }
-    // calendarul anului
-    const c3 = s.createDiv("txi-card"); c3.style.marginTop = "12px"; c3.createEl("h4", { text: T("Ultimul an", "The last year") });
-    const days = P.series(371), max = Math.max(1, ...days.map(d => d.added)), sv = svg(c3.createDiv("txi-chart"), 53 * 12 + 24, 7 * 12 + 14);
-    const first = days[0].date, off = (first.getDay() + 6) % 7;
-    days.forEach((d, i) => { const k = i + off, col = Math.floor(k / 7), rowI = k % 7, v = d.added, lvl = !v ? 0 : v < max * .15 ? 1 : v < max * .35 ? 2 : v < max * .65 ? 3 : 4; rect(sv, 24 + col * 12, rowI * 12, 10, 10, "h" + lvl, `${d.date.toLocaleDateString(en ? "en-GB" : "ro-RO")}: +${v} / −${d.d}`); if (d.date.getDate() === 1) txt(sv, 24 + col * 12, 7 * 12 + 10, d.date.toLocaleDateString(en ? "en-GB" : "ro-RO", { month: "short" })); });
-    (en ? ["Mon", "", "Wed", "", "Fri", "", ""] : ["Lu", "", "Mi", "", "Vi", "", ""]).forEach((l, i) => l && txt(sv, 0, i * 12 + 8, l));
-    if (!P.series(400).some(d => d.added)) el(c3, "p", "txi-empty", T("Numărătoarea a început acum: calendarul se umple pe măsură ce scrii.", "Counting has just started: the calendar fills in as you write."));
+    // calendarul anului, ca pe GitHub: 53 de săptămâni, de duminică la sâmbătă, pătrățele mici, lunile sus, „Mai puțin … Mai mult” jos
+    const c3 = s.createDiv("txi-card txi-gh"); c3.style.marginTop = "12px";
+    const now = new Date(), end = new Date(now.getFullYear(), now.getMonth(), now.getDate()), start = new Date(end); start.setDate(start.getDate() - 52 * 7 - end.getDay());
+    const nDays = Math.round((end - start) / 864e5) + 1, days = P.series(nDays), total = days.reduce((a, d) => a + d.added, 0);
+    const hd = c3.createDiv("txi-gh-head"); hd.createEl("h4", { text: T(`${fmt(total, en)} de cuvinte în ultimul an`, `${fmt(total, en)} words in the last year`) });
+    const nz = days.map(d => d.added).filter(v => v > 0).sort((a, b) => a - b), q = f => nz.length ? nz[Math.min(nz.length - 1, Math.floor(nz.length * f))] : 0;
+    const q1 = q(.25), q2 = q(.5), q3 = q(.75), level = v => !v ? 0 : v <= q1 ? 1 : v <= q2 ? 2 : v <= q3 ? 3 : 4;
+    const C = 10, G = 3, S = C + G, L = 30, Tp = 16, cols = Math.ceil(nDays / 7), W = L + cols * S, H = Tp + 7 * S;
+    const box = c3.createDiv("txi-gh-scroll"), sv = document.createElementNS(SVG, "svg"); sv.setAttribute("width", W); sv.setAttribute("height", H); sv.setAttribute("viewBox", `0 0 ${W} ${H}`); sv.classList.add("txi-gh-svg"); box.appendChild(sv);
+    const loc = en ? "en-GB" : "ro-RO"; let lastLabel = -9;
+    days.forEach((d, i) => {
+      const col = Math.floor(i / 7), row = i % 7, v = d.added;
+      const tip = v ? T(`${fmt(v, en)} cuvinte pe ${d.date.toLocaleDateString(loc, { weekday: "long", day: "numeric", month: "long" })}`, `${fmt(v, en)} words on ${d.date.toLocaleDateString(loc, { weekday: "long", day: "numeric", month: "long" })}`) + (d.d ? T(` · ${fmt(d.d, en)} șterse`, ` · ${fmt(d.d, en)} deleted`) : "")
+        : T(`Niciun cuvânt pe ${d.date.toLocaleDateString(loc, { day: "numeric", month: "long" })}`, `No words on ${d.date.toLocaleDateString(loc, { day: "numeric", month: "long" })}`);
+      const r = rect(sv, L + col * S, Tp + row * S, C, C, "g" + level(v), tip); r.setAttribute("rx", 2);
+      if (d.date.getDate() <= 7 && row === 0 || (i === 0)) { if (col - lastLabel >= 3 && cols - col >= 3) { txt(sv, L + col * S, 10, d.date.toLocaleDateString(loc, { month: "short" }).replace(".", ""), "txi-gh-l"); lastLabel = col; } }
+    });
+    (en ? ["", "Mon", "", "Wed", "", "Fri", ""] : ["", "Lu", "", "Mi", "", "Vi", ""]).forEach((l, i) => l && txt(sv, 0, Tp + i * S + 9, l, "txi-gh-l"));
+    const ft = c3.createDiv("txi-gh-foot"); ft.createSpan({ cls: "txi-muted", text: T("Cuvinte scrise, lipite și inserate, pe zi.", "Words typed, pasted and inserted, per day.") });
+    const lg = ft.createDiv("txi-gh-legend"); lg.createSpan({ text: T("Mai puțin", "Less") }); for (let k = 0; k <= 4; k++) lg.createSpan({ cls: "txi-gh-sq g" + k }); lg.createSpan({ text: T("Mai mult", "More") });
+    if (!total) el(c3, "p", "txi-empty", T("Numărătoarea a început acum: calendarul se umple pe măsură ce scrii.", "Counting has just started: the calendar fills in as you write."));
   }
   behaviour(w) {
     const P = this.P, T = (a, b) => P.T(a, b), en = P.en;
