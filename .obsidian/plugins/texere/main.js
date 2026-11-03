@@ -375,6 +375,14 @@ module.exports = class Texere extends Plugin {
     const acts = inner.createDiv("txh-actions");
     const act = (icon, text, run, cta) => { const b = acts.createEl("button", { cls: cta ? "mod-cta" : "" }); const i = b.createSpan("txh-ic"); try { setIcon(i, icon); } catch (e) {} b.createSpan({ text }); b.addEventListener("click", run); return b; };
     act("library", T("Adaugă o sursă", "Add a source"), () => { if (!this.cmd("texere-sources:sources-search")) new Notice(T("Pornește Texere · Sources.", "Turn on Texere · Sources."), 6000); }, true);
+    // o notă nouă, în tab-ul acesta, în folderul ales în Obsidian pentru notele noi; titlul e selectat, ca să-l scrii direct
+    act("file-plus", T("Notă nouă", "New note"), async () => {
+      try {
+        const fm = this.app.fileManager, parent = fm.getNewFileParent?.(this.app.workspace.getActiveFile()?.path || "") || this.app.vault.getRoot();
+        const f = await fm.createNewMarkdownFile(parent, T("Fără titlu", "Untitled"));
+        await leaf.openFile(f, { active: true, eState: { rename: "all" } });
+      } catch (e) { new Notice(T("N-am putut crea nota: ", "Couldn't create the note: ") + (e?.message || e), 8000); }
+    });
     act("file-output", T("Exportă", "Export"), () => { if (!this.cmd("texere-export:export-pick")) new Notice(T("Pornește Texere · Export.", "Turn on Texere · Export."), 6000); });
     act("life-buoy", T("Ajutor", "Help"), () => { if (typeof window.__ghidAsk === "function") window.__ghidAsk(); else if (!this.cmd("ghid-ajutor:help")) new Notice(T("Butonul Ajutor nu e pornit: Setări → Texere · The Researcher's Vault → Rulează din nou.", "Help isn't on: Settings → Texere · The Researcher's Vault → Run again."), 8000); });
     // 3. ce trebuie reparat (doar dacă e ceva)
@@ -404,10 +412,8 @@ module.exports = class Texere extends Plugin {
         a.addEventListener("auxclick", e => { if (e.button === 1) { e.preventDefault(); this.app.workspace.getLeaf("tab").openFile(f); } });
       }
     }
-    // 5. pe scurt: câte surse; PDF-urile din Inbox (un clic: „PDF-uri fără sursă”)
-    const ft = inner.createDiv("txh-foot");
-    ft.createSpan({ text: sources === 1 ? T("1 sursă", "1 source") : T(`${sources} surse`, `${sources} sources`) });
-    if (pdfs) { ft.createSpan({ text: " · " }); const a = ft.createEl("a", { href: "#", text: pdfs === 1 ? T("1 PDF în Inbox", "1 PDF in Inbox") : T(`${pdfs} PDF-uri în Inbox`, `${pdfs} PDFs in Inbox`) }); a.addEventListener("click", e => { e.preventDefault(); this.cmd("texere-sources:sources-uncataloged"); }); }
+    // 5. doar dacă ai PDF-uri care așteaptă în Inbox (un clic: „PDF-uri fără sursă”); numărul surselor nu mai apare
+    if (pdfs) { const ft = inner.createDiv("txh-foot"); const a = ft.createEl("a", { href: "#", text: pdfs === 1 ? T("1 PDF în Inbox", "1 PDF in Inbox") : T(`${pdfs} PDF-uri în Inbox`, `${pdfs} PDFs in Inbox`) }); a.addEventListener("click", e => { e.preventDefault(); this.cmd("texere-sources:sources-uncataloged"); }); }
   }
 
   // fereastra de configurare: o singură dată, la prima pornire (sau din comandă / setări)
@@ -561,7 +567,7 @@ const CSS = `.texere-core-settings .tx-intro{color:var(--text-muted);font-size:v
 .texere-home .txh-ptext{font-size:var(--font-ui-small);font-weight:600}
 .texere-home .txh-pwhy{font-size:var(--font-ui-smaller);color:var(--text-muted)}
 .texere-home .txh-problem button{flex:none}
-.texere-home .txh-actions{display:flex;gap:8px}
+.texere-home .txh-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .texere-home .txh-actions button{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 12px;white-space:nowrap}
 .texere-home .txh-ic{display:inline-flex}.texere-home .txh-ic svg{width:16px;height:16px}
 .texere-home .txh-label{font-size:var(--font-ui-smaller);color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 -8px}
