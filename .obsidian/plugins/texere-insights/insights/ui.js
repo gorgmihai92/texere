@@ -13,9 +13,10 @@ const txt = (s, x, y, t, cls, anchor) => { const e = document.createElementNS(SV
 
 const CSS = `
 .txi-view{padding:0 !important}
-.txi-wrap{max-width:900px;margin:0 auto;padding:24px 28px 60px}
-.txi-head{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid var(--background-modifier-border);padding-bottom:12px;margin-bottom:18px}
-.txi-head h2{margin:0;font-size:var(--font-ui-large);font-weight:600}.txi-head .txi-sub{color:var(--text-faint);font-size:var(--font-ui-smaller);margin-left:auto;display:flex;gap:10px;align-items:center}
+.txi-wrap{box-sizing:border-box;max-width:900px;margin:0 auto;padding:22px 24px 60px}
+.txi-head{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid var(--background-modifier-border);margin-bottom:12px}
+.txi-head .txi-title,.txi-head h2{margin:0;padding-bottom:10px;font-size:var(--font-ui-large);font-weight:600;line-height:1.3}
+.txi-head .txi-sub{padding-bottom:8px}.txi-head .txi-sub{color:var(--text-faint);font-size:var(--font-ui-smaller);margin-left:auto;display:flex;gap:10px;align-items:center}
 .txi-sec{margin:0 0 26px}.txi-sec>h3{font-size:var(--font-ui-small);text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin:0 0 10px;font-weight:600}
 .txi-sec>.txi-lead{color:var(--text-muted);font-size:var(--font-ui-smaller);margin:-6px 0 10px;max-width:70ch;line-height:1.5}
 .txi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
@@ -258,7 +259,7 @@ class InsightsView extends ItemView {
   async draw() {
     const P = this.P, T = (a, b) => P.T(a, b), en = P.en, c = this.contentEl, keep = c.scrollTop;
     c.empty(); const w = c.createDiv("txi-wrap");
-    const head = w.createDiv("txi-head"); head.createEl("h2", { text: "Texere · Insights" });
+    const head = w.createDiv("txi-head"); head.createDiv({ cls: "txi-title", text: "Texere · Insights" });
     const sub = head.createDiv("txi-sub"); sub.createSpan({ text: P.scanCache?.at ? T(`actualizat ${P.ago(P.scanCache.at)}`, `updated ${P.ago(P.scanCache.at)}`) : T("se citește vault-ul…", "reading your vault…") });
     const rb = sub.createEl("button", { text: T("Actualizează", "Refresh") }); rb.addEventListener("click", async () => { rb.disabled = true; rb.setText("…"); await P.allLogs(); P._logsAt = 0; await P.allLogs(); await P.scan(false, true); this.render(); });
     try { this.writing(w); } catch (e) { console.error(e); }
