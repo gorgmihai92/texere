@@ -486,5 +486,12 @@ if (!window.__ghidAjutor) {
   cmds.forEach(c => { try { app.commands.addCommand(c); } catch (e) { try { T?.addCommand({ id: c.id.replace(":", "-"), name: c.name, callback: c.callback }); } catch (e2) {} } });
   try { T.addRibbonIcon("life-buoy", getLang() === "ro" ? "Texere · Ajutor" : "Texere · Help", () => ask()); } catch (e) {}
   window.__ghidAsk = ask;
+  // același Ajutor, desenat într-o pagină (tab-ul nou din Texere) în loc de fereastră
+  window.__ghidPanel = (el, done) => {
+    const m = new Help(getLang()); el.empty(); const f = el.createDiv("tx-embedded");
+    m.containerEl = el; m.modalEl = f; m.titleEl = f.createDiv("modal-title"); m.contentEl = f.createDiv("modal-content");
+    let closed = false; m.open = () => {}; m.close = () => { if (closed) return; closed = true; try { m.onClose(); } catch (e) {} if (done) done(); };
+    m.onOpen(); return m;
+  };
 }
 %>

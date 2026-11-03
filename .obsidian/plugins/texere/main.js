@@ -17,7 +17,8 @@ const { Plugin, Notice, TFile, Modal, Setting, PluginSettingTab, requestUrl, nor
 const CONFIG = "Support/Templates/New laptop setup.md";
 const STARTS = ["Support/Admin/Scripts/Guide folding.md", "Support/Admin/Scripts/Help.md"];
 const FLAG = "texere-setup";
-const LANG = "texere-lang";   // limba aleasă în fereastra de configurare și în Ajutor (ro / en); o folosesc toate pluginurile Texere
+const LANG = "texere-lang";
+const INSTALL_URL = "https://github.com/gorgmihai92/texere";   // provizoriu: pagina vault-ului, până când pluginurile sunt publicate   // limba aleasă în fereastra de configurare și în Ajutor (ro / en); o folosesc toate pluginurile Texere
 // limba: cea aleasă în Texere; dacă n-a fost aleasă, limba lui Obsidian (fiecare plugin Texere merge și singur)
 const isEn = app => { const l = app?.loadLocalStorage?.(LANG); if (l === "en" || l === "ro") return l === "en"; let o = ""; try { o = window.localStorage.getItem("language") || ""; } catch (e) {} return !/^ro/i.test(o); };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -360,6 +361,7 @@ module.exports = class Texere extends Plugin {
     for (const leaf of leaves) {
       const el = leaf?.view?.contentEl; if (!el || side.includes(leaf.getRoot?.())) continue;
       if (!redraw && el.querySelector(".texere-home")) continue;
+      if (redraw === true && leaf.__txPage && leaf.__txPage !== "home") continue;   // nu redesenăm peste ce faci în altă pagină
       this.renderHome(leaf).catch(e => console.error("Texere: panoul", e));
     }
   }
@@ -368,25 +370,14 @@ module.exports = class Texere extends Plugin {
     const probs = await this.problems(); if (leaf.__txh !== tok || !leaf.view?.contentEl) return;   // un desen mai nou a pornit între timp
     const { sources, pdfs } = this.counts();
     el.addClass("texere-home-on"); el.querySelector(".texere-home")?.remove();
-    const box = el.createDiv("texere-home"), inner = box.createDiv("txh-inner");
+    const box = el.createDiv("texere-home"), page = leaf.__txPage || "home", area = box.createDiv("txh-page txh-page-" + (page === "home" ? "home" : "panel"));
+    this.navBar(box, leaf, page);
+    if (page !== "home") { this.renderPanel(page, area, leaf); return; }
+    const inner = area.createDiv("txh-inner");
     const redraw = () => setTimeout(() => this.notify(), 400);
     // 1. bun venit: ce e Texere, într-o propoziție
     inner.createDiv({ cls: "txh-hi", text: T("Bun venit în Texere", "Welcome to Texere") });
     inner.createDiv({ cls: "txh-desc", text: T("Sursele, lectura și scrisul tău, într-un singur loc. Adaugi o sursă, o citești și evidențiezi, scrii cu citări, apoi exporți.", "Your sources, reading and writing, in one place. Add a source, read and highlight it, write with citations, then export.") });
-    // 2. acțiunile Texere
-    const acts = inner.createDiv("txh-actions");
-    const act = (icon, text, run, cta) => { const b = acts.createEl("button", { cls: cta ? "mod-cta" : "" }); const i = b.createSpan("txh-ic"); try { setIcon(i, icon); } catch (e) {} b.createSpan({ text }); b.addEventListener("click", run); return b; };
-    act("library", T("Adaugă o sursă", "Add a source"), () => { if (!this.cmd("texere-sources:sources-search")) new Notice(T("Pornește Texere · Sources.", "Turn on Texere · Sources."), 6000); }, true);
-    // o notă nouă, în tab-ul acesta, în folderul ales în Obsidian pentru notele noi; titlul e selectat, ca să-l scrii direct
-    act("file-plus", T("Notă nouă", "New note"), async () => {
-      try {
-        const fm = this.app.fileManager, parent = fm.getNewFileParent?.(this.app.workspace.getActiveFile()?.path || "") || this.app.vault.getRoot();
-        const f = await fm.createNewMarkdownFile(parent, T("Fără titlu", "Untitled"));
-        await leaf.openFile(f, { active: true, eState: { rename: "all" } });
-      } catch (e) { new Notice(T("N-am putut crea nota: ", "Couldn't create the note: ") + (e?.message || e), 8000); }
-    });
-    act("file-output", T("Exportă", "Export"), () => { if (!this.cmd("texere-export:export-pick")) new Notice(T("Pornește Texere · Export.", "Turn on Texere · Export."), 6000); });
-    act("life-buoy", T("Ajutor", "Help"), () => { if (typeof window.__ghidAsk === "function") window.__ghidAsk(); else if (!this.cmd("ghid-ajutor:help")) new Notice(T("Butonul Ajutor nu e pornit: Setări → Texere · The Researcher's Vault → Rulează din nou.", "Help isn't on: Settings → Texere · The Researcher's Vault → Run again."), 8000); });
     // 3. ce trebuie reparat (doar dacă e ceva)
     if (probs.length) {
       const pb = inner.createDiv("txh-problems");
@@ -416,6 +407,61 @@ module.exports = class Texere extends Plugin {
     }
     // 5. doar dacă ai PDF-uri care așteaptă în Inbox (un clic: „PDF-uri fără sursă”); numărul surselor nu mai apare
     if (pdfs) { const ft = inner.createDiv("txh-foot"); const a = ft.createEl("a", { href: "#", text: pdfs === 1 ? T("1 PDF în Inbox", "1 PDF in Inbox") : T(`${pdfs} PDF-uri în Inbox`, `${pdfs} PDFs in Inbox`) }); a.addEventListener("click", e => { e.preventDefault(); this.cmd("texere-sources:sources-uncataloged"); }); }
+  }
+
+  // ——— bara de jos din tab-ul nou: Acasă · Surse · Export · Insights · Ajutor, și (+) pentru o notă nouă ———
+  // fiecare pagină e ecranul pluginului desenat aici (aceeași clasă ca fereastra lui); dacă pluginul lipsește: ce face și cum îl instalezi
+  navBar(box, leaf, page) {
+    const T = (a, b) => this.T(a, b), wrap = box.createDiv("txh-navwrap"), nav = wrap.createDiv("txh-nav");
+    for (const [id, icon, label] of [["home", "home", T("Acasă", "Home")], ["sources", "library", T("Surse", "Sources")], ["export", "file-output", T("Export", "Export")], ["insights", "lightbulb", "Insights"], ["help", "life-buoy", T("Ajutor", "Help")]]) {
+      const b = nav.createEl("button", { cls: "txh-nb" + (page === id ? " on" : "") }); b.title = label;
+      const ic = b.createSpan("txh-ic"); try { setIcon(ic, icon); } catch (e) {} b.createSpan({ cls: "txh-nl", text: label });
+      b.addEventListener("click", () => { if (leaf.__txPage === id && id !== "home") return; leaf.__txPage = id; this.renderHome(leaf); });
+    }
+    const add = wrap.createEl("button", { cls: "txh-new" }); add.title = T("Notă nouă", "New note"); add.setAttr?.("aria-label", T("Notă nouă", "New note"));
+    try { setIcon(add, "plus"); } catch (e) { add.setText("+"); }
+    add.addEventListener("click", () => this.newNote(leaf));
+  }
+  // o notă nouă, în tab-ul acesta, în folderul ales în Obsidian pentru notele noi; titlul e selectat, ca să-l scrii direct
+  async newNote(leaf) {
+    const T = (a, b) => this.T(a, b);
+    try {
+      const fm = this.app.fileManager, parent = fm.getNewFileParent?.(this.app.workspace.getActiveFile()?.path || "") || this.app.vault.getRoot();
+      const f = await fm.createNewMarkdownFile(parent, T("Fără titlu", "Untitled"));
+      leaf.__txPage = "home"; await leaf.openFile(f, { active: true, eState: { rename: "all" } });
+    } catch (e) { new Notice(T("N-am putut crea nota: ", "Couldn't create the note: ") + (e?.message || e), 8000); }
+  }
+  renderPanel(page, area, leaf) {
+    const P = this.app.plugins.plugins, back = () => { leaf.__txPage = "home"; this.renderHome(leaf); };
+    try {
+      if (page === "sources" && P["texere-sources"]?.sources?.panel) return P["texere-sources"].sources.panel(area, back);
+      if (page === "export" && P["texere-export"]?.exporter?.panel) return P["texere-export"].exporter.panel(area, back);
+      if (page === "insights" && P["texere-insights"]?.panel) return P["texere-insights"].panel(area, back);
+      if (page === "help" && typeof window.__ghidPanel === "function") return window.__ghidPanel(area, back);
+    } catch (e) { console.error("Texere: pagina", page, e); }
+    this.installPage(page, area);
+  }
+  // pluginul nu e pornit sau nu e instalat: ce face, și un buton (Pornește / Instalează)
+  installPage(page, area) {
+    const T = (a, b) => this.T(a, b), card = area.createDiv("txh-inst");
+    const info = {
+      sources: { id: "texere-sources", icon: "library", name: "Texere · Sources", ro: "Caută surse în cataloage și le adaugă cu PDF-ul gratuit, importă din Zotero, citează în orice stil și aduce evidențierile din PDF în note.", en: "Searches catalogs and adds sources with their free PDF, imports from Zotero, cites in any style and brings your PDF highlights into your notes." },
+      export: { id: "texere-export", icon: "file-output", name: "Texere · Export", ro: "Face din nota ta un PDF, un document Word, LaTeX, HTML sau Markdown, cu cuprins, pagină și șabloanele facultății.", en: "Turns your note into a PDF, Word, LaTeX, HTML or Markdown file, with contents, page layout and thesis templates." },
+      insights: { id: "texere-insights", icon: "lightbulb", name: "Texere · Insights", ro: "Câte cuvinte scrii, lipești și ștergi; menționările fără link și aliasurile; tiparele din lectura și scrisul tău; ritmul proiectelor.", en: "How much you write, paste and delete; unlinked mentions and aliases; patterns in your reading and writing; the pace of your projects." },
+      help: { id: "templater-obsidian", icon: "life-buoy", name: T("Ajutor", "Help"), ro: "Răspunsuri la întrebări despre vault, din ghid, în română sau engleză. Pornește cu Templater, la deschiderea vault-ului.", en: "Answers to questions about the vault, from the guide, in English or Romanian. It starts with Templater when the vault opens." },
+    }[page];
+    const ic = card.createDiv("txh-inst-ic"); try { setIcon(ic, info.icon); } catch (e) {}
+    card.createDiv({ cls: "txh-inst-t", text: info.name });
+    card.createDiv({ cls: "txh-inst-d", text: T(info.ro, info.en) });
+    const st = this.state(info.id), b = card.createEl("button", { cls: "mod-cta" });
+    if (page === "help") {
+      const dep = DEPS.find(d => d.id === "templater-obsidian");
+      if (st === "on") { b.setText(T("Pornește Ajutorul", "Start Help")); b.addEventListener("click", async () => { b.disabled = true; await this.enableStartupScripts(); this.notify(); }); }
+      else { b.setText(st === "missing" ? T("Instalează Templater", "Install Templater") : T("Pornește Templater", "Turn on Templater")); b.addEventListener("click", async () => { b.disabled = true; await this.doItem({ kind: "dep", d: dep, st }); this.notify(); }); }
+      return;
+    }
+    if (st === "off") { b.setText(T("Pornește", "Turn on")); b.addEventListener("click", async () => { b.disabled = true; await this.enable(info.id); setTimeout(() => this.notify(), 800); }); }
+    else { b.setText(T("Instalează", "Install")); b.addEventListener("click", () => window.open(INSTALL_URL)); card.createDiv({ cls: "txh-inst-n", text: T("Vine cu vault-ul Texere: îl copiezi în .obsidian/plugins.", "It comes with the Texere vault: copy it into .obsidian/plugins.") }); }
   }
 
   // fereastra de configurare: o singură dată, la prima pornire (sau din comandă / setări)
@@ -553,7 +599,27 @@ const CSS = `.texere-core-settings .tx-intro{color:var(--text-muted);font-size:v
 .texere-onboard .tx-ob-foot{color:var(--text-faint);font-size:var(--font-ui-smaller)}
 .texere-onboard .tx-ob-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 .texere-home-on>.empty-state{display:none}
-.texere-home{box-sizing:border-box;min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.texere-home-on{padding:0 !important;overflow:hidden !important}
+.texere-home{box-sizing:border-box;height:100%;position:relative;display:flex;flex-direction:column;container-type:inline-size}
+.texere-home .txh-page{flex:1;min-height:0;overflow:auto;box-sizing:border-box}
+.texere-home .txh-page-home{display:flex;align-items:safe center;justify-content:center;padding:24px 16px 96px}
+.texere-home .txh-page-panel{padding:0 0 84px}
+.texere-home .txh-navwrap{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;z-index:5}
+.texere-home .txh-nav{display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--background-primary);border:1px solid var(--background-modifier-border);box-shadow:0 8px 28px rgba(0,0,0,.14)}
+.texere-home .txh-nb{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:transparent !important;box-shadow:none !important;color:var(--text-muted);font-size:var(--font-ui-small);white-space:nowrap;cursor:pointer}
+.texere-home .txh-nb:hover{background:var(--background-modifier-hover) !important;color:var(--text-normal)}
+.texere-home .txh-nb.on{background:var(--interactive-accent) !important;color:var(--text-on-accent)}
+.texere-home .txh-nb .txh-ic svg{width:16px;height:16px}
+.texere-home .txh-new{width:46px;height:46px;border-radius:50%;padding:0;display:inline-flex;align-items:center;justify-content:center;background:var(--interactive-accent) !important;color:var(--text-on-accent);box-shadow:0 8px 28px rgba(0,0,0,.18) !important;cursor:pointer}
+.texere-home .txh-new svg{width:20px;height:20px}.texere-home .txh-new:hover{filter:brightness(1.08)}
+@container (max-width: 600px){.texere-home .txh-nl{display:none}.texere-home .txh-nb{padding:0 11px}}
+.texere-home .tx-embedded{box-sizing:border-box;display:flex;flex-direction:column;width:min(900px,100%) !important;max-width:100% !important;height:100% !important;max-height:none !important;margin:0 auto !important;padding:22px 24px 0;background:transparent;border:0;box-shadow:none;position:relative}
+.texere-home .tx-embedded>.modal-content{flex:1;min-height:0}
+.texere-home .txh-inst{max-width:420px;margin:12vh auto 0;padding:0 16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.texere-home .txh-inst-ic{color:var(--interactive-accent)}.texere-home .txh-inst-ic svg{width:32px;height:32px}
+.texere-home .txh-inst-t{font-size:var(--font-ui-large);font-weight:600}
+.texere-home .txh-inst-d{color:var(--text-muted);font-size:var(--font-ui-small);line-height:1.5}
+.texere-home .txh-inst button{margin-top:6px}.texere-home .txh-inst-n{color:var(--text-faint);font-size:var(--font-ui-smaller)}
 .texere-home .txh-inner{width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
 .texere-home .txh-hi{font-size:var(--font-ui-large);font-weight:600;text-align:center;margin-bottom:-8px}
 .texere-home .txh-desc{color:var(--text-muted);font-size:var(--font-ui-small);text-align:center;line-height:1.5;max-width:44ch;margin:0 auto}

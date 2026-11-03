@@ -903,6 +903,8 @@ ${mode === "html" ? `body { max-width: 42em; margin: 3em auto; padding: 0 1.2em;
   }
   open(file) { if (!(file instanceof TFile) || file.extension !== "md") { new Notice(this.T("Deschide nota pe care vrei s-o exporți.", "Open the note you want to export.")); return; } new ExportModal(this, file).open(); }
   pick() { new ExportPicker(this).open(); }
+  // lista notelor și apoi exportul, desenate într-o pagină (tab-ul nou) în loc de ferestre
+  panel(el, done) { const p = new ExportPicker(this); p.choose = f => { if (f instanceof TFile) mountIn(new ExportModal(this, f), el, done); }; return mountIn(p, el, done); }
 }
 
 // ——— setările de pagină (aceleași în fereastra exportului și în Setări → Texere · Export) ———
@@ -1220,6 +1222,15 @@ function sharedCss() {
   const put = (id, other, css) => { if (document.getElementById(other) || document.getElementById(id)) return; const st = document.createElement("style"); st.id = id; st.textContent = css; document.head.appendChild(st); };
   put("texere-export-modal-css", "texere-sources-css", SHARED_MODAL_CSS);
   put("texere-export-settings-css", "texere-settings-css", SHARED_SETTINGS_CSS);
+}
+
+// un ecran al pluginului desenat într-o pagină (tab-ul nou din Texere) în loc de fereastră: aceeași clasă, alt loc; „Închide” = înapoi
+function mountIn(m, el, done) {
+  el.empty(); const frame = el.createDiv("tx-embedded");
+  m.containerEl = el; m.modalEl = frame; m.titleEl = frame.createDiv("modal-title"); m.contentEl = frame.createDiv("modal-content");
+  let closed = false; m.open = () => {}; m.close = () => { if (closed) return; closed = true; try { m.onClose?.(); } catch (e) {} done?.(); };
+  Promise.resolve().then(() => m.onOpen?.()).catch(e => console.error("Texere: ecranul în pagină", e));
+  return m;
 }
 class ExportModal extends Modal {
   constructor(X, file) { super(X.app); this.X = X; this.file = file; this.format = X.conf().format || "pdf"; this.style = null; this.built = null; }

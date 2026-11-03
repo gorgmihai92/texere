@@ -670,6 +670,8 @@ class Sources {
   }
 
   open(q, mode) { const m = new SearchModal(this, q); m.mode0 = mode; m.open(); }
+  // același ecran „Adaugă o sursă”, desenat într-o pagină (tab-ul nou) în loc de fereastră
+  panel(el, done) { return mountIn(new SearchModal(this, ""), el, done); }
   reviewFromOutside(x, csl, pdf, label) {
     const m = new SearchModal(this, "", pdf ? { pdf } : {}); m.open();
     if (label) m.titleEl.querySelector(".ts-head-t")?.setText(this.T("Adaugă o sursă", "Add a source") + " · " + label);
@@ -1737,6 +1739,15 @@ class SourceFoldersModal extends Modal {
   onClose() { this.contentEl.empty(); const d = this.done; this.done = null; d?.(this.ok); }
 }
 
+
+// un ecran al pluginului desenat într-o pagină (tab-ul nou din Texere) în loc de fereastră: aceeași clasă, alt loc; „Închide” = înapoi
+function mountIn(m, el, done) {
+  el.empty(); const frame = el.createDiv("tx-embedded");
+  m.containerEl = el; m.modalEl = frame; m.titleEl = frame.createDiv("modal-title"); m.contentEl = frame.createDiv("modal-content");
+  let closed = false; m.open = () => {}; m.close = () => { if (closed) return; closed = true; try { m.onClose?.(); } catch (e) {} done?.(); };
+  Promise.resolve().then(() => m.onOpen?.()).catch(e => console.error("Texere: ecranul în pagină", e));
+  return m;
+}
 class SearchModal extends Modal {
   constructor(src, q, opts = {}) {
     super(src.app); this.src = src; this.q0 = q || ""; this.pdf = opts.pdf || null; this.auto = opts.auto || null;

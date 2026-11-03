@@ -102,6 +102,8 @@ const UiMixin = {
   },
   refreshViews() { for (const l of this.app.workspace.getLeavesOfType(VIEW)) { try { l.view.render(); } catch (e) {} } },
   review(tab) { new ReviewModal(this, tab).open(); },
+  // pagina Insights, desenată în altă pagină (tab-ul nou din Texere)
+  panel(el) { el.empty(); const v = Object.create(InsightsView.prototype); Object.assign(v, { P: this, contentEl: el, period: "week", balScope: "", expanded: null }); v.render(); return v; },
   openPath(path, newTab) { const f = this.app.vault.getAbstractFileByPath(path); if (f instanceof TFile) this.app.workspace.getLeaf(newTab ? "tab" : false).openFile(f); },
   showSurprise(s) {
     const m = new Modal(this.app), T = (a, b) => this.T(a, b); m.titleEl.setText(T("Surprinde-mă", "Surprise me"));
