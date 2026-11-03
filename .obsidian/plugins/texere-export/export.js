@@ -1027,7 +1027,9 @@ const SHARED_MODAL_CSS = `.modal-container:has(.texere-src){align-items:flex-sta
 .texere-src .ts-form .ts-sec-t a{font-weight:400;font-size:var(--font-ui-smaller);color:var(--text-muted);cursor:pointer}.texere-src .ts-form .ts-sec-t a:hover{color:var(--text-accent)}
 .texere-src .ts-form input.ts-auto::placeholder{color:var(--text-muted)}
 .texere-src .ts-chips{position:relative;display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:30px;padding:2px 6px;border:var(--input-border-width,1px) solid var(--background-modifier-border);border-radius:var(--input-radius,5px);background:var(--background-modifier-form-field);cursor:text}
-.texere-src .ts-chips:focus-within{border-color:var(--interactive-accent)}
+.texere-src .ts-chips:focus-within{border-color:var(--background-modifier-border-hover, var(--text-faint))}
+.texere-src textarea:focus,.texere-src input:focus,.texere-src select:focus{box-shadow:none !important;outline:none !important;border-color:var(--background-modifier-border-hover, var(--text-faint)) !important}
+.texere-src .ts-q:focus-within{border-color:var(--background-modifier-border-hover, var(--text-faint))}
 .texere-src .ts-chips input{flex:1;min-width:120px;height:24px !important;border:0 !important;box-shadow:none !important;background:transparent !important;padding:0 2px}
 .texere-src .ts-chip{display:inline-flex;align-items:center;gap:4px;padding:1px 4px 1px 8px;border-radius:10px;background:var(--background-modifier-hover);font-size:var(--font-ui-small)}
 .texere-src .ts-chip-x{cursor:pointer;color:var(--text-faint);padding:0 3px}.texere-src .ts-chip-x:hover{color:var(--text-normal)}

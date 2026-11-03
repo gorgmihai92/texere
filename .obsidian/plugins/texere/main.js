@@ -606,15 +606,20 @@ const CSS = `.texere-core-settings .tx-intro{color:var(--text-muted);font-size:v
 .texere-home .txh-page-panel{padding:0 0 84px}
 .texere-home .txh-navwrap{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:4px;z-index:5}
 .texere-home .txh-nav{display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--background-primary);border:1px solid var(--background-modifier-border);box-shadow:0 8px 28px rgba(0,0,0,.14)}
-.texere-home .txh-nb{border:0 !important;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:transparent !important;box-shadow:none !important;color:var(--text-muted);font-size:var(--font-ui-small);white-space:nowrap;cursor:pointer}
+.texere-home .txh-nb{border:0 !important;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:999px;background:transparent !important;box-shadow:none !important;color:var(--text-muted);font-size:var(--font-ui-small);font-weight:500 !important;white-space:nowrap;cursor:pointer;transition:none}
 .texere-home .txh-nb:hover{background:var(--background-modifier-hover) !important;color:var(--text-normal)}
-.texere-home .txh-nb.on{background:var(--background-modifier-active-hover, var(--background-modifier-hover)) !important;color:var(--text-normal);font-weight:600}
+.texere-home .txh-nb.on{background:var(--background-modifier-active-hover, var(--background-modifier-hover)) !important;color:var(--text-normal)}
 .texere-home .txh-nb .txh-ic svg{width:16px;height:16px}
 .texere-home .txh-new{flex:none;box-sizing:border-box;width:46px !important;height:46px !important;min-width:46px;aspect-ratio:1;border-radius:50% !important;padding:0 !important;display:inline-flex;align-items:center;justify-content:center;background:var(--background-primary) !important;border:1px solid var(--background-modifier-border) !important;color:var(--text-normal);box-shadow:0 8px 28px rgba(0,0,0,.14) !important;cursor:pointer}
 .texere-home .txh-new svg{width:20px;height:20px}.texere-home .txh-new:hover{background:var(--background-modifier-hover) !important}
 @container (max-width: 600px){.texere-home .txh-nl{display:none}.texere-home .txh-nb{padding:0 11px}}
 .texere-home .tx-embedded{box-sizing:border-box;display:flex;flex-direction:column;width:min(900px,100%) !important;max-width:100% !important;height:100% !important;max-height:none !important;margin:0 auto !important;padding:22px 24px 0;background:transparent;border:0;box-shadow:none;position:relative}
 .texere-home .tx-embedded>.modal-title:empty{display:none}
+.texere-home .tx-embedded>.modal-title{display:flex !important;flex-wrap:wrap;align-items:flex-end !important;justify-content:flex-start !important;gap:8px 24px;align-self:stretch !important;width:auto !important;max-width:none !important;margin:0 0 12px !important;padding:0 !important;text-align:left !important;border-bottom:1px solid var(--background-modifier-border) !important;font-size:var(--font-ui-large) !important;font-weight:600 !important;line-height:1.3 !important;color:var(--text-normal)}
+.texere-home .tx-embedded>.modal-title:not(:has(.ts-head-t)){padding-bottom:10px !important}
+.texere-home .tx-embedded>.modal-title .ts-head-t{padding-bottom:10px;font-size:inherit;font-weight:inherit;margin:0}
+.texere-home .tx-embedded>.modal-title .ts-modes{margin-left:auto}
+.texere-home .tx-embedded>.modal-title .ts-modes~.tx-file{margin-left:0}
 .texere-home .txh-page-panel .txi-wrap{max-width:900px;padding:22px 24px 24px}
 .texere-home .tx-embedded.txh-help>.modal-content>div:first-child{border-bottom:1px solid var(--background-modifier-border);margin-bottom:12px !important;align-items:flex-end !important}
 .texere-home .tx-embedded.txh-help>.modal-content>div:first-child>span:first-child{display:none !important}
