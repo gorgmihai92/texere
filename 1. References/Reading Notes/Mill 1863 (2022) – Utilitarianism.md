@@ -68,12 +68,12 @@ The standard of right and wrong is the general [[Happiness|happiness]], pleasure
 
 ## Arguments
 
-- **The principle of utility** (II): right actions promote happiness, understood as pleasure and the absence of pain.
-- **Higher and lower pleasures** (II): settled by those who know both.
-- **Impartiality** (II): my happiness counts no more than anyone else's.
-- **Motive and act** (II): the motive judges the agent, not the action; the rules of morality are inherited experience.
-- **The proof** (IV): happiness is desirable because people desire it.
-- **[[Justice]]** (V): the most important part of utility.
+- **The principle of utility** (Chapter II): right actions promote happiness, understood as pleasure and the absence of pain.
+- **Higher and lower pleasures** (Chapter II): settled by those who know both.
+- **Impartiality** (Chapter II): my happiness counts no more than anyone else's.
+- **Motive and act** (Chapter II): the motive judges the agent, not the action; the rules of morality are inherited experience.
+- **The proof** (Chapter IV): happiness is desirable because people desire it.
+- **[[Justice]]** (Chapter V): the most important part of utility.
 
 ## Counterarguments
 

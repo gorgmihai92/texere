@@ -77,12 +77,12 @@ Knowledge needs a foundation no doubt can shake: the [[Cogito]], and a God who i
 
 ## Arguments
 
-- **Method of doubt** (I): the senses sometimes deceive, waking can't be told from dreaming, and an evil demon might deceive me even in mathematics.
-- **The cogito** (II): "I am, I exist" is true each time I think it; I am a thinking thing.
-- **The wax** (II): bodies, too, are known by the mind, not by the senses.
-- **Trademark argument** (III): the idea of an infinite being can only come from an infinite being.
-- **Ontological argument** (V): existence belongs to the essence of [[God]].
-- **Real distinction** (VI): the mind is indivisible, the body divisible, so they are different substances ([[Dualism]]).
+- **Method of doubt** (Meditation I): the senses sometimes deceive, waking can't be told from dreaming, and an evil demon might deceive me even in mathematics.
+- **The cogito** (Meditation II): "I am, I exist" is true each time I think it; I am a thinking thing.
+- **The wax** (Meditation II): bodies, too, are known by the mind, not by the senses.
+- **Trademark argument** (Meditation III): the idea of an infinite being can only come from an infinite being.
+- **Ontological argument** (Meditation V): existence belongs to the essence of [[God]].
+- **Real distinction** (Meditation VI): the mind is indivisible, the body divisible, so they are different substances ([[Dualism]]).
 
 ## Counterarguments
 
