@@ -27,7 +27,8 @@ aliases:
   - "@dummett_origins_1996"
 authors:
   - "[[Michael Dummett]]"
-attachment: []
+attachment:
+  - "[[Dummett 1996 – Origins of Analytical Philosophy.pdf]]"
 discipline: []
 branch: []
 subfield: []

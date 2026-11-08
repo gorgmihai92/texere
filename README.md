@@ -1,5 +1,7 @@
 # Texere — The Researcher's Vault
 
+> **This repository is the ready-made Obsidian vault**: download it, open it in Obsidian, and everything is set up. It is built on the [Texere plugin](https://github.com/gorgmihai92/texere-plugin), which you can also install in a vault you already have.
+
 Research is usually scattered across many applications and places: Zotero, Mendeley or EndNote, Word or Google Docs, a laptop, the cloud, a phone, USB sticks and external drives. Moving between them costs time and loses things along the way.
 
 Texere is a ready-made Obsidian vault for researchers who want one place for the whole process: finding references, reading PDFs, taking notes, writing, citing and exporting. This version comes with a map of philosophy, but you can reshape it for any discipline.
@@ -55,11 +57,13 @@ Texere uses one other plugin, PDF++, for annotations. The vault also has Style S
 
 | Folder          | What's in it                                                                                                          |
 | --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `1. References` | one note per reference in `Reading Notes` and their PDFs in `PDFs` (the four notes are examples; only the open-access PDF is included) |
+| `1. References` | one note per reference in `Reading Notes` and their PDFs in `PDFs` (the four notes are examples)                      |
 | `2. Notes`      | your notes, and `Disciplines/Philosophy`: a map of philosophy with about 430 linked notes                             |
 | `3. Workspace`  | your work: Courses, Thesis, Articles, Projects                                                                        |
 | `4. Export`     | exported files                                                                                                        |
 | `Support`       | images, templates, and `Texere`: the writing guides (with their references), the bibliography and the citation styles |
+
+The example notes come from three books (Blackburn, Craig, Dummett) whose PDFs are under copyright and aren't included: if you have them, put them in `1. References/PDFs` with the names in each note's **attachment**, and the annotations link to their pages.
 
 Texere comes with this structure so you can start right away. You can change it: move or rename folders in Obsidian and Texere follows.
 

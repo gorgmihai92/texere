@@ -36,7 +36,8 @@ aliases:
   - "@blackburn_gandeste_2009"
 authors:
   - "[[Simon Blackburn]]"
-attachment: []
+attachment:
+  - "[[Blackburn 1999 (2009) – Gândește. O introducere convingătoare în filosofie.pdf]]"
 discipline:
   - "[[Philosophy]]"
 branch:

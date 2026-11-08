@@ -30,7 +30,8 @@ aliases:
   - "@craig_philosophy_2002"
 authors:
   - "[[Edward Craig]]"
-attachment: []
+attachment:
+  - "[[Craig 2002 – Philosophy. A very short introduction.pdf]]"
 discipline:
   - "[[Philosophy]]"
 branch:
