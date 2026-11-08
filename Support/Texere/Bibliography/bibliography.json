@@ -1,5 +1,179 @@
 [
   {
+    "id": "mill_utilitarianism_2022",
+    "type": "book",
+    "title": "Utilitarianism",
+    "issued": {
+      "date-parts": [
+        [
+          2022
+        ]
+      ]
+    },
+    "URL": "https://pressbooks.library.torontomu.ca/utilitarianism/",
+    "publisher": "Ryerson University",
+    "publisher-place": "Toronto",
+    "language": "en",
+    "author": [
+      {
+        "family": "Mill",
+        "given": "John Stuart"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          8
+        ]
+      ]
+    },
+    "citation-key": "mill_utilitarianism_2022",
+    "collection-title": "Public Domain Core Collection",
+    "original-date": {
+      "date-parts": [
+        [
+          1863
+        ]
+      ]
+    },
+    "year": "2022",
+    "dateCreated": "2026-11-08",
+    "reading-status": "#read",
+    "aliases": [
+      "Utilitarianism",
+      "@mill_utilitarianism_2022"
+    ],
+    "authors": [
+      "[[John Stuart Mill]]"
+    ],
+    "attachment": [
+      "[[Mill 1863 (2022) – Utilitarianism.pdf]]"
+    ],
+    "discipline": [
+      "[[Philosophy]]"
+    ],
+    "branch": [
+      "[[Ethics]]"
+    ],
+    "subfield": [
+      "[[Normative Ethics]]",
+      "[[Metaethics]]"
+    ],
+    "period": [
+      "[[19th-Century Philosophy]]"
+    ],
+    "movements": [
+      "[[Empiricism]]"
+    ],
+    "theories": [
+      "[[Utilitarianism]]",
+      "[[Consequentialism]]",
+      "[[Hedonism]]"
+    ],
+    "concepts": [
+      "[[Happiness]]",
+      "[[Justice]]",
+      "[[Duty]]",
+      "[[Moral Agency]]"
+    ],
+    "obsidianPath": "1. References/Reading Notes/Mill 1863 (2022) – Utilitarianism.md"
+  },
+  {
+    "id": "descartes_meditations_2022",
+    "type": "book",
+    "title": "Meditations on First Philosophy",
+    "issued": {
+      "date-parts": [
+        [
+          2022
+        ]
+      ]
+    },
+    "URL": "https://pressbooks.library.torontomu.ca/meditationsonfirstphilosophy/",
+    "publisher": "Ryerson University",
+    "publisher-place": "Toronto",
+    "language": "en",
+    "author": [
+      {
+        "family": "Descartes",
+        "given": "René"
+      }
+    ],
+    "translator": [
+      {
+        "family": "Veitch",
+        "given": "John"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          8
+        ]
+      ]
+    },
+    "citation-key": "descartes_meditations_2022",
+    "collection-title": "Public Domain Core Collection",
+    "original-title": "Meditationes de prima philosophia",
+    "original-date": {
+      "date-parts": [
+        [
+          1641
+        ]
+      ]
+    },
+    "year": "2022",
+    "dateCreated": "2026-11-08",
+    "reading-status": "#read",
+    "aliases": [
+      "Meditations on First Philosophy",
+      "@descartes_meditations_2022"
+    ],
+    "authors": [
+      "[[René Descartes]]"
+    ],
+    "attachment": [
+      "[[Descartes 1641 (2022) – Meditations on First Philosophy.pdf]]"
+    ],
+    "discipline": [
+      "[[Philosophy]]"
+    ],
+    "branch": [
+      "[[Epistemology]]",
+      "[[Metaphysics]]",
+      "[[Philosophy of Mind]]",
+      "[[Philosophy of Religion]]"
+    ],
+    "subfield": [
+      "[[Ontology]]",
+      "[[Natural Theology]]"
+    ],
+    "period": [
+      "[[Early Modern Philosophy]]"
+    ],
+    "movements": [
+      "[[Rationalism]]"
+    ],
+    "theories": [
+      "[[Dualism]]",
+      "[[Foundationalism]]"
+    ],
+    "concepts": [
+      "[[Cogito]]",
+      "[[Certainty]]",
+      "[[Innate Ideas]]",
+      "[[God]]",
+      "[[Mind]]",
+      "[[Mind-Body Problem]]",
+      "[[Substance]]"
+    ],
+    "obsidianPath": "1. References/Reading Notes/Descartes 1641 (2022) – Meditations on First Philosophy.md"
+  },
+  {
     "dateCreated": "2026-10-31",
     "aliases": [
       "Avatarobots and the crisis of democracy: From bot armies to metaverse swarms",

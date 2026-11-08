@@ -63,7 +63,7 @@ Texere uses one other plugin, PDF++, for annotations. The vault also has Style S
 | `4. Export`     | exported files                                                                                                        |
 | `Support`       | images, templates, and `Texere`: the writing guides (with their references), the bibliography and the citation styles |
 
-The example notes come from three books (Blackburn, Craig, Dummett) whose PDFs are under copyright and aren't included: if you have them, put them in `1. References/PDFs` with the names in each note's **attachment**, and the annotations link to their pages.
+Two complete examples come with their PDFs, both in the public domain: Descartes' *Meditations on First Philosophy* and Mill's *Utilitarianism*, annotated in every color, with notes under the annotations and a summary at the top. Three more example notes come from books under copyright (Blackburn, Craig, Dummett), so their PDFs aren't included: if you have them, put them in `1. References/PDFs` with the names in each note's **attachment**, and the annotations link to their pages.
 
 Texere comes with this structure so you can start right away. You can change it: move or rename folders in Obsidian and Texere follows.
 
