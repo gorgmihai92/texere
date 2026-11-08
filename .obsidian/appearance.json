@@ -1,0 +1,15 @@
+{
+  "cssTheme": "Minimal",
+  "theme": "moonstone",
+  "enabledCssSnippets": [
+    "pdf-custom-themes",
+    "highlight-tags"
+  ],
+  "baseFontSizeAction": false,
+  "baseFontSize": 15,
+  "showViewHeader": false,
+  "nativeMenus": true,
+  "accentColor": "#8a5cf5",
+  "translucency": false,
+  "showRibbon": true
+}

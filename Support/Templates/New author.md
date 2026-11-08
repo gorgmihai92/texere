@@ -1,0 +1,9 @@
+---
+dateCreated:
+discipline:
+branch:
+period:
+movements:
+theories:
+concepts:
+---

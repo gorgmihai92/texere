@@ -1,0 +1,145 @@
+---
+dateCreated: 2026-08-11
+aliases:
+  - Contemporary
+  - Contemporary (20th Century - Present)
+  - 20th-Century Philosophy
+  - Filosofia contemporană
+  - Contemporan
+discipline:
+  - "[[Philosophy]]"
+movements:
+  - "[[African Philosophy]]"
+  - "[[Analytic Philosophy]]"
+  - "[[Continental Philosophy]]"
+  - "[[Critical Theory]]"
+  - "[[Deconstruction]]"
+  - "[[Existentialism]]"
+  - "[[Experimental Philosophy]]"
+  - "[[Feminist Philosophy]]"
+  - "[[Hermeneutics]]"
+  - "[[Logical Positivism]]"
+  - "[[Marxism]]"
+  - "[[Ordinary Language Philosophy]]"
+  - "[[Phenomenology]]"
+  - "[[Post-Structuralism]]"
+  - "[[Postmodernism]]"
+  - "[[Pragmatism]]"
+  - "[[Structuralism]]"
+theories:
+  - "[[Logicism]]"
+  - "[[Verificationism]]"
+  - "[[Falsificationism]]"
+  - "[[Scientific Realism]]"
+  - "[[Instrumentalism]]"
+  - "[[Physicalism]]"
+  - "[[Behaviorism]]"
+  - "[[Identity Theory]]"
+  - "[[Functionalism]]"
+  - "[[Eliminative Materialism]]"
+  - "[[Computational Theory of Mind]]"
+  - "[[Embodied Cognition]]"
+  - "[[Extended Mind]]"
+  - "[[Panpsychism]]"
+  - "[[Theory of Descriptions]]"
+  - "[[Causal Theory of Reference]]"
+  - "[[Speech Act Theory]]"
+  - "[[Use Theory of Meaning]]"
+  - "[[Expressivism]]"
+  - "[[Error Theory]]"
+  - "[[Moral Realism]]"
+  - "[[Contractualism]]"
+  - "[[Care Ethics]]"
+  - "[[Virtue Ethics]]"
+  - "[[Communitarianism]]"
+  - "[[Libertarianism (Political)]]"
+  - "[[Egalitarianism]]"
+  - "[[Cosmopolitanism]]"
+  - "[[Reliabilism]]"
+  - "[[Coherentism]]"
+  - "[[Contextualism]]"
+  - "[[Virtue Epistemology]]"
+  - "[[Legal Positivism]]"
+  - "[[Technological Determinism]]"
+  - "[[Institutional Theory of Art]]"
+concepts:
+  - "[[Intentionality]]"
+  - "[[Consciousness]]"
+  - "[[Qualia]]"
+  - "[[Other Minds]]"
+  - "[[Lifeworld]]"
+  - "[[Dasein]]"
+  - "[[The Absurd]]"
+  - "[[Authenticity]]"
+  - "[[Bad Faith]]"
+  - "[[Language Games]]"
+  - "[[Meaning]]"
+  - "[[Reference]]"
+  - "[[Truth]]"
+  - "[[Paradigm]]"
+  - "[[Scientific Explanation]]"
+  - "[[Power]]"
+  - "[[Veil of Ignorance]]"
+  - "[[Justice]]"
+  - "[[Artificial Intelligence]]"
+  - "[[Cognitive Offloading]]"
+  - "[[Testimony]]"
+  - "[[Trust]]"
+  - "[[Information]]"
+authors:
+  - "[[Jean-Paul Sartre]]"
+  - "[[Albert Camus]]"
+  - "[[Simone de Beauvoir]]"
+  - "[[Martin Heidegger]]"
+  - "[[Edmund Husserl]]"
+  - "[[Bertrand Russell]]"
+  - "[[Ludwig Wittgenstein]]"
+  - "[[G. E. Moore]]"
+  - "[[Michel Foucault]]"
+  - "[[Jacques Derrida]]"
+  - "[[Gottlob Frege]]"
+  - "[[Rudolf Carnap]]"
+  - "[[A. J. Ayer]]"
+  - "[[Karl Popper]]"
+  - "[[Maurice Merleau-Ponty]]"
+  - "[[Hannah Arendt]]"
+  - "[[Theodor W. Adorno]]"
+  - "[[Jürgen Habermas]]"
+  - "[[J. L. Austin]]"
+  - "[[W. V. O. Quine]]"
+  - "[[Thomas Kuhn]]"
+  - "[[John Rawls]]"
+  - "[[Thomas Nagel]]"
+  - "[[Andy Clark]]"
+  - "[[David Chalmers]]"
+---
+Philosophy from the early 20th century to the present, including the analytic and continental traditions.
+
+## Sub-periods
+- **Early 20th century** (1900–1930s): the birth of [[Analytic Philosophy|analytic philosophy]] (Frege, Russell, Moore, early Wittgenstein), [[Phenomenology|phenomenology]] (Husserl, Heidegger) and [[Logical Positivism|logical positivism]].
+- **Mid 20th century** (1940s–1960s): [[Existentialism|existentialism]] (Sartre, Camus, Beauvoir), [[Ordinary Language Philosophy|ordinary language philosophy]], [[Critical Theory|critical theory]], [[Structuralism|structuralism]], Popper and Kuhn on science.
+- **Late 20th century to present** (1970s–today): [[Post-Structuralism|post-structuralism]] (Foucault, Derrida), [[Political Philosophy|political philosophy]] after Rawls, [[Philosophy of Mind|philosophy of mind]] and cognitive science, [[Applied Ethics|applied ethics]], and the [[Ethics of Technology|ethics of technology]] and [[Artificial Intelligence|AI]].
+
+## Main themes
+- Language, meaning and [[Logic|logic]]
+- Science, its methods and its limits
+- [[Consciousness]] and the [[Mind-Body Problem|mind-body problem]]
+- Existence, [[Freedom|freedom]] and [[Authenticity|authenticity]]
+- [[Justice]], [[Rights|rights]] and [[Equality|equality]]
+- Power, [[Knowledge|knowledge]] and society
+- Technology, artificial intelligence and human agency
+
+## Key works
+- [[Edmund Husserl|Husserl]], *Logical Investigations* (1900–1901)
+- [[Ludwig Wittgenstein|Wittgenstein]], *Tractatus Logico-Philosophicus* (1921) and *Philosophical Investigations* (1953)
+- [[Martin Heidegger|Heidegger]], *Being and Time* (1927)
+- [[A. J. Ayer|Ayer]], *Language, Truth and Logic* (1936)
+- [[Albert Camus|Camus]], *The Myth of Sisyphus* (1942)
+- [[Jean-Paul Sartre|Sartre]], *Being and Nothingness* (1943)
+- [[Simone de Beauvoir|Beauvoir]], *The Second Sex* (1949)
+- [[W. V. O. Quine|Quine]], 'Two Dogmas of Empiricism' (1951)
+- [[Thomas Kuhn|Kuhn]], *The Structure of Scientific Revolutions* (1962)
+- [[John Rawls|Rawls]], *A Theory of Justice* (1971)
+- [[Thomas Nagel|Nagel]], 'What Is It Like to Be a Bat?' (1974)
+- [[Michel Foucault|Foucault]], *Discipline and Punish* (1975)
+- [[Andy Clark|Clark]] and [[David Chalmers|Chalmers]], 'The Extended Mind' (1998)

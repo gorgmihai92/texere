@@ -1,0 +1,55 @@
+# Texere – what goes to GitHub.
+# Everything is private by default: only the paths unlocked with "!" below are published.
+# A new folder you create stays on your computer until you add it here.
+/*
+!/.gitignore
+!/README.md
+!/LICENSE
+!/.obsidian/
+!/Support/
+!/1. References/
+!/2. Notes/
+!/3. Workspace/
+!/4. Export/
+
+# Your notes and work: only the discipline map and the empty folders are published (each keeps a hidden .gitkeep)
+/2. Notes/**
+/3. Workspace/**
+/4. Export/**
+!/2. Notes/**/
+!/3. Workspace/**/
+!/4. Export/**/
+!/2. Notes/**/.gitkeep
+!/3. Workspace/**/.gitkeep
+!/4. Export/**/.gitkeep
+!/2. Notes/Disciplines/Philosophy/**
+
+# PDFs belong to their authors: only the open-access example is published
+/1. References/PDFs/**
+!/1. References/PDFs/**/
+!/1. References/PDFs/**/.gitkeep
+!/1. References/PDFs/Vică et al. 2026 – Avatarobots and the crisis of democracy. From bot armies to metaverse swarms.pdf
+
+# Never published
+.DS_Store
+Thumbs.db
+/Support/Texere/Cuts/
+/Support/Texere/Utilities.md
+/Support/**/*Setup report*.md
+/Support/**/*Raport configurare*.md
+/1. References/**/citekeylist.txt
+/1. References/**/*.html
+
+# Obsidian: your layout and settings written on each computer (paths, caches)
+/.obsidian/workspace.json
+/.obsidian/workspace-mobile.json
+/.obsidian/workspaces.json
+/.obsidian/pdf-highlight-backups/
+
+# Texere: your settings stay on your computer (keys, folders, caches); a new vault starts from the defaults
+/.obsidian/plugins/texere/data.json
+/.obsidian/plugins/texere/cache/
+/.obsidian/plugins/texere/stats/
+/.obsidian/plugins/texere/previous/
+/.obsidian/plugins/texere/pdf-log.txt
+/.obsidian/plugins/texere/tidy-*.json

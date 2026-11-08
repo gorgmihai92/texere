@@ -1,0 +1,906 @@
+[
+  {
+    "dateCreated": "2026-10-31",
+    "aliases": [
+      "Avatarobots and the crisis of democracy: From bot armies to metaverse swarms",
+      "@vica_avatarobots_2026"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Constantin Vică]]",
+      "[[Radu Uszkai]]",
+      "[[Alexandru Dancu]]",
+      "[[Cristina Voinea]]"
+    ],
+    "id": "vica_avatarobots_2026",
+    "type": "article-journal",
+    "title": "Avatarobots and the crisis of democracy: From bot armies to metaverse swarms",
+    "issued": {
+      "date-parts": [
+        [
+          2026
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.14763/2026.3.2118",
+    "DOI": "10.14763/2026.3.2118",
+    "container-title": "Internet Policy Review",
+    "volume": 15,
+    "number": 3,
+    "abstract": "In this paper, we argue that immersive virtual reality environments, which we call the metaverse, can reproduce and intensify the risks social media platforms raise for democracies.At the center of our analysis are avatarobots, digital agents that resemble human beings, usually in their speech and behaviour, but sometimes also in their appearance, while operating partly or entirely without continuous direct human control.We examine how AI-powered avatarobots can fabricate synthetic majorities, simulate political agency, and distort the signals on which democratic legitimacy depends.To evaluate these risks, we develop the Principle of Accountable Free Expression (PAFE), structured around three criteria: authenticity, non-domination, and verifiability.These correspond to responsibility for speech, insulation from economic domination, and the verifiable origin of political communication.We ",
+    "author": [
+      {
+        "family": "Vică",
+        "given": "Constantin"
+      },
+      {
+        "family": "Uszkai",
+        "given": "Radu"
+      },
+      {
+        "family": "Dancu",
+        "given": "Alexandru"
+      },
+      {
+        "family": "Voinea",
+        "given": "Cristina"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          31
+        ]
+      ]
+    },
+    "citation-key": "vica_avatarobots_2026",
+    "ISSN": "2197-6775",
+    "year": "2026",
+    "reading-status": "#unread",
+    "attachment": [
+      "[[Vică et al. 2026 – Avatarobots and the crisis of democracy. From bot armies to metaverse swarms.pdf]]"
+    ],
+    "obsidianPath": "1. References/Reading Notes/Vică et al. 2026 – Avatarobots and the crisis of democracy. From bot armies to metaverse swarms.md"
+  },
+  {
+    "dateCreated": "2026-10-21",
+    "aliases": [
+      "Origins of Analytical Philosophy",
+      "@dummett_origins_1996"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Michael Dummett]]"
+    ],
+    "id": "dummett_origins_1996",
+    "type": "book",
+    "title": "Origins of Analytical Philosophy",
+    "issued": {
+      "date-parts": [
+        [
+          1996,
+          9
+        ]
+      ]
+    },
+    "publisher": "Harvard University Press",
+    "author": [
+      {
+        "family": "Dummett",
+        "given": "Michael"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          21
+        ]
+      ]
+    },
+    "citation-key": "dummett_origins_1996",
+    "ISBN": "9780674644731",
+    "keyword": "Analysis (philosophy),Analysis (Philosophy),Phenomenology,Philosophie analytique,Phénoménologie",
+    "note": "OCLC: 38153975 Open Library ID: OL26820651M",
+    "year": "1996",
+    "reading-status": "#unread",
+    "attachment": [
+      "[[Dummett 1996 – Origins of Analytical Philosophy.pdf]]"
+    ],
+    "obsidianPath": "1. References/Reading Notes/Dummett 1996 – Origins of Analytical Philosophy.md"
+  },
+  {
+    "dateCreated": "2026-10-06",
+    "aliases": [
+      "Philosophy — A very short introduction",
+      "@craig_philosophy_2002"
+    ],
+    "discipline": [
+      "[[Philosophy]]"
+    ],
+    "branch": [
+      "[[Introduction]]"
+    ],
+    "subfield": [],
+    "period": [
+      "[[Contemporary Philosophy]]"
+    ],
+    "theories": [
+      "[[Dualism]]",
+      "[[Idealism]]",
+      "[[Materialism]]",
+      "[[Skepticism]]"
+    ],
+    "concepts": [],
+    "authors": [
+      "[[Edward Craig]]"
+    ],
+    "id": "craig_philosophy_2002",
+    "type": "book",
+    "title": "Philosophy: a very short introduction",
+    "issued": {
+      "date-parts": [
+        [
+          2002
+        ]
+      ]
+    },
+    "title-short": "Philosophy",
+    "publisher": "Oxford University Press",
+    "publisher-place": "Oxford ; New York",
+    "author": [
+      {
+        "family": "Craig",
+        "given": "Edward"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          6
+        ]
+      ]
+    },
+    "collection-number": "55",
+    "collection-title": "Very short introductions",
+    "citation-key": "craig_philosophy:_2002",
+    "ISBN": "9780192854216",
+    "keyword": "Philosophy",
+    "year": "2002",
+    "reading-status": "#read",
+    "attachment": [
+      "[[Craig 2002 – Philosophy. A very short introduction.pdf]]"
+    ],
+    "obsidianPath": "1. References/Reading Notes/Craig 2002 – Philosophy. A very short introduction.md"
+  },
+  {
+    "dateCreated": "2026-10-31",
+    "aliases": [
+      "Gândește: O introducere convingătoare în filosofie",
+      "@blackburn_gandeste_2009"
+    ],
+    "discipline": [
+      "[[Philosophy]]"
+    ],
+    "branch": [
+      "[[Introduction]]"
+    ],
+    "subfield": [],
+    "period": [
+      "[[Contemporary Philosophy]]"
+    ],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Simon Blackburn]]"
+    ],
+    "id": "blackburn_gandeste_2009",
+    "type": "book",
+    "title": "Gândește: O introducere convingătoare în filosofie",
+    "issued": {
+      "date-parts": [
+        [
+          2009
+        ]
+      ]
+    },
+    "title-short": "Gândește",
+    "publisher": "Editura ALL",
+    "publisher-place": "București",
+    "language": "ro",
+    "author": [
+      {
+        "family": "Blackburn",
+        "given": "Simon"
+      }
+    ],
+    "translator": [
+      {
+        "family": "Constantinescu",
+        "given": "Cristian"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          10,
+          31
+        ]
+      ]
+    },
+    "citation-key": "blackburn_gandeste_2009",
+    "ISBN": "9789735717964",
+    "original-date": {
+      "date-parts": [
+        [
+          1999
+        ]
+      ]
+    },
+    "original-title": "Think: A Compelling Introduction to Philosophy",
+    "year": "2009",
+    "reading-status": "#unread",
+    "attachment": [
+      "[[Blackburn 1999 (2009) – Gândește. O introducere convingătoare în filosofie.pdf]]"
+    ],
+    "obsidianPath": "1. References/Reading Notes/Blackburn 1999 (2009) – Gândește. O introducere convingătoare în filosofie.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Thesis statements",
+      "@american_university_academic_support_center_writing_lab_thesis_2009"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[American University, Academic Support Center, Writing Lab]]"
+    ],
+    "id": "american_university_academic_support_center_writing_lab_thesis_2009",
+    "type": "report",
+    "title": "Thesis statements",
+    "issued": {
+      "date-parts": [
+        [
+          2009
+        ]
+      ]
+    },
+    "publisher": "American University",
+    "publisher-place": "Washington, DC",
+    "language": "en",
+    "abstract": "Common errors in thesis statements, with poor and better examples: a fragment instead of a sentence, a question, \"I think\" or \"in my opinion\", unrelated elements, vague, muddled or figurative language. Handout shared as an image; \"updated 2009\".",
+    "author": [
+      {
+        "literal": "American University, Academic Support Center, Writing Lab"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "american_university_academic_support_center_writing_lab_thesis_2009",
+    "year": "2009",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/American University, Academic Support Center, Writing Lab 2009 – Thesis statements.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Tips on writing philosophy papers",
+      "@blattner_tips_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[William Blattner]]"
+    ],
+    "id": "blattner_tips_nd",
+    "type": "webpage",
+    "title": "Tips on writing philosophy papers",
+    "URL": "https://sites.google.com/a/georgetown.edu/prof-william-blattner/resources-for-students/tips-on-writing-philosophy-papers",
+    "container-title": "Georgetown University",
+    "language": "en",
+    "abstract": "Clarity first; one thesis stated at the start; the philosophical lawyer: argue, anticipate objections and defend against the replies; fewer, deeper objections instead of hit-and-run; no autobiography, over-quoting or sweeping intellectual history.",
+    "author": [
+      {
+        "family": "Blattner",
+        "given": "William"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "blattner_tips_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Blattner – Tips on writing philosophy papers.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "How to write a philosophy paper: A 25-rule guide for undergraduate students",
+      "@cartaya_how_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Jazlyn Cartaya]]"
+    ],
+    "id": "cartaya_how_nd",
+    "type": "post-weblog",
+    "title": "How to write a philosophy paper: A 25-rule guide for undergraduate students",
+    "URL": "https://www.jazlyncartaya.com/blog/writing-a-philosophy-paper",
+    "container-title": "Jazlyn Cartaya",
+    "language": "en",
+    "abstract": "Twenty-five rules grouped under four standards: writing quality (thesis, roadmap, signposting, relevance, consistent terms), argument reconstruction (premises, the reasons behind them), critical engagement (a modest, original point) and charity (steelmanning, measured language).",
+    "author": [
+      {
+        "family": "Cartaya",
+        "given": "Jazlyn"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "cartaya_how_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Cartaya – How to write a philosophy paper. A 25-rule guide for undergraduate students.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Writing a philosophy paper",
+      "@horban_writing_1993"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Peter Horban]]"
+    ],
+    "id": "horban_writing_1993",
+    "type": "webpage",
+    "title": "Writing a philosophy paper",
+    "issued": {
+      "date-parts": [
+        [
+          1993
+        ]
+      ]
+    },
+    "URL": "https://www.sfu.ca/~horban/writing1.htm",
+    "container-title": "Simon Fraser University",
+    "language": "en",
+    "abstract": "A philosophy paper is a reasoned defence of a thesis for an intelligent reader who disagrees: one or two strong arguments developed in depth, objections answered, no fence-sitting, no long introductions or quotations.",
+    "author": [
+      {
+        "family": "Horban",
+        "given": "Peter"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "horban_writing_1993",
+    "year": "1993",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Horban 1993 – Writing a philosophy paper.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "How to write philosophy",
+      "@anon_how_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [],
+    "id": "anon_how_nd",
+    "type": "webpage",
+    "title": "How to write philosophy",
+    "URL": "https://sites.google.com/wellesley.edu/the-pink-guide-to-philosophy/how-to-write-philosophy",
+    "container-title": "The Pink Guide to Philosophy",
+    "publisher": "Wellesley College",
+    "language": "en",
+    "abstract": "Three principles (a specific thesis, reasons for every claim, objections answered fairly) and a ten-step plan from choosing a topic to formatting; the introduction states the problem, the thesis and the plan of the paper.",
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "anon_how_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/How to write philosophy.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "A guide to writing",
+      "@huemer_guide_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Michael Huemer]]"
+    ],
+    "id": "huemer_guide_nd",
+    "type": "webpage",
+    "title": "A guide to writing",
+    "URL": "https://spot.colorado.edu/~huemer/writing.htm",
+    "container-title": "University of Colorado Boulder",
+    "language": "en",
+    "abstract": "A clear thesis, non-trivial, plausible and non-circular arguments, objections; be forthcoming, organized, brief, specific and plain; examples for every thesis; misused words (infer, refute, true, beg the question); cut needless qualifiers and overstatement.",
+    "author": [
+      {
+        "family": "Huemer",
+        "given": "Michael"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "huemer_guide_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Huemer – A guide to writing.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "How to write a philosophy paper",
+      "@jones_how_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[David Jones]]",
+      "[[Timothy O'Neill]]",
+      "[[Brendan Shea]]"
+    ],
+    "id": "jones_how_nd",
+    "type": "report",
+    "title": "How to write a philosophy paper",
+    "URL": "https://philarchive.org/archive/SHEHTW",
+    "publisher": "Rochester Community and Technical College",
+    "language": "en",
+    "abstract": "A guide in three parts: reading philosophical texts (indicator words, charity, mapping the argument), crafting arguments (premises, definitions, deductive and inductive forms, fallacies, total evidence) and grading criteria, with annotated A, B and C sample papers.",
+    "author": [
+      {
+        "family": "Jones",
+        "given": "David"
+      },
+      {
+        "family": "O'Neill",
+        "given": "Timothy"
+      },
+      {
+        "family": "Shea",
+        "given": "Brendan"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "jones_how_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Jones et al. – How to write a philosophy paper.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "A sample philosophy paper (annotated)",
+      "@mendelovici_sample_2010"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Angela Mendelovici]]"
+    ],
+    "id": "mendelovici_sample_2010",
+    "type": "webpage",
+    "title": "A sample philosophy paper (annotated)",
+    "issued": {
+      "date-parts": [
+        [
+          2010
+        ]
+      ]
+    },
+    "URL": "https://prezi.com/z4h1_fwilbxj/a-sample-philosophy-paper/",
+    "container-title": "Prezi",
+    "publisher": "The University of Western Ontario",
+    "language": "en",
+    "abstract": "A short paper against an argument of Frege, annotated step by step: plain title and introduction (topic, roadmap, thesis), only the background the argument needs, the opposing argument presented as plausibly as possible with premises made explicit, exactly where the writer disagrees, the writer's argument, the damage assessed, an objection answered, a short conclusion.",
+    "author": [
+      {
+        "family": "Mendelovici",
+        "given": "Angela"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "mendelovici_sample_2010",
+    "year": "2010",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Mendelovici 2010 – A sample philosophy paper (annotated).md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Writing your philosophy paper: Common problems to avoid",
+      "@millgram_writing_2024"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Elijah Millgram]]"
+    ],
+    "id": "millgram_writing_2024",
+    "type": "report",
+    "title": "Writing your philosophy paper: Common problems to avoid",
+    "issued": {
+      "date-parts": [
+        [
+          2024
+        ]
+      ]
+    },
+    "URL": "https://www.elijahmillgram.net/ppradvc.pdf",
+    "language": "en",
+    "abstract": "One point, statable in one sentence; the argument as the backbone and the test for what stays; terse introduction with a roadmap; only as much exposition as the argument needs; concrete examples; test every abstract term; a list of words and phrases to avoid.",
+    "author": [
+      {
+        "family": "Millgram",
+        "given": "Elijah"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "millgram_writing_2024",
+    "year": "2024",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Millgram 2024 – Writing your philosophy paper. Common problems to avoid.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Guidelines on writing a philosophy paper",
+      "@pryor_guidelines_2012"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Jim Pryor]]"
+    ],
+    "id": "pryor_guidelines_2012",
+    "type": "webpage",
+    "title": "Guidelines on writing a philosophy paper",
+    "issued": {
+      "date-parts": [
+        [
+          2012,
+          9,
+          6
+        ]
+      ]
+    },
+    "URL": "https://www.jimpryor.net/teaching/guidelines/writing.html",
+    "container-title": "jimpryor.net",
+    "language": "en",
+    "abstract": "A reasoned defence of a modest claim; outline first; make the structure obvious; be concise but explain fully, for a lazy, stupid and mean reader; simple prose; others presented accurately and charitably; objections anticipated; consistent terms.",
+    "author": [
+      {
+        "family": "Pryor",
+        "given": "Jim"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "pryor_guidelines_2012",
+    "year": "2012",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Pryor 2012 – Guidelines on writing a philosophy paper.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "A brief guide to writing the philosophy paper",
+      "@rippon_brief_2008"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Simon Rippon]]"
+    ],
+    "id": "rippon_brief_2008",
+    "type": "report",
+    "title": "A brief guide to writing the philosophy paper",
+    "issued": {
+      "date-parts": [
+        [
+          2008
+        ]
+      ]
+    },
+    "URL": "https://writingcenter.fas.harvard.edu/sites/g/files/omnuum451/files/hwp/files/bg_writing_philosophy.pdf",
+    "publisher": "Harvard College Writing Center",
+    "publisher-place": "Cambridge, MA",
+    "language": "en",
+    "abstract": "What a philosophy paper is (an argued answer to a precisely stated question), its parts (thesis, definitions, motivation, roadmap, reconstruction, argument, objections and replies, conclusion), what counts as evidence, and the conventions of quotation, first person and signposting, with a poor and a good sample.",
+    "author": [
+      {
+        "family": "Rippon",
+        "given": "Simon"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "rippon_brief_2008",
+    "collection-title": "Writing Center brief guide series",
+    "year": "2008",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Rippon 2008 – A brief guide to writing the philosophy paper.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "7 steps to a better philosophy paper",
+      "@roberts_7_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Bryan W. Roberts]]"
+    ],
+    "id": "roberts_7_nd",
+    "type": "report",
+    "title": "7 steps to a better philosophy paper",
+    "URL": "https://personal.lse.ac.uk/robert49/teaching/Guide.pdf",
+    "publisher": "London School of Economics and Political Science",
+    "language": "en",
+    "abstract": "Seven steps (state the question, read, write a thesis, build the argument, outline, write the body first, revise) and ten tips: focus on the question, write for a dull reader, do not overreach, signpost constantly, plain language, support every non-obvious claim.",
+    "author": [
+      {
+        "family": "Roberts",
+        "given": "Bryan W."
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "roberts_7_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Roberts – 7 steps to a better philosophy paper.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Guidelines on writing a philosophy paper",
+      "@yablo_guidelines_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Stephen Yablo]]"
+    ],
+    "id": "yablo_guidelines_nd",
+    "type": "webpage",
+    "title": "Guidelines on writing a philosophy paper",
+    "URL": "https://www.mit.edu/~yablo/writing.html",
+    "container-title": "Massachusetts Institute of Technology",
+    "language": "en",
+    "abstract": "Adapted, nearly word for word, from Jim Pryor's guidelines of the same title; adds how papers are graded: a clear aim and thesis, visible arguments, exposition separate from the writer's contribution, simple prose, good examples, accurate and charitable presentation.",
+    "author": [
+      {
+        "family": "Yablo",
+        "given": "Stephen"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "yablo_guidelines_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Yablo – Guidelines on writing a philosophy paper.md"
+  },
+  {
+    "dateCreated": "2026-11-03",
+    "aliases": [
+      "Writing philosophy essays",
+      "@tooley_writing_nd"
+    ],
+    "discipline": [],
+    "branch": [],
+    "subfield": [],
+    "period": [],
+    "theories": [],
+    "concepts": [],
+    "authors": [
+      "[[Michael Tooley]]"
+    ],
+    "id": "tooley_writing_nd",
+    "type": "webpage",
+    "title": "Writing philosophy essays",
+    "URL": "https://spot.colorado.edu/~tooley/WritingEssays.html",
+    "container-title": "University of Colorado Boulder",
+    "language": "en",
+    "abstract": "Thesis in the opening paragraph; background at most a third of the essay; structures for evaluating, defending and refuting arguments and theses; one argument per paragraph; exposition before evaluation; obscurity is not depth.",
+    "author": [
+      {
+        "family": "Tooley",
+        "given": "Michael"
+      }
+    ],
+    "accessed": {
+      "date-parts": [
+        [
+          2026,
+          11,
+          3
+        ]
+      ]
+    },
+    "citation-key": "tooley_writing_nd",
+    "reading-status": "#unread",
+    "attachment": [],
+    "obsidianPath": "Support/Texere/Guides/Writing guide references/Tooley – Writing philosophy essays.md"
+  }
+]

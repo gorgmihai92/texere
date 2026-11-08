@@ -1,0 +1,15 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "concepts": "multitext",
+    "branch": "multitext",
+    "movements": "multitext",
+    "theories": "multitext",
+    "discipline": "multitext",
+    "subfield": "multitext",
+    "period": "multitext",
+    "authors": "multitext"
+  }
+}
