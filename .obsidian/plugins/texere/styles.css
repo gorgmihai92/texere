@@ -1244,3 +1244,7 @@ body{--txi-good:#1a7fd4;--txi-bad:#e8590c}body.theme-dark{--txi-good:#3a86e0;--t
 .ts-cur{color:var(--text-normal);font-size:var(--font-ui-smaller)}
 .texere-home .txh-desc{white-space:pre-line;max-width:none}
 .texere-wizard .txw-lang-btn.is-selected{border:2px solid var(--interactive-accent) !important;background:color-mix(in srgb, var(--interactive-accent) 10%, var(--background-primary)) !important;color:var(--text-normal);font-weight:600}
+
+/* ce aduce o versiune nouă: propunerile din pagina de pornire */
+.texere-home .txh-vu-box{display:flex;flex-direction:column;gap:6px}
+.texere-home .txh-vu-box .txh-label{margin-bottom:0}
