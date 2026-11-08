@@ -57,13 +57,13 @@ Texere uses one other plugin, PDF++, for annotations. The vault also has Style S
 
 | Folder          | What's in it                                                                                                          |
 | --------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `1. References` | one note per reference in `Reading Notes` and their PDFs in `PDFs` (the four notes are examples)                      |
-| `2. Notes`      | your notes, and `Disciplines/Philosophy`: a map of philosophy with about 430 linked notes                             |
+| `1. References` | one note per reference in `Reading Notes` and their PDFs in `PDFs` (the notes included are examples)                      |
+| `2. Notes`      | your notes (Essays, Imported, Personal), and `Disciplines/Philosophy`: a map of philosophy with about 430 linked notes |
 | `3. Workspace`  | your work: Courses, Thesis, Articles, Projects                                                                        |
 | `4. Export`     | exported files                                                                                                        |
 | `Support`       | images, templates, and `Texere`: the writing guides (with their references), the bibliography and the citation styles |
 
-Two complete examples come with their PDFs, both in the public domain: Descartes' *Meditations on First Philosophy* and Mill's *Utilitarianism*, annotated in every color, with notes under the annotations and a summary at the top. Three more example notes come from books under copyright (Blackburn, Craig, Dummett), so their PDFs aren't included: if you have them, put them in `1. References/PDFs` with the names in each note's **attachment**, and the annotations link to their pages.
+The examples are two classics in the public domain, with their PDFs: Descartes' *Meditations on First Philosophy* and Mill's *Utilitarianism*, annotated in every color, with notes under the annotations and a summary at the top.
 
 Texere comes with this structure so you can start right away. You can change it: move or rename folders in Obsidian and Texere follows.
 
@@ -81,7 +81,7 @@ Obsidian 1.4.10 or later, on a computer (Mac, Windows or Linux).
 
 - **Code** (the Texere plugin): [MIT](LICENSE). It bundles [citeproc-js](https://github.com/Juris-M/citeproc-js) (CPAL/AGPL) and the [CSL styles and locales](https://citationstyles.org) (CC BY-SA 3.0), docx, markdown-it and Paged.js (MIT).
 - **Guides and notes** (the guides, the philosophy map, the templates): [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-- The PDF in `1. References/PDFs` and the community plugins keep their own licenses. Details in [LICENSE](LICENSE).
+- The community plugins keep their own licenses. Details in [LICENSE](LICENSE).
 
 The plugin's code and releases: [gorgmihai92/texere-plugin](https://github.com/gorgmihai92/texere-plugin).
 

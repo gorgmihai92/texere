@@ -15,11 +15,11 @@ Texere is released under two licenses, depending on the type of content.
    changes were made.
 
 Not covered by these licenses:
-   - The PDFs in 1. References/PDFs/: Vică et al. 2026 (Internet Policy Review, CC BY 4.0
-     by its authors); Descartes, Meditations on First Philosophy (trans. John Veitch) and
-     Mill, Utilitarianism, public-domain texts in the editions of the Public Domain Core
-     Collection (Ryerson / Toronto Metropolitan University, 2022), whose added material is
-     under CC BY 4.0. The annotations in them are part of the example notes (CC BY 4.0).
+   - The PDFs in 1. References/PDFs/: Descartes, Meditations on First Philosophy (trans.
+     John Veitch) and Mill, Utilitarianism, public-domain texts in the editions of the
+     Public Domain Core Collection (Ryerson / Toronto Metropolitan University, 2022), whose
+     added material is under CC BY 4.0. The annotations in them are part of the example
+     notes (CC BY 4.0).
    - The images in Support/Media/ that come from other works, which belong to their
      respective authors.
    - The community plugins in .obsidian/plugins/ (other than texere) and the themes in

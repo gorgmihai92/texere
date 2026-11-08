@@ -23,12 +23,12 @@
 !/3. Workspace/**/.gitkeep
 !/4. Export/**/.gitkeep
 !/2. Notes/Disciplines/Philosophy/**
+/2. Notes/Poetry/
 
-# PDFs belong to their authors: only the open-access and public-domain examples are published
+# PDFs belong to their authors: only the public-domain examples are published
 /1. References/PDFs/**
 !/1. References/PDFs/**/
 !/1. References/PDFs/**/.gitkeep
-!/1. References/PDFs/Vică et al. 2026 – Avatarobots and the crisis of democracy. From bot armies to metaverse swarms.pdf
 !/1. References/PDFs/Descartes 1641 (2022) – Meditations on First Philosophy.pdf
 !/1. References/PDFs/Mill 1863 (2022) – Utilitarianism.pdf
 
