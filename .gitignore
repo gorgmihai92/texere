@@ -3,6 +3,7 @@
 # A new folder you create stays on your computer until you add it here.
 /*
 !/.gitignore
+!/.github/
 !/README.md
 !/LICENSE
 !/.obsidian/

@@ -25,7 +25,7 @@ Texere is a ready-made Obsidian vault for researchers who want one place for the
 ## Start
 
 1. Install [Obsidian](https://obsidian.md/download). It's free.
-2. [Download this repository](https://github.com/gorgmihai92/texere/archive/refs/heads/main.zip) and unzip it.
+2. [Download this repository](https://github.com/gorgmihai92/texere/archive/refs/heads/main.zip) and unzip it. (Each version is also kept, as it was, in [Releases](https://github.com/gorgmihai92/texere/releases).)
 3. In Obsidian: **Open folder as vault**, then **Trust author and enable plugins**.
 4. The setup starts by itself: choose the language, and add what's missing with one click.
 
