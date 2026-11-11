@@ -1249,3 +1249,20 @@ body{--txi-good:#1a7fd4;--txi-bad:#e8590c}body.theme-dark{--txi-good:#3a86e0;--t
 /* ce aduce o versiune nouă: propunerile din pagina de pornire */
 .texere-home .txh-vu-box{display:flex;flex-direction:column;gap:6px}
 .texere-home .txh-vu-box .txh-label{margin-bottom:0}
+/* configurarea: pașii care fac ceva singuri — „Lucrez…”, apoi ce s-a făcut */
+.texere-wizard .txw-working{display:flex;align-items:center;gap:10px;padding:14px 2px;color:var(--text-muted);font-size:var(--font-ui-small)}
+.texere-wizard .txw-spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--background-modifier-border);border-top-color:var(--interactive-accent);animation:txw-spin .8s linear infinite;flex:none}
+@keyframes txw-spin{to{transform:rotate(360deg)}}
+.texere-wizard .txw-done-list{list-style:none;margin:6px 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.texere-wizard .txw-done-list li{display:flex;gap:10px;align-items:flex-start}
+.texere-wizard .txw-done-ic{flex:none;color:var(--color-green);margin-top:1px}.texere-wizard .txw-done-ic svg{width:16px;height:16px}
+.texere-wizard .txw-done-t{min-width:0;flex:1}
+.texere-wizard .txw-done-h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.texere-wizard .txw-done-k{font-weight:600;font-size:var(--font-ui-small)}
+.texere-wizard .txw-done-s{color:var(--text-faint);font-size:var(--font-ui-smaller)}
+.texere-wizard .txw-done-v{color:var(--text-muted);font-size:var(--font-ui-smaller);font-family:var(--font-monospace);overflow-wrap:anywhere;margin-top:2px}
+.texere-wizard .txw-place-sec{font-size:var(--font-ui-smaller);font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-top:4px}
+.texere-wizard .txw-place-others{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 12px;font-size:var(--font-ui-small)}
+.texere-wizard .txw-place-others label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.texere-wizard .txw-place-f.txw-place-v{font-size:var(--font-ui-small);padding-top:4px}
+.texere-wizard .txw-place-own>.txw-check-d{margin:-6px 0 0 !important}
