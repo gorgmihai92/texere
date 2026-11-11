@@ -71,19 +71,6 @@
 .texere-home .txh-row span{flex:1;min-width:0}.texere-home .txh-row button{flex:none}
 .texere-home .txh-row-acts{display:flex;align-items:center;gap:4px;flex:none}
 .texere-home .txh-row .txh-x{padding:4px;height:auto;background:none;box-shadow:none;color:var(--text-faint)}
-.texere-home .txh-fw{display:flex;flex-direction:column;gap:12px}
-.texere-home .txh-fw-h{display:flex;align-items:baseline}.texere-home .txh-fw-h a{margin-left:auto;color:var(--text-faint);text-decoration:none;text-transform:none;letter-spacing:0}.texere-home .txh-fw-h a:hover{color:var(--text-muted)}
-.texere-home .txh-fw-list{display:flex;flex-direction:column;gap:2px}
-.texere-home .txh-fw-i{display:flex;align-items:flex-start;gap:10px;padding:6px 8px;margin:0 -8px;border-radius:8px;color:var(--text-muted);text-decoration:none;font-size:var(--font-ui-small)}
-.texere-home a.txh-fw-i:hover{background:var(--background-modifier-hover);color:var(--text-normal)}
-.texere-home .txh-fw-c{flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--background-modifier-border-hover, var(--background-modifier-border));display:inline-flex;align-items:center;justify-content:center;font-size:var(--font-ui-smaller);color:var(--text-faint);font-variant-numeric:tabular-nums;box-sizing:border-box}
-.texere-home .txh-fw-c svg{width:12px;height:12px}
-.texere-home .txh-fw-i.done{color:var(--text-faint)}.texere-home .txh-fw-i.done .txh-fw-n{text-decoration:line-through;text-decoration-color:var(--background-modifier-border-hover, var(--text-faint))}
-.texere-home .txh-fw-i.done .txh-fw-c{background:var(--background-modifier-hover);border-color:transparent;color:var(--text-muted)}
-.texere-home .txh-fw-i.next{color:var(--text-normal)}.texere-home .txh-fw-i.next .txh-fw-c{border-color:var(--text-muted);color:var(--text-normal)}
-.texere-home .txh-fw-t{display:flex;flex-direction:column;gap:2px;min-width:0;padding-top:1px}
-.texere-home .txh-fw-n{line-height:1.3}.texere-home .txh-fw-i.next .txh-fw-n{font-weight:600}
-.texere-home .txh-fw-d{color:var(--text-muted);font-size:var(--font-ui-smaller);line-height:1.45}
 .texere-home .txh-label{font-size:var(--font-ui-smaller);color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 -8px}
 .texere-home .txh-recent{display:flex;flex-direction:column}
 .texere-home .txh-file{display:flex;align-items:baseline;gap:8px;padding:5px 6px;margin:0 -6px;border-radius:6px;color:var(--text-normal);text-decoration:none;min-width:0}
@@ -1266,3 +1253,24 @@ body{--txi-good:#1a7fd4;--txi-bad:#e8590c}body.theme-dark{--txi-good:#3a86e0;--t
 .texere-wizard .txw-place-others label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .texere-wizard .txw-place-f.txw-place-v{font-size:var(--font-ui-small);padding-top:4px}
 .texere-wizard .txw-place-own>.txw-check-d{margin:-6px 0 0 !important}
+
+/* primii pași, minimal: o linie de progres; pasul următor cu un rând și un link; cei făcuți bifați, cei de după estompați */
+.texere-home .txh-fw{display:flex;flex-direction:column;gap:8px}
+.texere-home .txh-fw-h{display:flex;align-items:baseline}
+.texere-home .txh-fw-h a{margin-left:auto;color:var(--text-faint);text-decoration:none;font-size:var(--font-ui-smaller)}.texere-home .txh-fw-h a:hover{color:var(--text-muted)}
+.texere-home .txh-fw-bar{height:2px;border-radius:1px;background:var(--background-modifier-border);overflow:hidden}
+.texere-home .txh-fw-bar span{display:block;height:100%;background:var(--interactive-accent);border-radius:1px}
+.texere-home .txh-fw-list{display:flex;flex-direction:column;gap:2px;margin-top:4px}
+.texere-home .txh-fw-i{display:flex;align-items:flex-start;gap:12px;padding:6px 8px;margin:0 -8px;border-radius:8px;font-size:var(--font-ui-small);color:var(--text-muted)}
+.texere-home .txh-fw-c{flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--background-modifier-border-hover, var(--background-modifier-border));display:inline-flex;align-items:center;justify-content:center;font-size:var(--font-ui-smaller);color:var(--text-faint)}
+.texere-home .txh-fw-c svg{width:12px;height:12px}
+.texere-home .txh-fw-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;padding-top:1px}
+.texere-home .txh-fw-n{line-height:1.3}
+.texere-home .txh-fw-d{font-size:var(--font-ui-smaller);color:var(--text-muted);line-height:1.45;overflow-wrap:anywhere}
+.texere-home .txh-fw-i.done{color:var(--text-faint)}.texere-home .txh-fw-i.done .txh-fw-d{color:var(--text-faint)}
+.texere-home .txh-fw-i.done .txh-fw-c{border-color:transparent;color:var(--interactive-accent)}
+.texere-home .txh-fw-i.next{color:var(--text-normal);background:var(--background-secondary);padding:10px 8px}
+.texere-home .txh-fw-i.next .txh-fw-c{border-color:var(--interactive-accent);color:var(--interactive-accent)}
+.texere-home .txh-fw-i.next .txh-fw-n{font-weight:600}
+.texere-home .txh-fw-go{align-self:flex-start;margin-top:4px;font-size:var(--font-ui-smaller);color:var(--interactive-accent);text-decoration:none;font-weight:500}.texere-home .txh-fw-go:hover{text-decoration:underline}
+.texere-home .txh-fw-i.later{color:var(--text-faint)}.texere-home .txh-fw-i.is-click{cursor:pointer}.texere-home .txh-fw-i.later:hover{background:var(--background-modifier-hover);color:var(--text-muted)}
