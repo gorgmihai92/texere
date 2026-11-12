@@ -1274,3 +1274,17 @@ body{--txi-good:#1a7fd4;--txi-bad:#e8590c}body.theme-dark{--txi-good:#3a86e0;--t
 .texere-home .txh-fw-i.next .txh-fw-n{font-weight:600}
 .texere-home .txh-fw-go{align-self:flex-start;margin-top:4px;font-size:var(--font-ui-smaller);color:var(--interactive-accent);text-decoration:none;font-weight:500}.texere-home .txh-fw-go:hover{text-decoration:underline}
 .texere-home .txh-fw-i.later{color:var(--text-faint)}.texere-home .txh-fw-i.is-click{cursor:pointer}.texere-home .txh-fw-i.later:hover{background:var(--background-modifier-hover);color:var(--text-muted)}
+/* modul concentrare: doar fișierele deschise (și cele puse unul lângă altul) */
+body.texere-focus .workspace-ribbon.side-dock-ribbon,
+body.texere-focus .workspace-split.mod-root .workspace-tab-header-container,
+body.texere-focus .workspace-split.mod-root .view-header,
+body.texere-focus .status-bar,
+body.texere-focus .titlebar { display: none !important; }
+body.texere-focus .workspace-split.mod-left-split, body.texere-focus .workspace-split.mod-right-split,
+body.texere-focus .workspace-split.mod-left-split + .workspace-leaf-resize-handle, body.texere-focus .workspace-split.mod-root ~ .workspace-leaf-resize-handle { display: none !important; }
+/* fereastra fără ramă (macOS): o fâșie sus, de care muți fereastra; butoanele ferestrei nu acoperă textul */
+body.texere-focus.is-hidden-frameless .workspace { padding-top: 32px; }
+body.texere-focus:not(.is-hidden-frameless) .texere-focus-bar { display: none; }
+.texere-focus-bar { position: fixed; top: 0; left: 0; right: 0; height: 32px; -webkit-app-region: drag; z-index: var(--layer-cover, 5); background: var(--background-primary); }
+body.texere-focus .workspace-split.mod-root .workspace-leaf-content[data-type="markdown"] .view-content,
+body.texere-focus .workspace-split.mod-root .workspace-leaf-content[data-type="pdf"] .view-content { padding-top: 12px; }
