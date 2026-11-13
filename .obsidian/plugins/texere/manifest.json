@@ -1,7 +1,7 @@
 {
   "id": "texere",
   "name": "Texere",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "minAppVersion": "1.4.10",
   "description": "Find and cite references, bring PDF annotations into reading notes, and export papers and theses to PDF or Word. In English and Romanian.",
   "author": "George Mihai",

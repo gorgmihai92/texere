@@ -1288,3 +1288,27 @@ body.texere-focus:not(.is-hidden-frameless) .texere-focus-bar { display: none; }
 .texere-focus-bar { position: fixed; top: 0; left: 0; right: 0; height: 32px; -webkit-app-region: drag; z-index: var(--layer-cover, 5); background: var(--background-primary); }
 body.texere-focus .workspace-split.mod-root .workspace-leaf-content[data-type="markdown"] .view-content,
 body.texere-focus .workspace-split.mod-root .workspace-leaf-content[data-type="pdf"] .view-content { padding-top: 12px; }
+/* @ · referințele din Zotero (încă nu sunt în vault) */
+.suggestion-item.tx-cite-sug.is-zotero{display:flex;align-items:baseline;gap:0}
+.suggestion-item.tx-cite-sug.is-zotero .tx-cite-sug-who{flex:0 0 auto;white-space:pre}
+.suggestion-item.tx-cite-sug.is-zotero .tx-cite-sug-title{white-space:pre;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tx-cite-sug-z{flex:0 0 auto;margin-left:10px;font-size:var(--font-ui-smaller);color:var(--text-faint);border:1px solid var(--background-modifier-border);border-radius:999px;padding:0 7px;line-height:1.5}
+/* bibliografia notei vine imediat după text: spațiul de derulare de sub ultimul rând trece sub ea */
+.markdown-source-view.mod-cm6 .cm-sizer.tx-has-biblio > .cm-contentContainer > .cm-content{padding-bottom:0 !important}
+.markdown-source-view.mod-cm6 .cm-sizer.tx-has-biblio{padding-bottom:40vh}
+/* mesajul altui plugin despre Better BibTeX: cum se rezolvă */
+.notice .tx-bbt{margin-top:8px;padding-top:8px;border-top:1px solid var(--background-modifier-border);font-size:var(--font-ui-small);display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.notice .tx-bbt button{font-size:var(--font-ui-small)}
+.tx-bbt-modal .tx-bbt-st{padding:8px 10px;border-radius:6px;background:var(--background-secondary);margin-bottom:12px;font-size:var(--font-ui-small)}
+.tx-bbt-modal .tx-bbt-st.is-warn{color:var(--text-normal)}
+.tx-bbt-modal .tx-bbt-st.is-ok{color:var(--text-success)}
+.tx-bbt-modal .tx-bbt-opt{margin:0 0 14px}
+.tx-bbt-modal .tx-bbt-h{font-weight:var(--font-semibold,600);margin-bottom:4px}
+.tx-bbt-modal ol{margin:0 0 8px;padding-left:1.4em}
+.tx-bbt-modal li{margin:2px 0;color:var(--text-muted)}
+/* pointerul în PDF: tragi ca să parcurgi, fără selecție; culoarea din PDF++ rămâne aleasă, doar estompată */
+body.tx-pdf-hand .pdf-viewer-container, body.tx-pdf-hand .pdf-viewer-container *{cursor:default !important}
+body.tx-pdf-hand .pdf-viewer-container .textLayer, body.tx-pdf-hand .pdf-viewer-container .textLayer *{user-select:none !important;-webkit-user-select:none !important}
+.tx-pdf-hand-btn.is-active{color:var(--interactive-accent);background-color:var(--background-modifier-hover)}
+body.tx-pdf-hand .pdf-plus-color-palette-item{opacity:.4}
+body.tx-pdf-hand .pdf-plus-color-palette-item.is-active{background-color:transparent;box-shadow:none}
