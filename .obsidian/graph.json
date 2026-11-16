@@ -6,7 +6,57 @@
   "hideUnresolved": false,
   "showOrphans": true,
   "collapse-color-groups": true,
-  "colorGroups": [],
+  "colorGroups": [
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Branches\"",
+      "color": {
+        "a": 1,
+        "rgb": 8150271
+      }
+    },
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Subfields\"",
+      "color": {
+        "a": 1,
+        "rgb": 4886000
+      }
+    },
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Concepts\"",
+      "color": {
+        "a": 1,
+        "rgb": 2337178
+      }
+    },
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Theories\"",
+      "color": {
+        "a": 1,
+        "rgb": 14697851
+      }
+    },
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Movements\"",
+      "color": {
+        "a": 1,
+        "rgb": 14260766
+      }
+    },
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Periods\"",
+      "color": {
+        "a": 1,
+        "rgb": 9080728
+      }
+    },
+    {
+      "query": "path:\"2. Notes/Disciplines/Philosophy/Authors\"",
+      "color": {
+        "a": 1,
+        "rgb": 15755818
+      }
+    }
+  ],
   "collapse-display": true,
   "showArrow": false,
   "textFadeMultiplier": 0,
