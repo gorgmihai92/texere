@@ -1316,5 +1316,3 @@ body.tx-pdf-hand .pdf-plus-color-palette-item.is-active{background-color:transpa
 /* Texere: sublinierea în loc de evidențiere. Culorile din bara PDF-ului devin linii, ca să se vadă ce fac */
 .pdf-plus-color-palette.tx-ul .pdf-plus-color-palette-item-inner{height:4px;border-radius:2px;transform:translateY(7px)}
 .pdf-plus-color-palette .tx-style{margin-left:2px}
-/* Texere: sublinierea colorată dintr-o notă (Alt+1…8): linia în culoarea etichetei, puțin mai groasă și mai jos decât textul */
-.markdown-rendered u[style*="text-decoration-color"],.markdown-source-view.mod-cm6 .cm-content u[style*="text-decoration-color"]{text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:3px}

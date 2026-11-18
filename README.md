@@ -34,7 +34,7 @@ Then open a new tab. You'll see your last files, **Add a reference**, **Export**
 ## What you get
 
 - **References.** Search catalogs by title, author, DOI or ISBN, or import your Zotero library with its PDFs and annotations. The free PDF comes with the reference when there is one. The Zotero browser button works with Zotero open or closed.
-- **Reading.** Each annotation color is a kind of idea: claim, fact, agree, disagree, question, definition. Annotations go into the reading note with the page and a link back to the PDF. Annotations made in Zotero, Preview or Acrobat come in too. The first time you highlight in a PDF, you choose which of its notes gets the passages, or none, and they are saved there in the background. **Alt + 1…8** picks a colour, also for text in a note, **Alt + U** underlines instead of highlighting, and PDFs locked by their publisher, or printed books whose text is hard to select, are handled so your highlights land on the right words.
+- **Reading.** Each annotation color is a kind of idea: claim, fact, agree, disagree, question, definition. Annotations go into the reading note with the page and a link back to the PDF. Annotations made in Zotero, Preview or Acrobat come in too. The first time you highlight in a PDF, you choose which of its notes gets the passages, or none, and they are saved there in the background. **Alt + 1…8** picks a colour, **Alt + U** underlines instead of highlighting, and PDFs locked by their publisher, or printed books whose text is hard to select, are handled so your highlights land on the right words.
 - **Citations.** Type `@` and pick the reference. Citations show in your style: APA, Chicago, MLA or any of 10,000+ styles.
 - **Export.** PDF, Word or Markdown, with bibliography, contents and page numbers, using a general template or the University of Bucharest thesis templates.
 - **Reference stats.** How others cite each reference (scite, OpenAlex, Semantic Scholar) and what you highlighted.
@@ -46,12 +46,12 @@ Everything is plain Markdown on your computer. No account, no subscription.
 
 ## Inside
 
-One plugin, **Texere** (version 0.5.8), with modules you turn on or off in **Settings → Texere**:
+One plugin, **Texere** (version 0.5.9), with modules you turn on or off in **Settings → Texere**:
 
 - **References**: references, Zotero, citations, annotations and the bibliography.
 - **Export**: documents with citations and bibliography from References.
 - **Insights** (BETA): experimental, and getting better with each version.
-- **Edit mode**: when you have a draft, try versions of a word, a sentence or a paragraph, dim a passage to read the page without it, or move text to Cuts, and nothing is final until you choose. **Ctrl/Cmd + U** underlines in a note.
+- **Edit mode**: when you have a draft, try versions of a word, a sentence or a paragraph, dim a passage to read the page without it, or move text to Cuts, and nothing is final until you choose.
 
 Texere uses one other plugin, PDF++, for annotations. The vault also has Style Settings, Omnisearch, Excalidraw and Editing Toolbar. You don't need Zotero, Word, Pandoc or LaTeX.
 
