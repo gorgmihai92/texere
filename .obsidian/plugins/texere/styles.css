@@ -635,6 +635,7 @@ body.tx-cite-plain .texere-cite-link,body.tx-cite-plain .texere-cite sup{color:i
 .txi-hit input{margin-top:2px;flex:none}.txi-hit .txi-ctx{flex:1;min-width:0;color:var(--text-muted);line-height:1.45}.txi-hit .txi-ctx mark{background:rgba(var(--color-yellow-rgb),.35);color:var(--text-normal);border-radius:2px;padding:0 1px}
 .txi-hit .txi-in{color:var(--text-faint);display:block;margin-top:1px}.txi-hit .txi-alt-to{color:var(--text-accent)}
 .txi-hit .txi-alt{white-space:nowrap;font-size:var(--font-ui-smaller);padding:0 6px !important;border-radius:999px;border:1px solid var(--background-modifier-border)}.txi-hit .txi-alt:hover{color:var(--text-normal)}.txi-hit .txi-x{flex:none;opacity:0;cursor:pointer;color:var(--text-faint);padding:0 4px}.txi-hit:hover .txi-x{opacity:1}
+.txi-where{margin:0 0 6px 12px;padding-left:8px;border-left:2px solid var(--background-modifier-border)}.txi-where .txi-hit{display:block;padding:4px 6px;border-radius:6px;cursor:pointer}.txi-where .txi-hit:hover{background:var(--background-modifier-hover)}.txi-where .txi-src{font-size:var(--font-ui-smaller);color:var(--text-faint)}.txi-like{border-color:rgba(var(--color-orange-rgb),.5);color:var(--color-orange)}
 .txi-why{display:inline-block;font-size:var(--font-ui-smaller);padding:0 6px;border-radius:999px;border:1px solid var(--background-modifier-border);color:var(--text-muted);margin-left:6px}
 /* tab-ul nou */
 .texere-home .txh-ins{display:flex;flex-direction:column;gap:8px}
@@ -1312,3 +1313,6 @@ body.tx-pdf-hand .pdf-plus-color-palette-item{opacity:.4}
 body.tx-pdf-hand .pdf-plus-color-palette-item.is-active{background-color:transparent;box-shadow:none}
 /* Zotero: două butoane, „Importă referințele” și „Importă referințele și PDF-urile” */
 .texere-src .ts-zgos{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+/* Texere: sublinierea în loc de evidențiere. Culorile din bara PDF-ului devin linii, ca să se vadă ce fac */
+.pdf-plus-color-palette.tx-ul .pdf-plus-color-palette-item-inner{height:4px;border-radius:2px;transform:translateY(7px)}
+.pdf-plus-color-palette .tx-style{margin-left:2px}

@@ -16,13 +16,13 @@ După Ghidul de redactare a lucrărilor de licență și disertație (31 iulie 2
 Cum o folosești:
 - Completează proprietățile de sus: title (sub 15 cuvinte), autor, coordonator (cu titlul academic, ex. „Lect. univ. dr.”), an. Ele intră pe copertă.
 - csl e stilul citărilor (aici Chicago, cu note de subsol). Ghidul te lasă să alegi un stil uzual (APA, MLA, Chicago); îl schimbi aici sau în fereastra exportului și îl precizezi în Introducere.
-- Exportă cu Texere · Export: șablonul „Disertație — Facultatea de Filosofie, UB” se alege singur (proprietatea export) și face pagina după ghid: A4, Times New Roman 12, spațiere 1,5, margini 2,5 cm stânga și 2 cm în rest, alineat 1,27 cm, capitolele pe pagină nouă, centrate și îngroșate, secțiunile îngroșate și indentate, coperta, cuprinsul cu paginile, numerele paginilor de la Introducere.
+- Exportă cu Texere: șablonul „Disertație — Facultatea de Filosofie, UB” se alege singur (proprietatea export) și face pagina după ghid: A4, Times New Roman 12, spațiere 1,5, margini 2,5 cm stânga și 2 cm în rest, alineat 1,27 cm, capitolele pe pagină nouă, centrate și îngroșate, secțiunile îngroșate și indentate, coperta, cuprinsul cu paginile, numerele paginilor de la Introducere.
 - Textele dintre semnele de procent (ca acesta) sunt doar pentru tine: nu intră în export.
 
 Câteva reguli din ghid:
 - Minimum orientativ: 30 de pagini; numărul depinde de temă și de recomandările coordonatorului.
 - Diacriticele sunt obligatorii.
-- Orice idee care nu e a ta se citează. Citatele directe: între ghilimele, cu sursa și pagina (ex. [@cheie, p. 34]). Evită citatele mai lungi de cinci rânduri și comentează fiecare citat.
+- Orice idee care nu e a ta se citează. Citatele directe: între ghilimele, cu referința și pagina (ex. [@cheie, p. 34]). Evită citatele mai lungi de cinci rânduri și comentează fiecare citat.
 - Coordonatorul: îl alegi în anul II de master, la data anunțată de secretariat. Cel puțin trei consultații directe cu el. Fără acordul lui scris nu te poți înscrie la susținere.
 %%
 
@@ -81,4 +81,4 @@ Rezumă contribuțiile lucrării, reia teza și argumentele principale; poate pr
 
 # Bibliografie
 
-%% Se face singură la export, din sursele citate în text ([@cheie, p. 12]), în stilul din csl. Obligatorie, la final. Ce scrii tu aici rămâne, sub ea. %%
+%% Se face singură la export, din referințele citate în text ([@cheie, p. 12]), în stilul din csl. Obligatorie, la final. Ce scrii tu aici rămâne, sub ea. %%

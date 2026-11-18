@@ -9,7 +9,7 @@ tags:
 
 # Primii pași în filosofie
 
-Ghidul acesta adună pe scurt ce spun la unison douăsprezece ghiduri de scris filosofic, o fișă despre teză și o lucrare-model adnotată: ce face un text bun sau slab, ce se schimbă când e vorba de filosofie și cuvintele care marchează fiecare mișcare. E valabil pentru un eseu de seminar, ca și pentru un articol, o lucrare de licență, o disertație sau un doctorat. Se schimbă dimensiunea, nu logica. Fiecare sursă e citată acolo unde e folosită și apare în bibliografia de la final.
+Ghidul acesta adună pe scurt ce spun la unison douăsprezece ghiduri de scris filosofic, o fișă despre teză și o lucrare-model adnotată: ce face un text bun sau slab, ce se schimbă când e vorba de filosofie și cuvintele care marchează fiecare mișcare. E valabil pentru un eseu de seminar, ca și pentru un articol, o lucrare de licență, o disertație sau un doctorat. Se schimbă dimensiunea, nu logica. Fiecare referință e citată acolo unde e folosită și apare în bibliografia de la final.
 
 > [!abstract] În cinci rânduri
 > 1. Răspunde la **o întrebare precisă** cu **o singură afirmație**, spusă devreme, într-o propoziție.
@@ -49,7 +49,7 @@ Unele obiceiuri de la alte materii nu se aplică: filosofia cere o precizie mai 
 |---|---|---|
 | **„Eu”** | Ține „cred că” departe de teză: o slăbește [@american_university_academic_support_center_writing_lab_thesis_2009] | „Voi argumenta că…” e binevenit. Ce se respinge e opinia în locul argumentului: „simt că”, „după părerea mea” [@rippon_brief_2008; @jones_how_nd] |
 | **Repetiția** | Variază cuvintele | Același cuvânt pentru același concept; un cuvânt nou semnalează un lucru nou [@pryor_guidelines_2012; @cartaya_how_nd] |
-| **Dovezile** | Surse, date, experți | Argumente; autoritatea și dicționarul nu tranșează nimic [@rippon_brief_2008] |
+| **Dovezile** | Referințe, date, experți | Argumente; autoritatea și dicționarul nu tranșează nimic [@rippon_brief_2008] |
 | **Cuvintele precise** | Sensul de zi cu zi | Valid, solid, adevărat, a dovedi, a respinge, a infera, petitio principii: fiecare are un sens tehnic [@huemer_guide_nd; @rippon_brief_2008] |
 | **Întrebările** | O întrebare retorică, să atragă cititorul | Formulează exact întrebarea, apoi răspunde-i; o întrebare retorică nu e un argument [@rippon_brief_2008; @jones_how_nd] |
 | **Citatele** | Sprijin pentru afirmații | Puține, scurte, fiecare explicat cu cuvintele tale [@rippon_brief_2008; @pryor_guidelines_2012] |
@@ -68,7 +68,7 @@ Scheletul e același la orice dimensiune [@rippon_brief_2008; @roberts_7_nd; @me
 6. **Obiecții și răspunsuri**: cea mai puternică obiecție, apoi răspunsul tău; una dezvoltată pe larg valorează mai mult decât mai multe în treacăt [@blattner_tips_nd; @rippon_brief_2008].
 7. **Concluzia**: ce ai arătat și ce rămâne deschis [@cartaya_how_nd; @mendelovici_sample_2010].
 
-**La scară mai mare.** Un articol adaugă dezbaterea în care intră și ce aduce nou în ea. O lucrare de licență, o disertație sau un doctorat repetă scheletul în fiecare capitol, fiecare cu întrebarea, teza și planul lui, iar literatura se discută în jurul afirmațiilor, nu autor cu autor: o discuție ordonată, nu un rezumat cu comentarii din când în când [@anon_how_nd]. Cercetarea empirică are forma ei (întrebări de cercetare, metodă, corpus, rezultate): vezi [[Metodologia cercetării - Structura unei lucrări științifice]] și [[Metodologia cercetării - Literature Review]]. Pentru regulile formale ale lucrărilor de licență și disertație de la Facultatea de Filosofie a Universității din București, vezi [[Ghid de redactare – Licență și disertație (Facultatea de Filosofie, Universitatea din București)]].
+**La scară mai mare.** Un articol adaugă dezbaterea în care intră și ce aduce nou în ea. O lucrare de licență, o disertație sau un doctorat repetă scheletul în fiecare capitol, fiecare cu întrebarea, teza și planul lui, iar literatura se discută în jurul afirmațiilor, nu autor cu autor: o discuție ordonată, nu un rezumat cu comentarii din când în când [@anon_how_nd]. Cercetarea empirică are forma ei (întrebări de cercetare, metodă, corpus, rezultate). Pentru regulile formale ale lucrărilor de licență și disertație de la Facultatea de Filosofie a Universității din București, vezi [[Ghid de redactare – Licență și disertație (Facultatea de Filosofie, Universitatea din București)]].
 
 ## 5. Cuvinte-cheie: cuvintele care marchează fiecare mișcare
 
@@ -137,10 +137,10 @@ Texere recunoaște cele mai multe dintre aceste cuvinte și doar în rolul pe ca
 
 | Pasul | În Texere |
 |---|---|
-| Găsești textul | **Surse** (Acasă → Surse): cauți după titlu, DOI sau ISBN ori îl aduci din Zotero |
-| Citești și marchezi | culorile PDF++ devin etichete în nota sursei (`#claim`, `#definition`, `#question`, `#disagree`) |
-| Înțelegi | **Distilează**: fiecare evidențiere cu cuvintele tale, salvată sub ea, deja citată |
-| Scrii | un șablon ([[Licență – Facultatea de Filosofie UB]], [[Disertație – Facultatea de Filosofie UB]] sau **New article**), `@` pentru citări, linia portocalie pentru afirmațiile fără citare |
+| Găsești textul | **Referințe** (Acasă → Referințe): cauți după titlu, DOI sau ISBN ori îl aduci din Zotero |
+| Citești și marchezi | culorile PDF++ devin etichete în nota de lectură (`#claim`, `#definition`, `#question`, `#disagree`) |
+| Înțelegi | **Distilează**: fiecare adnotare cu cuvintele tale, salvată sub ea, deja citată |
+| Scrii | un șablon ([[Licență – Facultatea de Filosofie UB]], [[Disertație – Facultatea de Filosofie UB]] sau **New essay**), `@` pentru citări, linia portocalie pentru afirmațiile fără citare |
 | Revizuiești | **Verifică ciorna**, liniile din margine și sublinierea punctată, **Insights → Cum scrii** |
 | Predai | **Export**: PDF sau Word, cu bibliografia în stilul tău |
 

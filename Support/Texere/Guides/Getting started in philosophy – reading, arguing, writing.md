@@ -9,7 +9,7 @@ tags:
 
 # Getting started in philosophy
 
-This guide condenses what twelve guides to philosophical writing, a handout on thesis statements and an annotated sample paper agree on: what makes a text good or bad, what changes when it is philosophy, and the words that mark each move. It holds for a seminar essay as much as for an article, a master's thesis or a PhD. The scale changes; the logic doesn't. Each source is cited where it is used and listed at the end.
+This guide condenses what twelve guides to philosophical writing, a handout on thesis statements and an annotated sample paper agree on: what makes a text good or bad, what changes when it is philosophy, and the words that mark each move. It holds for a seminar essay as much as for an article, a master's thesis or a PhD. The scale changes; the logic doesn't. Each reference is cited where it is used and listed at the end.
 
 > [!abstract] In five lines
 > 1. Answer **one precise question** with **one claim**, stated early, in one sentence.
@@ -68,7 +68,7 @@ The skeleton is the same at every size [@rippon_brief_2008; @roberts_7_nd; @mend
 6. **Objections and replies**: the strongest objection, then your answer; one developed fully is worth more than several in passing [@blattner_tips_nd; @rippon_brief_2008].
 7. **Conclusion**: what you showed and what remains open [@cartaya_how_nd; @mendelovici_sample_2010].
 
-**Scaling up.** An article adds the debate it enters and what it contributes to it. A master's thesis or a PhD repeats the skeleton in every chapter, each with its own question, thesis and roadmap, and the literature is discussed around claims, not author by author: an orderly argument, not a summary with occasional comments [@anon_how_nd]. Empirical research has its own shape (research questions, method, corpus, results): see [[Metodologia cercetării - Structura unei lucrări științifice]] and [[Metodologia cercetării - Literature Review]]. For the formal rules of a bachelor's or master's thesis at the Faculty of Philosophy (University of Bucharest), see [[Ghid de redactare – Licență și disertație (Facultatea de Filosofie, Universitatea din București)]].
+**Scaling up.** An article adds the debate it enters and what it contributes to it. A master's thesis or a PhD repeats the skeleton in every chapter, each with its own question, thesis and roadmap, and the literature is discussed around claims, not author by author: an orderly argument, not a summary with occasional comments [@anon_how_nd]. Empirical research has its own shape (research questions, method, corpus, results). For the formal rules of a bachelor's or master's thesis at the Faculty of Philosophy (University of Bucharest), see [[Ghid de redactare – Licență și disertație (Facultatea de Filosofie, Universitatea din București)]].
 
 ## 5. Keywords: the words that mark each move
 
@@ -137,9 +137,9 @@ Texere recognizes most of these words, and only in the role they play here: "sin
 
 | Step | In Texere |
 |---|---|
-| Find the text | **Sources** (Home → Sources): search by title, DOI or ISBN, or bring it from Zotero |
-| Read and mark | PDF++ colours become tags in the source's note (`#claim`, `#definition`, `#question`, `#disagree`) |
-| Understand it | **Distil**: each highlight in your own words, saved under it, already cited |
-| Write | a template ([[Licență – Facultatea de Filosofie UB]], [[Disertație – Facultatea de Filosofie UB]] or **New article**), `@` for citations, the orange line for claims without a citation |
+| Find the text | **References** (Home → References): search by title, DOI or ISBN, or bring it from Zotero |
+| Read and mark | PDF++ colours become tags in the reading note (`#claim`, `#definition`, `#question`, `#disagree`) |
+| Understand it | **Distil**: each annotation in your own words, saved under it, already cited |
+| Write | a template ([[Licență – Facultatea de Filosofie UB]], [[Disertație – Facultatea de Filosofie UB]] or **New essay**), `@` for citations, the orange line for claims without a citation |
 | Revise | **Check this draft**, the margin lines and the dotted underline, **Insights → How you write** |
 | Hand in | **Export**: PDF or Word, with the bibliography in your style |
