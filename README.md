@@ -1,6 +1,6 @@
 # Texere — The Researcher's Vault
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24501800.svg)](https://doi.org/10.5281/zenodo.24501800)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24501800.svg)](https://doi.org/10.5281/zenodo.24501800) [![Cognitive Centered Design Oath: signed](https://raw.githubusercontent.com/gorgmihai92/ccd-oath/main/badges/ccd-oath-signed.svg)](https://github.com/gorgmihai92/ccd-oath/blob/main/SIGNATORIES.md)
 
 > **This repository is the ready-made Obsidian vault**: download it, open it in Obsidian, and everything is set up. It is built on the [Texere plugin](https://github.com/gorgmihai92/texere-plugin), which you can also install in a vault you already have.
 
