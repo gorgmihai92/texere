@@ -1,5 +1,7 @@
 # Texere — The Researcher's Vault
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24501800.svg)](https://doi.org/10.5281/zenodo.24501800)
+
 > **This repository is the ready-made Obsidian vault**: download it, open it in Obsidian, and everything is set up. It is built on the [Texere plugin](https://github.com/gorgmihai92/texere-plugin), which you can also install in a vault you already have.
 
 Research is usually scattered across many applications and places: Zotero, Mendeley or EndNote, Word or Google Docs, a laptop, the cloud, a phone, USB sticks and external drives. Moving between them costs time and loses things along the way.
