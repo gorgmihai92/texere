@@ -48,7 +48,7 @@ Everything is plain Markdown on your computer. No account, no subscription.
 
 ## Inside
 
-One plugin, **Texere** (version 0.5.9), with modules you turn on or off in **Settings → Texere**:
+One plugin, **Texere** (version 0.5.10), with modules you turn on or off in **Settings → Texere**:
 
 - **References**: references, Zotero, citations, annotations and the bibliography.
 - **Export**: documents with citations and bibliography from References.
